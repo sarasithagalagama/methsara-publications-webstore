@@ -19,8 +19,9 @@
 
 | Student ID | Name | Scrum Role | System Component |
 |------------|------|------------|------------------|
-| IT24100548 | Galagama S.T | **Product Owner** | User & Authentication System |
+| N/A | Methsara Publications | **Product Owner** | Client Representative |
 | IT24100799 | Gawrawa G H Y | **Scrum Master** | Shopping Cart & Checkout |
+| IT24100548 | Galagama S.T | Developer | User & Authentication System |
 | IT24101314 | Appuhami H A P L | Developer | Publication & Catalog Manager |
 | IT24100191 | Jayasinghe D.B.P | Developer | Order & Transaction Management |
 | IT24100264 | Bandara N W C D | Developer | Inventory & Supplier System |
@@ -28,11 +29,11 @@
 
 ### Role Responsibilities
 
-#### Product Owner: Galagama S.T (IT24100548)
+#### Product Owner: Methsara Publications (Client)
 - Define product vision and goals
 - Maintain and prioritize Product Backlog
 - Accept or reject work results
-- Communicate with stakeholders (Methsara Publications)
+- Communicate business requirements and priorities
 - Make final decisions on feature priorities
 
 #### Scrum Master: Gawrawa G H Y (IT24100799)
@@ -42,8 +43,8 @@
 - Coach the team on Agile principles
 - Track and maintain Burndown charts
 
-#### Development Team: 4 Members
-**Members:** Appuhami H A P L, Jayasinghe D.B.P, Bandara N W C D, Perera M.U.E
+#### Development Team: 5 Members
+**Members:** Galagama S.T, Appuhami H A P L, Jayasinghe D.B.P, Bandara N W C D, Perera M.U.E
 
 **Traits:**
 - Self-management and self-organizing
@@ -547,7 +548,7 @@ To create a comprehensive, user-friendly e-commerce platform that enables Methsa
 ## 📈 Scrum Artifacts
 
 ### 1. Product Backlog
-- Maintained by: Product Owner (Galagama S.T)
+- Maintained by: Product Owner (Methsara Publications)
 - Contains: All user stories, bug fixes, technical improvements
 - Prioritized using MoSCoW method (Must, Should, Could, Won't)
 - Story points estimated using Fibonacci scale (1, 2, 3, 5, 8, 13, 21)
