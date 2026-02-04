@@ -7,8 +7,7 @@
 
 **Project Name**: Methsara Publications Webstore  
 **Project Key**: MPW  
-**Product Owner**: Methsara Publications  
-**Developer**: Galagama S.T  
+**Product Owner**: Methsara Publications
 **Total User Stories**: 52  
 **Total Epics**: 10
 
