@@ -8,7 +8,7 @@
 This guide helps you create a comprehensive **Product Backlog** in Jira for the Methsara Publications webstore project.
 
 **Total Duration**: Week 02  
-**Deliverables**: 6 Epics, 40-50 User Stories, All with acceptance criteria and story points
+**Deliverables**: 6 Epics, 37 User Stories, All with acceptance criteria and story points
 
 ---
 
@@ -18,9 +18,9 @@ This guide helps you create a comprehensive **Product Backlog** in Jira for the 
 |---------|-----------|-------------|
 | **E1** | **User & Identity** | Registration, login, role-based access, and security |
 | **E2** | **Catalog Discovery** | Book listings, grade/exam filtering, and search |
-| **E3** | **Checkout Flow** | Cart management, wishlist, and payment integration |
-| **E4** | **Order Management** | Processing, transaction tracking, and invoices |
-| **E5** | **Inventory & Supply** | Stock tracking, warehouse, and supplier relations |
+| **E3** | **Shopping, Checkout & Orders** | Cart, payment, order processing, and tracking |
+| **E4** | **Supplier Management** | Supplier relations and purchase orders |
+| **E5** | **Inventory Management** | Stock tracking, alerts, and adjustments |
 | **E6** | **Promotions** | Coupons, campaigns, and loyalty rewards |
 
 ---
@@ -31,9 +31,9 @@ This guide helps you create a comprehensive **Product Backlog** in Jira for the 
 |-----------|------|------|------------|
 | IT24100548 | Galagama S.T | E1: User & Identity | Authentication & Security |
 | IT24101314 | Appuhami H A P L | E2: Catalog Discovery | Product Browsing & Search |
-| IT24100799 | Gawrawa G H Y | E3: Checkout Flow | Cart & Payment |
-| IT24100191 | Jayasinghe D.B.P | E4: Order Management | Order Processing |
-| IT24100264 | Bandara N W C D | E5: Inventory & Supply | Stock & Suppliers |
+| IT24100191 | Jayasinghe D.B.P | E3: Shopping, Checkout & Orders | Complete Purchase Flow |
+| IT24100799 | Gawrawa G H Y | E4: Supplier Management | Supplier Relations |
+| IT24100264 | Bandara N W C D | E5: Inventory Management | Stock Tracking |
 | IT24101266 | Perera M.U.E | E6: Promotions | Marketing & Growth |
 
 ---
@@ -65,31 +65,31 @@ Priority: Highest
 Labels: catalog, search, core-feature
 ```
 
-#### E3: Checkout Flow
+#### E3: Shopping, Checkout & Orders
 ```
-Epic Name: Checkout Flow
-Summary: Shopping cart and checkout process
-Description: Cart management, wishlist functionality, and payment integration for seamless checkout.
+Epic Name: Shopping, Checkout & Orders
+Summary: Complete purchase and order flow
+Description: Cart operations, checkout, payment integration, order processing, tracking, and invoices.
 Priority: Highest
-Labels: cart, checkout, payment, revenue
+Labels: cart, checkout, payment, orders, revenue
 ```
 
-#### E4: Order Management
+#### E4: Supplier Management
 ```
-Epic Name: Order Management
-Summary: Order processing and tracking
-Description: Order processing, transaction tracking, invoices, and order history management.
-Priority: High
-Labels: orders, transactions, fulfillment
-```
-
-#### E5: Inventory & Supply
-```
-Epic Name: Inventory & Supply
-Summary: Inventory and supplier management
-Description: Stock tracking, warehouse management, and supplier relationship management.
+Epic Name: Supplier Management
+Summary: Supplier relations and procurement
+Description: Supplier information management and purchase order creation.
 Priority: Medium
-Labels: inventory, suppliers, operations
+Labels: suppliers, procurement, operations
+```
+
+#### E5: Inventory Management
+```
+Epic Name: Inventory Management
+Summary: Stock tracking and management
+Description: Real-time stock tracking, low stock alerts, and inventory adjustments.
+Priority: Medium
+Labels: inventory, stock, operations
 ```
 
 #### E6: Promotions
@@ -111,17 +111,18 @@ Labels: marketing, promotions, growth
    ↓
 2. E2: Catalog Discovery (SECOND - Core Value)
    ↓
-3. E3: Checkout Flow (THIRD - Revenue)
+3. E3: Shopping, Checkout & Orders (THIRD - Revenue)
    ↓
-4. E4: Order Management (FOURTH - Operations)
+4. E5: Inventory Management (FOURTH - Operations)
    ↓
-5. E5 & E6: Can be done in parallel (Enhancement)
+5. E4: Supplier Management (FIFTH - Procurement)
+   ↓
+6. E6: Promotions (SIXTH - Growth)
 ```
 
 ### Priority Levels
 - **Highest Priority (Must Have)**: E1, E2, E3
-- **High Priority (Should Have)**: E4
-- **Medium Priority (Could Have)**: E5, E6
+- **Medium Priority (Should Have)**: E4, E5, E6
 
 ---
 
@@ -174,7 +175,7 @@ So that I can find materials appropriate for my child's education level.
 
 ---
 
-#### Epic E3: Checkout Flow
+#### Epic E3: Shopping, Checkout & Orders
 **Story: Add Items to Cart**
 ```
 As a student,
@@ -242,7 +243,7 @@ By end of week, you should have:
 
 - ✅ Jira project created and configured
 - ✅ **6 Epics** created with descriptions
-- ✅ **40-50 User Stories** minimum
+- ✅ **37 User Stories** total
 - ✅ All stories with **acceptance criteria**
 - ✅ All stories **estimated** with story points
 - ✅ **Backlog prioritized** (High/Medium/Low)
@@ -255,13 +256,13 @@ By end of week, you should have:
 
 | Epic | Stories | Story Points |
 |------|---------|--------------|
-| E1: User & Identity | 5-8 | 20-30 |
-| E2: Catalog Discovery | 6-10 | 25-35 |
-| E3: Checkout Flow | 5-8 | 20-30 |
-| E4: Order Management | 4-6 | 20-28 |
-| E5: Inventory & Supply | 3-5 | 15-25 |
-| E6: Promotions | 4-6 | 18-28 |
-| **Total** | **27-43** | **118-176** |
+| E1: User & Identity | 6 | ~23 |
+| E2: Catalog Discovery | 8 | ~37 |
+| E3: Shopping, Checkout & Orders | 13 | ~64 |
+| E4: Supplier Management | 2 | ~13 |
+| E5: Inventory Management | 3 | ~11 |
+| E6: Promotions | 5 | ~29 |
+| **Total** | **37** | **~177** |
 
 ---
 
@@ -289,7 +290,7 @@ By end of week, you should have:
 ## ✅ Pre-Submission Checklist
 
 - [ ] All 6 Epics created in Jira
-- [ ] Minimum 40 user stories created
+- [ ] All 37 user stories created
 - [ ] All stories have acceptance criteria
 - [ ] All stories estimated with story points
 - [ ] Stories linked to appropriate Epics

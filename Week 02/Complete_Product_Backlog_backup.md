@@ -994,20 +994,22 @@ So that I can get rewards for being a repeat customer.
 |------|-----------|---------|----------|
 | E1 | User & Identity | 6 | Highest |
 | E2 | Catalog Discovery | 8 | Highest |
-| E3 | Shopping, Checkout & Orders | 13 | Highest |
-| E4 | Supplier Management | 2 | Medium |
+| E3 | Shopping Cart & Wishlist | 5 | Highest |
+| E4 | Order & Payment Processing | 8 | Highest |
 | E5 | Inventory Management | 3 | Medium |
-| E6 | Promotions | 5 | Medium |
+| E6 | Supplier Management | 2 | Low |
+| E7 | Promotions | 5 | Medium |
 | **Total** | | **37** | |
 
 ### Story Points Distribution
 
 - **E1: User & Identity**: ~23 points
 - **E2: Catalog Discovery**: ~37 points
-- **E3: Shopping, Checkout & Orders**: ~64 points
-- **E4: Supplier Management**: ~13 points
+- **E3: Shopping Cart & Wishlist**: ~20 points
+- **E4: Order & Payment Processing**: ~44 points
 - **E5: Inventory Management**: ~11 points
-- **E6: Promotions**: ~29 points
+- **E6: Supplier Management**: ~13 points
+- **E7: Promotions**: ~29 points
 - **Total Estimated**: ~177 points
 
 ---
@@ -1017,11 +1019,12 @@ So that I can get rewards for being a repeat customer.
 - All stories follow the format: "As a [user], I want [goal], So that [benefit]"
 - Each story includes acceptance criteria, story points, priority, and labels
 - Stories are ready to be imported into Jira
-- Link each story to its respective Epic (E1-E6) in Jira
+- Link each story to its respective Epic (E1-E7) in Jira
 - Adjust story points during sprint planning based on team velocity
 
 ---
 
-**Document Version**: 4.0 (6-Epic Final Structure)  
+**Document Version**: 3.0 (7-Epic Structure)  
 **Last Updated**: February 5, 2026  
 **Ready for Jira Import**: ✅
+
