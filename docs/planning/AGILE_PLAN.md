@@ -45,12 +45,14 @@ This project aims to develop a full-stack e-commerce web application for Methsar
 
 ### Sprint 2: The Transaction
 **Goal:** Enable purchasing and order management.
-- **Stories:**
-  - Shopping Cart functionality
-  - Checkout Process (Guest & User)
-  - Payment Gateway Integration (Stripe/Sandbox)
-  - Order Creation & Management
-  - User Profile & Order History
+- **Epics:**
+  - **E1: User & Admin Component** - Registration, login, role-based access, and security
+  - **E2: Product Catalog Component** - Book listings, grade/exam filtering, and search
+  - **E3: Order & Transaction Component** - Cart, checkout, payment, order processing, and tracking
+  - **E4: Supplier Management Component** - Supplier relations and purchase orders
+  - **E5: Inventory Management Component** - Stock tracking, alerts, and adjustments
+  - **E6: Promotion & Loyalty Component** - Coupons, campaigns, and loyalty rewards
+  - Admin Dashboards & Reporting
 
 ### Sprint 3: The Operations
 **Goal:** Inventory control and business growth tools.

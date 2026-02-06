@@ -13,18 +13,18 @@
 
 | Epic ID | Epic Name | Stories | Points | Priority | Assigned To | IT Number |
 |---------|-----------|---------|--------|----------|-------------|-----------|
-| **E1** | User & Identity | 6 | ~23 | Highest | Galagama S.T | IT24100548 |
-| **E2** | Catalog Discovery | 8 | ~37 | Highest | Appuhami H A P L | IT24101314 |
-| **E3** | Shopping, Checkout & Orders | 13 | ~64 | Highest | Jayasinghe D.B.P | IT24100191 |
-| **E4** | Supplier Management | 2 | ~13 | Medium | Gawrawa G H Y | IT24100799 |
-| **E5** | Inventory Management | 3 | ~11 | Medium | Bandara N W C D | IT24100264 |
-| **E6** | Promotions | 5 | ~29 | Medium | Perera M.U.E | IT24101266 |
+| **E1** | User & Admin Component | 6 | ~23 | Highest | Galagama S.T | IT24100548 |
+| **E2** | Product Catalog Component | 8 | ~37 | Highest | Appuhami H A P L | IT24101314 |
+| **E3** | Order & Transaction Component | 13 | ~64 | Highest | Jayasinghe D.B.P | IT24100191 |
+| **E4** | Supplier Management Component | 2 | ~13 | Medium | Gawrawa G H Y | IT24100799 |
+| **E5** | Inventory Management Component | 3 | ~11 | Medium | Bandara N W C D | IT24100264 |
+| **E6** | Promotion & Loyalty Component | 5 | ~29 | Medium | Perera M.U.E | IT24101266 |
 
 ---
 
 ## Epic Details
 
-### E1: User & Identity
+### E1: User & Admin Component
 **Assigned To**: Galagama S.T (IT24100548)  
 **Description**: Registration, login, role-based access, and security  
 **Stories**: 6 | **Points**: ~23
@@ -36,7 +36,7 @@
 - E1.5: Role-Based Access Control (5 pts)
 - E1.6: User Profile Management (3 pts)
 
-### E2: Catalog Discovery
+### E2: Product Catalog Component
 **Assigned To**: Appuhami H A P L (IT24101314)  
 **Description**: Book listings, grade/exam filtering, and search  
 **Stories**: 8 | **Points**: ~37
@@ -50,7 +50,7 @@
 - E2.7: Filter by Exam Type (3 pts)
 - E2.8: Product Reviews and Ratings (8 pts)
 
-### E3: Shopping, Checkout & Orders
+### E3: Order & Transaction Component
 **Assigned To**: Jayasinghe D.B.P (IT24100191)  
 **Description**: Cart, payment, order processing, and tracking  
 **Stories**: 13 | **Points**: ~64
@@ -74,7 +74,7 @@
 - E3.12: Generate Invoice (5 pts)
 - E3.13: Admin Order Management (8 pts)
 
-### E4: Supplier Management
+### E4: Supplier Management Component
 **Assigned To**: Gawrawa G H Y (IT24100799)  
 **Description**: Supplier relations and purchase orders  
 **Stories**: 2 | **Points**: ~13
@@ -82,7 +82,7 @@
 - E4.1: Manage Suppliers (5 pts)
 - E4.2: Create Purchase Orders (8 pts)
 
-### E5: Inventory Management
+### E5: Inventory Management Component
 **Assigned To**: Bandara N W C D (IT24100264)  
 **Description**: Stock tracking, alerts, and adjustments  
 **Stories**: 3 | **Points**: ~11
@@ -91,7 +91,7 @@
 - E5.2: Low Stock Alerts (3 pts)
 - E5.3: Stock Adjustment (3 pts)
 
-### E6: Promotions
+### E6: Promotion & Loyalty Component
 **Assigned To**: Perera M.U.E (IT24101266)  
 **Description**: Coupons, campaigns, and loyalty rewards  
 **Stories**: 5 | **Points**: ~29
@@ -107,17 +107,17 @@
 ## Implementation Priority
 
 ```
-1. E1: User & Identity (Foundation)
+1. E1: User & Admin Component (Foundation)
    ↓
-2. E2: Catalog Discovery (Core Value)
+2. E2: Product Catalog Component (Core Value)
    ↓
-3. E3: Shopping, Checkout & Orders (Revenue)
+3. E3: Order & Transaction Component (Revenue)
    ↓
-4. E5: Inventory Management (Operations)
+4. E5: Inventory Management Component (Operations)
    ↓
-5. E4: Supplier Management (Procurement)
+5. E4: Supplier Management Component (Procurement)
    ↓
-6. E6: Promotions (Growth)
+6. E6: Promotion & Loyalty Component (Growth)
 ```
 
 ---

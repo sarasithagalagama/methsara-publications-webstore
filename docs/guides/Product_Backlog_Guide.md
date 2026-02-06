@@ -59,16 +59,12 @@ The Product Backlog is a living document that contains:
 ### Step 3: Create Epics
 Organize your backlog into major feature areas (Epics):
 
-1. **User Authentication & Authorization**
-2. **Product Catalog Management**
-3. **Shopping Cart & Checkout**
-4. **Order & Transaction Management**
-5. **Payment Integration**
-6. **Admin Dashboard**
-7. **Search & Filter Functionality**
-8. **User Profile Management**
-9. **Inventory Management**
-10. **Reporting & Analytics**
+1. **User & Admin Component**
+2. **Product Catalog Component**
+3. **Order & Transaction Component**
+4. **Supplier Management Component**
+5. **Inventory Management Component**
+6. **Promotion & Loyalty Component**
 
 ---
 
@@ -83,7 +79,7 @@ So that [benefit/value].
 
 ### Example User Stories for Methsara Publications:
 
-#### Epic: Product Catalog Management
+#### Epic: Product Catalog Component
 **Story 1: Browse Educational Materials**
 ```
 As a teacher,
@@ -119,7 +115,7 @@ So that I can make an informed purchase decision.
 
 ---
 
-#### Epic: Shopping Cart & Checkout
+#### Epic: Order & Transaction Component
 **Story 3: Add Items to Cart**
 ```
 As a student,
@@ -157,7 +153,7 @@ So that I can receive my educational materials.
 
 ---
 
-#### Epic: User Authentication
+#### Epic: User & Admin Component
 **Story 5: User Registration**
 ```
 As a new customer,
@@ -194,7 +190,7 @@ So that I can access my order history and saved information.
 
 ---
 
-#### Epic: Admin Dashboard
+#### Epic: User & Admin Component
 **Story 7: Manage Products**
 ```
 As an admin,
@@ -232,7 +228,7 @@ So that I can make informed business decisions.
 
 ---
 
-#### Epic: Search & Filter
+#### Epic: Product Catalog Component
 **Story 9: Search Products**
 ```
 As a customer,
@@ -251,7 +247,7 @@ So that I can quickly find what I need.
 
 ---
 
-#### Epic: Order Management
+#### Epic: Order & Transaction Component
 **Story 10: Track Orders**
 ```
 As a customer,

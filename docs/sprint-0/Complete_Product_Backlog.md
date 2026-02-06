@@ -12,16 +12,16 @@
 **Total Epics**: 6
 
 **Epic Structure**:
-- **E1: User & Identity** - Registration, login, role-based access, and security
-- **E2: Catalog Discovery** - Book listings, grade/exam filtering, and search
-- **E3: Shopping, Checkout & Orders** - Cart, checkout, payment, order processing, and tracking
-- **E4: Supplier Management** - Supplier relations and purchase orders
-- **E5: Inventory Management** - Stock tracking, alerts, and adjustments
-- **E6: Promotions** - Coupons, campaigns, and loyalty rewards
+- **E1: User & Admin Component** - Registration, login, role-based access, and security
+- **E2: Product Catalog Component** - Book listings, grade/exam filtering, and search
+- **E3: Order & Transaction Component** - Cart, checkout, payment, order processing, and tracking
+- **E4: Supplier Management Component** - Supplier relations and purchase orders
+- **E5: Inventory Management Component** - Stock tracking, alerts, and adjustments
+- **E6: Promotion & Loyalty Component** - Coupons, campaigns, and loyalty rewards
 
 ---
 
-# Epic 1 (E1): User & Identity
+# Epic 1 (E1): User & Admin Component
 
 **Epic Description**: Registration, login, role-based access, and security  
 **Priority**: Highest  
@@ -174,7 +174,7 @@ So that my account details remain current.
 
 ---
 
-# Epic 2 (E2): Catalog Discovery
+# Epic 2 (E2): Product Catalog Component
 
 **Epic Description**: Book listings, grade/exam filtering, and search  
 **Priority**: Highest  
@@ -379,7 +379,7 @@ So that I can make better purchasing decisions and share my experience.
 
 ---
 
-# Epic 3 (E3): Shopping, Checkout & Orders
+# Epic 3 (E3): Order & Transaction Component
 
 **Epic Description**: Cart, checkout, payment, order processing, and tracking  
 **Priority**: Highest  
@@ -546,7 +546,7 @@ So that I can process and fulfill orders efficiently.
 
 ---
 
-# Epic 4 (E4): Supplier Management
+# Epic 4 (E4): Supplier Management Component
 
 **Epic Description**: Supplier relations and purchase orders  
 **Priority**: Medium  
@@ -763,7 +763,7 @@ So that I can process and fulfill orders efficiently.
 
 ---
 
-# Epic 6 (E6): Promotions
+# Epic 6 (E6): Promotion & Loyalty Component
 
 **Epic Description**: Coupons, campaigns, and loyalty rewards  
 **Priority**: Medium  
@@ -992,22 +992,21 @@ So that I can get rewards for being a repeat customer.
 
 | Epic | Epic Name | Stories | Priority |
 |------|-----------|---------|----------|
-| E1 | User & Identity | 6 | Highest |
-| E2 | Catalog Discovery | 8 | Highest |
-| E3 | Shopping, Checkout & Orders | 13 | Highest |
-| E4 | Supplier Management | 2 | Medium |
-| E5 | Inventory Management | 3 | Medium |
-| E6 | Promotions | 5 | Medium |
+| E1 | User & Admin Component | 6 | Highest |
+| E2 | Product Catalog Component | 8 | Highest |
+| E3 | Order & Transaction Component | 13 | Highest |
+| E4 | Supplier Management Component | 2 | Medium |
+| E5 | Inventory Management Component | 3 | High |
+| E6 | Promotion & Loyalty Component | 5 | Medium |
 | **Total** | | **37** | |
 
-### Story Points Distribution
-
-- **E1: User & Identity**: ~23 points
-- **E2: Catalog Discovery**: ~37 points
-- **E3: Shopping, Checkout & Orders**: ~64 points
-- **E4: Supplier Management**: ~13 points
-- **E5: Inventory Management**: ~11 points
-- **E6: Promotions**: ~29 points
+### Story Points Summary
+- **E1: User & Admin Component**: ~23 points
+- **E2: Product Catalog Component**: ~37 points
+- **E3: Order & Transaction Component**: ~64 points
+- **E4: Supplier Management Component**: ~13 points
+- **E5: Inventory Management Component**: ~11 points
+- **E6: Promotion & Loyalty Component**: ~29 points
 - **Total Estimated**: ~177 points
 
 ---

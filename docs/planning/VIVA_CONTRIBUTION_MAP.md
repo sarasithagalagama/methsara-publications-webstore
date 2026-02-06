@@ -6,7 +6,7 @@ To ensure fair grading and clear demonstration of individual work during the Viv
 ---
 
 ### 🟢 Galagama S.T (IT24100548)
-**Epic 1: User & Identity**
+**Epic 1: User & Admin Component**
 - **Core Responsibility:** Authentication Architecture
 - **Key Deliverables:** 
   - Login/Register API & UI
@@ -18,7 +18,7 @@ To ensure fair grading and clear demonstration of individual work during the Viv
 ---
 
 ### 🟢 Appuhami H A P L (IT24101314)
-**Epic 2: Catalog Discovery**
+**Epic 2: Product Catalog Component**
 - **Core Responsibility:** Product Data Management
 - **Key Deliverables:**
   - Product Database Schema
@@ -30,7 +30,7 @@ To ensure fair grading and clear demonstration of individual work during the Viv
 ---
 
 ### 🟢 Jayasinghe D.B.P (IT24100191)
-**Epic 3: Shopping, Checkout & Orders**
+**Epic 3: Order & Transaction Component**
 - **Core Responsibility:** Transaction Flow
 - **Key Deliverables:**
   - Shopping Cart State Management
@@ -42,7 +42,7 @@ To ensure fair grading and clear demonstration of individual work during the Viv
 ---
 
 ### 🟢 Gawrawa G H Y (IT24100799)
-**Epic 4: Supplier Management**
+**Epic 4: Supplier Management Component**
 - **Core Responsibility:** Procurement & Admin
 - **Key Deliverables:**
   - Supplier CRUD Operations
@@ -53,7 +53,7 @@ To ensure fair grading and clear demonstration of individual work during the Viv
 ---
 
 ### 🟢 Bandara N W C D (IT24100264)
-**Epic 5: Inventory Management**
+**Epic 5: Inventory Management Component**
 - **Core Responsibility:** Stock Control
 - **Key Deliverables:**
   - Stock Level Tracking
@@ -64,7 +64,7 @@ To ensure fair grading and clear demonstration of individual work during the Viv
 ---
 
 ### 🟢 Perera M.U.E (IT24101266)
-**Epic 6: Promotions**
+**Epic 6: Promotion & Loyalty Component**
 - **Core Responsibility:** Marketing Features
 - **Key Deliverables:**
   - Coupon Code Logic & API

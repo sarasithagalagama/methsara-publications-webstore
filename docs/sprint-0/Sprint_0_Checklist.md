@@ -32,54 +32,57 @@
 
 Create the following Epics with descriptions:
 
-#### Epic 1: User & Identity
+#### Epic 1: User & Admin Component
+*   **Goal:** User registration, login, and security.
 ```
-Epic Name: User & Identity
+Epic Name: User & Admin Component
 Summary: User authentication and security
 Description: Registration, login, role-based access, and security features
 Priority: Highest
 Labels: authentication, security, foundation
 ```
 
-#### Epic 2: Catalog Discovery
+#### Epic 2: Product Catalog Component
+*   **Goal:** Browsing and searching for books.
 ```
-Epic Name: Catalog Discovery
+Epic Name: Product Catalog Component
 Summary: Product browsing and search
 Description: Book listings, grade/exam filtering, search, and product details
 Priority: Highest
 Labels: catalog, search, core-feature
 ```
 
-#### Epic 3: Shopping, Checkout & Orders
+#### Epic 3: Order & Transaction Component
+*   **Goal:** Cart management and checkout process.
 ```
-Epic Name: Shopping, Checkout & Orders
+Epic Name: Order & Transaction Component
 Summary: Complete purchase and order flow
 Description: Cart operations, checkout, payment, order processing, and tracking
 Priority: Highest
 Labels: cart, checkout, payment, orders, revenue
 ```
 
-#### Epic 4: Supplier Management
+#### Epic 4: Supplier Management Component
 ```
-Epic Name: Supplier Management
+Epic Name: Supplier Management Component
 Summary: Supplier relations and procurement
 Description: Supplier information management and purchase order creation
 Priority: Medium
 Labels: suppliers, procurement, operations
 ```
 
-#### Epic 5: Inventory Management
+#### Epic 5: Inventory Management Component
 ```
-Epic Name: Inventory Management
+Epic Name: Inventory Management Component
 Summary: Stock tracking and management
 Description: Real-time stock tracking, low stock alerts, and inventory adjustments
 Priority: Medium
 Labels: inventory, stock, operations
 ```
 
-#### Epic 6: Promotions
+#### Epic 6: Promotion & Loyalty Component
 ```
-Epic Name: Promotions
+Epic Name: Promotion & Loyalty Component
 Summary: Marketing and promotional features
 Description: Coupons, discount campaigns, loyalty rewards, and gift vouchers
 Priority: Medium
@@ -88,7 +91,7 @@ Labels: marketing, promotions, growth
 
 ---
 
-### 3. Create 37 User Stories
+### 3. User Stories Created & Validated
 
 Use the **Complete_Product_Backlog.md** file as your reference. For each story:
 
@@ -113,12 +116,12 @@ Labels: [relevant tags]
 ```
 
 #### Story Distribution
-- **E1: User & Identity** - 6 stories (~23 points)
-- **E2: Catalog Discovery** - 8 stories (~37 points)
-- **E3: Shopping, Checkout & Orders** - 13 stories (~64 points)
-- **E4: Supplier Management** - 2 stories (~13 points)
-- **E5: Inventory Management** - 3 stories (~11 points)
-- **E6: Promotions** - 5 stories (~29 points)
+- **E1: User & Admin Component** - 6 stories (~23 points)
+- **E2: Product Catalog Component** - 8 stories (~37 points)
+- **E3: Order & Transaction Component** - 13 stories (~64 points)
+- **E4: Supplier Management Component** - 2 stories (~13 points)
+- **E5: Inventory Management Component** - 3 stories (~11 points)
+- **E6: Promotion & Loyalty Component** - 5 stories (~29 points)
 
 ---
 
@@ -128,12 +131,12 @@ Based on the 6-Epic structure:
 
 | IT Number | Name | Epic Assignment | Stories | Points |
 |-----------|------|-----------------|---------|--------|
-| IT24100548 | Galagama S.T | E1: User & Identity | 6 | ~23 |
-| IT24101314 | Appuhami H A P L | E2: Catalog Discovery | 8 | ~37 |
-| IT24100191 | Jayasinghe D.B.P | E3: Shopping, Checkout & Orders | 13 | ~64 |
-| IT24100799 | Gawrawa G H Y | E4: Supplier Management | 2 | ~13 |
-| IT24100264 | Bandara N W C D | E5: Inventory Management | 3 | ~11 |
-| IT24101266 | Perera M.U.E | E6: Promotions | 5 | ~29 |
+| IT24100548 | Galagama S.T | E1: User & Admin Component | 6 | ~23 |
+| IT24101314 | Appuhami H A P L | E2: Product Catalog Component | 8 | ~37 |
+| IT24100191 | Jayasinghe D.B.P | E3: Order & Transaction Component | 13 | ~64 |
+| IT24100799 | Gawrawa G H Y | E4: Supplier Management Component | 2 | ~13 |
+| IT24100264 | Bandara N W C D | E5: Inventory Management Component | 3 | ~11 |
+| IT24101266 | Perera M.U.E | E6: Promotion & Loyalty Component | 5 | ~29 |
 
 #### How to Assign in Jira:
 1. **Bulk Assignment by Epic**:

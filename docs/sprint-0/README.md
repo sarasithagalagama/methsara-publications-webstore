@@ -117,12 +117,12 @@ Development Team: 6 Members
     ↓ Builds the product
     
 Each developer owns 1 Epic:
-- Galagama S.T → User & Identity
-- Appuhami H A P L → Catalog Discovery
-- Jayasinghe D.B.P → Shopping, Checkout & Orders
-- Gawrawa G H Y → Supplier Management
-- Bandara N W C D → Inventory Management
-- Perera M.U.E → Promotions
+- Galagama S.T → User & Admin Component
+- Appuhami H A P L → Product Catalog Component
+- Jayasinghe D.B.P → Order & Transaction Component
+- Gawrawa G H Y → Supplier Management Component
+- Bandara N W C D → Inventory Management Component
+- Perera M.U.E → Promotion & Loyalty Component
 ```
 
 ---
