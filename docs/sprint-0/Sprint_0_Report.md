@@ -1,0 +1,199 @@
+
+Sri Lanka Institute of Information Technology
+
+**Title of the Project:** Methsara Publications Webstore
+
+**Sprint 0**
+**Information Systems Project 2026**
+
+**Project ID:** [Insert Project ID]
+
+**Submitted by:**
+
+1. IT24100548 – Galagama S.T
+2. IT24101314 – Appuhami H A P L
+3. IT24100191 – Jayasinghe D.B.P
+4. IT24100799 – Gawrawa G H Y
+5. IT24100264 – Bandara N W C D
+6. IT24101266 – Perera M.U.E
+
+**Submitted to:**
+
+(Supervisor’s signature)
+…………………………..
+
+**Name of the supervisor:** [Insert Supervisor Name]
+
+**Date of submission:** [Insert Date]
+
+**Team Members:**
+
+| Student ID | Student Name | Role (Product Owner / Scrum Master / Team Member) |
+|---|---|---|
+| IT24100548 | Galagama S.T | Team Member (Dev - Epic 1) |
+| IT24101314 | Appuhami H A P L | Team Member (Dev - Epic 2) |
+| IT24100191 | Jayasinghe D.B.P | Team Member (Dev - Epic 3) |
+| IT24100799 | Gawrawa G H Y | Scrum Master & Dev (Epic 4) |
+| IT24100264 | Bandara N W C D | Team Member (Dev - Epic 5) |
+| IT24101266 | Perera M.U.E | Team Member (Dev - Epic 6) |
+| - | Methsara Publications | Product Owner |
+
+---
+
+### 1. Problem Identification
+
+**Problem Statement:**
+Students, parents, and teachers currently lack a centralized, accessible digital platform to purchase Methsara Publications' educational materials. This forces them to rely on physical bookshops, which may have limited stock or be inconvenient to access. Methsara Publications also faces limited market reach and inefficiencies in manual order processing.
+
+**Why is this problem important?**
+• **Accessibility:** Digital access to education resources is now a necessity. Physical stock limitations prevent students from getting exam materials on time.
+• **Convenience:** Parents and teachers need a way to order bulk or individual items without physical travel.
+• **Business Growth:** Competitors are moving online; without a digital presence, Methsara Publications risks losing market share.
+
+### 2. Stakeholder Identification
+
+**List and categorize key stakeholders:**
+
+| Stakeholder | Type (Primary / Secondary / Tertiary) | Interest / Concern |
+|---|---|---|
+| Methsara Publications | Primary | Increased sales, broader market reach, efficient inventory management. |
+| Students & Parents | Primary | Easy access to books, secure payments, quick home delivery. |
+| Teachers / Schools | Secondary | Bulk ordering facilities, curriculum alignment, resource availability. |
+| Delivery Partners | Tertiary | Accurate pickup/delivery details, timely order readiness. |
+| Payment Gateway | Tertiary | Secure and reliable transaction processing. |
+
+### 3. Product Vision Statement
+
+**Vision:**
+To create Sri Lanka’s most student-centric digital bookstore, empowering learners with instant access to quality educational resources through a seamless, secure, and user-friendly online platform.
+
+**Template Structure:**
+For **Students, Parents, and Teachers**,
+Who **need reliable access to educational publications**,
+The product **Methsara Publications Webstore**
+Provides **a seamless, secure, and 24/7 accessible online platform for purchasing books and resources.**
+
+### 4. Epics
+
+**Identify at least 6 Epics:**
+
+| Epic ID | Epic Description |
+|---|---|
+| **E1** | **User & Admin Component:** Registration, login, role-based access control (RBAC), and security features. |
+| **E2** | **Product Catalog Component:** Book listings, grade/exam filtering (O/L, A/L), advanced search, and product details. |
+| **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment gateway integration, and order tracking. |
+| **E4** | **Supplier Management Component:** Management of supplier information and purchase orders for restocking. |
+| **E5** | **Inventory Management Component:** Real-time stock tracking, low stock alerts, and inventory adjustments. |
+| **E6** | **Promotion & Loyalty Component:** Coupon codes, discount campaigns, and customer loyalty rewards system. |
+
+### 5. User Stories
+
+**Identify all possible user stories for the Epics identified in above section:**
+
+| Epic ID | User Story ID | User Story | Stakeholder |
+|---|---|---|---|
+| E1 | E1.1 | As a new customer, I want to create an account, so that I can track orders. | Customer |
+| E1 | E1.2 | As a registered customer, I want to log in, so that I can access my history. | Customer |
+| E1 | E1.3 | As a customer, I want to reset my password, so that I can regain access. | Customer |
+| E1 | E1.4 | As a logged-in user, I want to log out, so that I can secure my account. | Customer |
+| E1 | E1.5 | As an admin, I want role-based access, so that I can control system access. | Admin |
+| E1 | E1.6 | As a user, I want to update my profile, so that my details are current. | User |
+| E2 | E2.1 | As a teacher, I want to browse by category, so that I find relevant resources. | Teacher |
+| E2 | E2.2 | As a parent, I want to filter by grade, so that I find appropriate materials. | Parent |
+| E2 | E2.3 | As a student, I want to filter by subject, so that I find specific items. | Student |
+| E2 | E2.4 | As a customer, I want to view product details, so that I make informed choices. | Customer |
+| E2 | E2.5 | As a customer, I want to search for books, so that I find them quickly. | Customer |
+| E2 | E2.6 | As a customer, I want to sort products, so that I find the best match. | Customer |
+| E2 | E2.7 | As a student, I want to filter by exam type, so that I prep for O/L or A/L. | Student |
+| E2 | E2.8 | As a customer, I want to read reviews, so that I see others' feedback. | Customer |
+| E3 | E3.1 | As a customer, I want to add items to cart, so that I can buy them. | Customer |
+| E3 | E3.2 | As a customer, I want to view my cart, so that I can review items. | Customer |
+| E3 | E3.3 | As a customer, I want to update quantities, so that I get the right amount. | Customer |
+| E3 | E3.4 | As a customer, I want to remove items, so that I don't buy unwanted items. | Customer |
+| E3 | E3.5 | As a customer, I want to apply coupons, so that I get a discount. | Customer |
+| E3 | E3.6 | As a customer, I want to complete checkout, so that I receive my order. | Customer |
+| E3 | E3.7 | As a guest, I want to checkout without account, so that I buy quickly. | Guest |
+| E3 | E3.8 | As a customer, I want order confirmation, so that I have proof of purchase.| Customer |
+| E3 | E3.9 | As a customer, I want to view order history, so that I track purchases. | Customer |
+| E3 | E3.10 | As a customer, I want to track status, so that I know delivery time. | Customer |
+| E3 | E3.11 | As a customer, I want to cancel orders, so that I stop unwanted shipments.| Customer |
+| E3 | E3.12 | As a customer, I want an invoice, so that I have payment proof. | Customer |
+| E3 | E3.13 | As an admin, I want to manage orders, so that I can fulfill them. | Admin |
+| E4 | E4.1 | As an admin, I want to manage suppliers, so that I can contact them. | Admin |
+| E4 | E4.2 | As an admin, I want to create purchase orders, so that I can restock. | Admin |
+| E5 | E5.1 | As an admin, I want to track stock, so that I know availability. | Admin |
+| E5 | E5.2 | As an admin, I want low stock alerts, so that I can reorder in time. | Admin |
+| E5 | E5.3 | As an admin, I want to update stock levels, so that inventory is accurate.| Admin |
+| E6 | E6.1 | As an admin, I want to create coupons, so that I run promotions. | Admin |
+| E6 | E6.2 | As an admin, I want to manage user rules, so that I control usage. | Admin |
+| E6 | E6.3 | As an admin, I want to view coupon reports, so that I measure success. | Admin |
+| E6 | E6.4 | As a customer, I want to buy gift vouchers, so that I can gift them. | Customer |
+| E6 | E6.5 | As a customer, I want to earn loyalty points, so that I get rewards. | Customer |
+
+### 6. Initial Product Backlog
+
+**Prioritize user stories based on value:**
+
+| User Story ID | Remarks | Estimated story points | Estimated hours | Priority (High / Medium / Low) |
+|---|---|---|---|---|
+| E1.1 | Registration | 5 | - | High |
+| E1.2 | Login | 3 | - | High |
+| E1.5 | RBAC | 5 | - | High |
+| E2.1 | Browse Category| 5 | - | High |
+| E2.2 | Filter Grade | 5 | - | High |
+| E2.3 | Filter Subject | 3 | - | High |
+| E2.4 | Product Details| 5 | - | High |
+| E2.5 | Search | 5 | - | High |
+| E2.7 | Filter Exam | 3 | - | High |
+| E3.1 | Add to Cart | 5 | - | High |
+| E3.2 | View Cart | 5 | - | High |
+| E3.6 | Checkout | 8 | - | High |
+| E3.8 | Confirmation | 3 | - | High |
+| E3.13 | Admin Orders | 8 | - | High |
+| E5.1 | Track Stock | 5 | - | High |
+| E1.3 | Password Reset | 5 | - | Medium |
+| E1.4 | Logout | 2 | - | Medium |
+| E1.6 | Profile | 3 | - | Medium |
+| E2.6 | Sort | 3 | - | Medium |
+| E3.3 | Update Cart | 3 | - | Medium |
+| E3.4 | Remove Item | 2 | - | Medium |
+| E3.7 | Guest Check. | 5 | - | Medium |
+| E3.9 | Order History | 5 | - | Medium |
+| E3.10 | Track Order | 5 | - | Medium |
+| E3.12 | Invoice | 5 | - | Medium |
+| E4.1 | Manage Supp. | 5 | - | Medium |
+| E4.2 | Purch. Orders | 8 | - | Medium |
+| E5.2 | Stock Alerts | 3 | - | Medium |
+| E5.3 | Update Stock | 3 | - | Medium |
+| E6.1 | Create Coupon | 5 | - | Medium |
+| E6.2 | Coupon Rules | 3 | - | Medium |
+| E2.8 | Reviews | 8 | - | Low |
+| E3.5 | Discounts | 5 | - | Low |
+| E3.11 | Cancel Order | 5 | - | Low |
+| E6.3 | View Reports | 5 | - | Low |
+| E6.4 | Gift Vouchers | 8 | - | Low |
+| E6.5 | Earn Points | 8 | - | Low |
+
+*Note: Some user stories were renumbered to align with the correct Epic structure.*
+
+### 7. Definition of Done (DoD)
+
+**General Definition of Done for all User Stories:**
+• Code is written, tested, and committed to the repository.
+• Unit tests passed with at least 80% coverage.
+• Code reviewed by a peer (Pull Request approved).
+• Feature functionality verified manually in the staging environment.
+• Acceptance criteria for the story are fully met.
+• No critical bugs or high-severity issues remaining.
+
+### 8. Sprint 1 Preview
+
+**Planned Epics/Stories for Sprint 1:**
+• **Focus:** Establishing the Core Foundation (Authentication & Product Catalog).
+• **Selected Epics:** E1 (User & Admin) and E2 (Product Catalog).
+• **Key Stories:**
+    - E1.1 User Registration (5 pts)
+    - E1.2 User Login (3 pts)
+    - E2.1 Browse Products by Category (5 pts)
+    - E2.5 Product Search (5 pts)
+• **Goal:** To have a secured platform where users can register, login, and browse/search for educational materials by the end of Sprint 1.
