@@ -185,19 +185,40 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 ### 7. Definition of Done (DoD)
 
-**General Definition of Done for all User Stories:**
-• Code is written, tested, and committed to the repository.
-• Unit tests passed with at least 80% coverage.
-• Code reviewed by a peer (Pull Request approved).
-• Feature functionality verified manually in the staging environment.
-• Acceptance criteria for the story are fully met.
-• No critical bugs or high-severity issues remaining.
+**General Definition of Done (DoD)**
+
+For any User Story or Epic to be considered "Done," the following criteria must be met:
+
+*   [ ] **Code Quality:** Code is written, follows project standards, and passes linting checks.
+*   [ ] **Testing:** Unit tests cover critical paths (>80% coverage) and pass successfully.
+*   [ ] **Review:** Code is committed, pushed, and approved via Pull Request (PR) by at least one peer.
+*   [ ] **Verification:** Feature functionality is manually verified in the staging environment against acceptance criteria.
+*   [ ] **Acceptance Criteria:** All specific acceptance criteria for the user story are fully met.
+*   [ ] **No Bugs:** No critical or high-severity bugs remain open related to the feature.
+*   [ ] **Documentation:** Relevant documentation (API docs, user guides) is updated if applicable.
+
+**Epic-Specific DoD (Epic 1: User & Admin Component)**
+
+*   [ ] **Security:** Authentication endpoints must be secure (JWT/Session).
+*   [ ] **Data Protection:** Sensitive user data (passwords) must be hashed/encrypted.
+*   [ ] **Validation:** Input validation implemented on both client and server sides.
 
 ### 8. Sprint 1 Preview
 
-**Planned Epics/Stories for Sprint 1:**
-• **Focus:** Establishing the Core Foundation (Authentication & Product Catalog).
-• **Selected Epics:** E1 (User & Admin) and E2 (Product Catalog).
+**Sprint Goal:** Establish the core system foundation by implementing secure User Authentication and the Product Catalog.
+
+**Planned Work:**
+
+*   **Epic 1: User & Admin Component (**High Priority**)**
+    *   **E1.1:** User Registration (Student, Teacher, Parent)
+    *   **E1.2:** User Login (Secure Authentication)
+    *   **E1.5:** Role-Based Access Control (Admin vs. Customer)
+
+*   **Epic 2: Product Catalog Component (**High Priority**)**
+    *   **E2.1:** Browse Product Categories
+    *   **E2.2:** Filter by Grade
+    *   **E2.4:** View Product Details
+    *   **E2.5:** Search Functionality
 • **Key Stories:**
     - E1.1 User Registration (5 pts)
     - E1.2 User Login (3 pts)
