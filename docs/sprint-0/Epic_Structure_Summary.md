@@ -100,7 +100,7 @@
 - E6.2: Manage Coupon Rules (3 pts)
 - E6.3: View Coupon Usage Reports (5 pts)
 - E6.4: Purchase Gift Vouchers (8 pts)
-- E6.5: Loyalty Points System (8 pts)
+
 
 ---
 

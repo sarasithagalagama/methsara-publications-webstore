@@ -125,9 +125,9 @@ Students, parents, and teachers currently lack a centralized, accessible digital
 |------|-----------|----------|--------|
 | **E2** | Product Reviews & Ratings | Low | 8 |
 | **E3** | Cancel Order | Low | 5 |
-| **E6** | Loyalty Points System | Low | 8 |
+| **E6** | Promotion & Loyalty | Medium | 4 |
 
-**Justification:** "While **Reviews** and **Loyalty Points** are valuable for growth, they add complexity that should only be addressed after the core sales cycle is fully stable."
+**Justification:** "While **Reviews** are valuable for growth, they add complexity that should only be addressed after the core sales cycle is fully stable."
 
 ---
 

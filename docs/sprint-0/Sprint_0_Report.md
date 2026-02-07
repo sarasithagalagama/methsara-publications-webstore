@@ -135,7 +135,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E6 | E6.2 | As an admin, I want to manage user rules, so that I control usage. | Admin |
 | E6 | E6.3 | As an admin, I want to view coupon reports, so that I measure success. | Admin |
 | E6 | E6.4 | As a customer, I want to buy gift vouchers, so that I can gift them. | Customer |
-| E6 | E6.5 | As a customer, I want to earn loyalty points, so that I get rewards. | Customer |
+
 
 ### 6. Initial Product Backlog
 
@@ -179,7 +179,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E3.11 | Cancel Order | 5 | - | Low |
 | E6.3 | View Reports | 5 | - | Low |
 | E6.4 | Gift Vouchers | 8 | - | Low |
-| E6.5 | Earn Points | 8 | - | Low |
+
 
 *Note: Some user stories were renumbered to align with the correct Epic structure.*
 

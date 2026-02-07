@@ -907,7 +907,7 @@ So that I can correct discrepancies or handle returns.
 
 **Epic Description**: Coupons, campaigns, and loyalty rewards
 **Priority**: Medium
-**Story Count**: 5
+**Story Count**: 4
 **Assigned To**: Perera M.U.E (IT24101266)
 
 ---
@@ -1017,32 +1017,7 @@ So that I can gift educational materials to others.
 
 ---
 
-## Story E6.5: Loyalty Points System
-**Priority**: Low  
-**Story Points**: 8
 
-**User Story**:
-```
-As a customer,
-I want to earn loyalty points on purchases,
-So that I can get rewards for being a repeat customer.
-```
-
-**Acceptance Criteria**:
-- [ ] Earn points on every purchase (e.g., 1 point per LKR 100)
-- [ ] Points displayed in user account
-- [ ] Points history showing: date, order, points earned
-- [ ] Redeem points for discounts (e.g., 100 points = LKR 100 off)
-- [ ] Minimum points required for redemption
-- [ ] Points expiry (e.g., 1 year from earning)
-- [ ] Points balance shown at checkout
-- [ ] Option to use points during checkout
-- [ ] Email notification when points are earned or redeemed
-- [ ] Admin can manually adjust points
-
-**Labels**: `frontend`, `backend`, `promotions`, `loyalty`, `could-have`
-
----
 
 ## 📊 Summary
 
@@ -1055,7 +1030,7 @@ So that I can get rewards for being a repeat customer.
 | E3 | Order & Transaction Component | 13 | Highest |
 | E4 | Supplier Management Component | 2 | Medium |
 | E5 | Inventory Management Component | 3 | High |
-| E6 | Promotion & Loyalty Component | 5 | Medium |
+| E6 | Promotion & Loyalty Component | 4 | Medium |
 | **Total** | | **37** | |
 
 ### Story Points Summary
