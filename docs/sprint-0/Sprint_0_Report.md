@@ -217,11 +217,21 @@ For any User Story or Epic to be considered "Done," the following criteria must 
 *   **Epic 2: Product Catalog Component (**High Priority**)**
     *   **E2.1:** Browse Product Categories
     *   **E2.2:** Filter by Grade
+    *   **E2.3:** Filter by Subject
     *   **E2.4:** View Product Details
     *   **E2.5:** Search Functionality
-• **Key Stories:**
-    - E1.1 User Registration (5 pts)
-    - E1.2 User Login (3 pts)
-    - E2.1 Browse Products by Category (5 pts)
-    - E2.5 Product Search (5 pts)
-• **Goal:** To have a secured platform where users can register, login, and browse/search for educational materials by the end of Sprint 1.
+    *   **E2.7:** Filter by Exam
+
+**(Team Utilization & Parallel Preparation)**
+
+While the core development team focuses on Epics 1 & 2, other members will prepare the technical foundation for upcoming complex features to ensure a smooth workflow in subsequent sprints.
+
+*   **Primary Development (Active Coding):**
+    *   **E1 (User & Admin):** Registration & Login (Galagama S.T)
+    *   **E2 (Product Catalog):** Browsing & Search (Appuhami H A P L)
+
+*   **Parallel Technical Preparation (Design & Schema):**
+    *   **E3 (Orders):** Database schema for Cart/Orders (Jayasinghe D.B.P)
+    *   **E4 (Suppliers):** Supplier research & API planning (Gawrawa G H Y)
+    *   **E5 (Inventory):** Stock tracking logic design (Bandara N W C D)
+    *   **E6 (Promotions):** Coupon system architecture (Perera M.U.E)
