@@ -57,9 +57,9 @@ Labels: catalog, search, core-feature
 ```
 Epic Name: Order & Transaction Component
 Summary: Complete purchase and order flow
-Description: Cart operations, checkout, payment, order processing, and tracking
+Description: Cart operations, checkout, payment options (Bank Slip/COD), and order tracking
 Priority: Highest
-Labels: cart, checkout, payment, orders, revenue
+Labels: cart, checkout, payment (Bank Slip/COD), orders, revenue
 ```
 
 #### Epic 4: Supplier Management Component

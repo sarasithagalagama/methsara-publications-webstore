@@ -74,7 +74,7 @@ Students, parents, and teachers currently lack a centralized, accessible digital
 | :--- | :--- | :--- |
 | **E1** | **User & Admin Component** | Registration, login, role-based access, and security architecture. |
 | **E2** | **Product Catalog Component** | Book listings, grade/exam filtering, and advanced search. |
-| **E3** | **Order & Transaction Component** | Cart management, checkout, payment integration, and order processing. |
+| **E3** | **Order & Transaction Component** | Cart management, checkout, payment options (Bank Slip/COD), and order tracking. |
 | **E4** | **Supplier Management Component** | Supplier information management and purchase order creation. |
 | **E5** | **Inventory Management Component** | Real-time stock tracking, low stock alerts, and inventory adjustments. |
 | **E6** | **Promotion & Loyalty Component** | Coupon codes, discount campaigns, and loyalty rewards system. |

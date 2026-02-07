@@ -555,15 +555,15 @@ So that I can process and fulfill orders efficiently.
 
 ---
 
-## Story E4.1: Complete Checkout Process
+## Story E3.6: Checkout via Bank Slip/COD
 **Priority**: High  
 **Story Points**: 8
 
 **User Story**:
 ```
 As a customer,
-I want to complete my purchase securely,
-So that I can receive my educational materials.
+I want to checkout via Bank Slip Upload or Cash on Delivery,
+So that I can complete my purchase using my preferred payment method.
 ```
 
 **Acceptance Criteria**:
@@ -571,7 +571,9 @@ So that I can receive my educational materials.
 - [ ] Shipping address form: name, address line 1, address line 2, city, postal code, phone
 - [ ] Address validation for Sri Lankan addresses
 - [ ] Saved addresses for logged-in users
-- [ ] Payment method selection (Credit/Debit Card, Bank Transfer, Cash on Delivery)
+- [ ] Payment method selection:
+    - [ ] Bank Receipt Upload (File upload field, file type/size validation)
+    - [ ] Cash on Delivery (COD)
 - [ ] Order review page showing: items, quantities, prices, shipping, total
 - [ ] Terms and conditions acceptance required
 - [ ] "Place Order" button
@@ -583,7 +585,7 @@ So that I can receive my educational materials.
 
 ---
 
-## Story E4.2: Guest Checkout
+## Story E3.7: Guest Checkout
 **Priority**: Medium  
 **Story Points**: 5
 
@@ -608,7 +610,7 @@ So that I can make a quick purchase.
 
 ---
 
-## Story E4.3: Order Confirmation
+## Story E3.8: Order Confirmation
 **Priority**: High  
 **Story Points**: 3
 
@@ -633,7 +635,7 @@ So that I have proof of my purchase and order details.
 
 ---
 
-## Story E4.4: View Order History
+## Story E3.9: View Order History
 **Priority**: Medium  
 **Story Points**: 5
 
@@ -659,7 +661,7 @@ So that I can track my purchases and reorder items.
 
 ---
 
-## Story E4.5: Track Order Status
+## Story E3.10: Track Order Status
 **Priority**: Medium  
 **Story Points**: 5
 
@@ -684,7 +686,7 @@ So that I know when to expect delivery.
 
 ---
 
-## Story E4.6: Cancel Order
+## Story E3.11: Cancel Order
 **Priority**: Low  
 **Story Points**: 5
 
@@ -710,7 +712,7 @@ So that I can avoid unwanted purchases.
 
 ---
 
-## Story E4.7: Generate Invoice
+## Story E3.12: Generate Invoice
 **Priority**: Medium  
 **Story Points**: 5
 
@@ -736,7 +738,7 @@ So that I have proof of payment for my records.
 
 ---
 
-## Story E4.8: Admin Order Management
+## Story E3.13: Admin Order Management
 **Priority**: High  
 **Story Points**: 8
 
@@ -763,17 +765,73 @@ So that I can process and fulfill orders efficiently.
 
 ---
 
-# Epic 6 (E6): Promotion & Loyalty Component
+# Epic 4 (E4): Supplier Management Component
 
-**Epic Description**: Coupons, campaigns, and loyalty rewards  
+**Epic Description**: Supplier relations and purchase orders  
 **Priority**: Medium  
-**Story Count**: 5  
-**Assigned To**: Perera M.U.E (IT24101266)
+**Story Count**: 2  
+**Assigned To**: Gawrawa G H Y (IT24100799)
 
 ---
 
-## Story E6.1: Create Discount Coupons
+## Story E4.1: Manage Suppliers
+**Priority**: Medium
+**Story Points**: 5
+
+**User Story**:
+```
+As an admin,
+I want to manage supplier information,
+So that I can maintain a database of vendors.
+```
+
+**Acceptance Criteria**:
+- [ ] Add new supplier (Name, Contact, Email, Address)
+- [ ] Edit supplier details
+- [ ] View list of all suppliers
+- [ ] Search suppliers by name or ID
+- [ ] Delete or deactivate suppliers
+- [ ] Link products to suppliers
+
+**Labels**: `backend`, `suppliers`, `admin`, `should-have`
+
+---
+
+## Story E4.2: Create Purchase Orders
+**Priority**: Medium
+**Story Points**: 8
+
+**User Story**:
+```
+As an admin,
+I want to create purchase orders,
+So that I can restock products from suppliers.
+```
+
+**Acceptance Criteria**:
+- [ ] Create new purchase order (PO)
+- [ ] Select supplier for PO
+- [ ] Add products and quantities to PO
+- [ ] Calculate total cost based on supplier prices
+- [ ] Send PO to supplier via email
+- [ ] Track PO status (Draft, Sent, Received, Cancelled)
+- [ ] Update inventory when PO is received
+
+**Labels**: `backend`, `suppliers`, `admin`, `should-have`
+
+---
+
+# Epic 5 (E5): Inventory Management Component
+
+**Epic Description**: Real-time stock tracking, low stock alerts, and inventory adjustments
 **Priority**: Medium  
+**Story Count**: 3  
+**Assigned To**: Bandara N W C D (IT24100264)
+
+---
+
+## Story E5.1: Track Stock Levels
+**Priority**: High  
 **Story Points**: 5
 
 **User Story**:
@@ -845,16 +903,16 @@ So that I can correct discrepancies or handle returns.
 
 ---
 
-# Epic 5 (E5): Inventory Management
+# Epic 6 (E6): Promotion & Loyalty Component
 
-**Epic Description**: Coupons, campaigns, and loyalty rewards  
-**Priority**: Medium  
-**Story Count**: 5  
+**Epic Description**: Coupons, campaigns, and loyalty rewards
+**Priority**: Medium
+**Story Count**: 5
 **Assigned To**: Perera M.U.E (IT24101266)
 
 ---
 
-## Story E7.1: Create Discount Coupons
+## Story E6.1: Create Discount Coupons
 **Priority**: Medium  
 **Story Points**: 5
 
@@ -881,7 +939,7 @@ So that I can run promotional campaigns.
 
 ---
 
-## Story E7.2: Manage Coupon Rules
+## Story E6.2: Manage Coupon Rules
 **Priority**: Medium  
 **Story Points**: 3
 
@@ -906,7 +964,7 @@ So that I can control discount conditions.
 
 ---
 
-## Story E7.3: View Coupon Usage Reports
+## Story E6.3: View Coupon Usage Reports
 **Priority**: Low  
 **Story Points**: 5
 
@@ -931,7 +989,7 @@ So that I can measure campaign effectiveness.
 
 ---
 
-## Story E7.4: Purchase Gift Vouchers
+## Story E6.4: Purchase Gift Vouchers
 **Priority**: Low  
 **Story Points**: 8
 
@@ -959,7 +1017,7 @@ So that I can gift educational materials to others.
 
 ---
 
-## Story E7.5: Loyalty Points System
+## Story E6.5: Loyalty Points System
 **Priority**: Low  
 **Story Points**: 8
 

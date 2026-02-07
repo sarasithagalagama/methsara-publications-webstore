@@ -56,11 +56,18 @@ Students, parents, and teachers currently lack a centralized, accessible digital
 
 | Stakeholder | Type (Primary / Secondary / Tertiary) | Interest / Concern |
 |---|---|---|
-| Methsara Publications | Primary | Increased sales, broader market reach, efficient inventory management. |
-| Students & Parents | Primary | Easy access to books, secure payments, quick home delivery. |
-| Teachers / Schools | Secondary | Bulk ordering facilities, curriculum alignment, resource availability. |
-| Delivery Partners | Tertiary | Accurate pickup/delivery details, timely order readiness. |
-| Payment Gateway | Tertiary | Secure and reliable transaction processing. |
+| **Students (Grades 6-13)** | Primary | Need grade-specific materials for exam prep. |
+| **Parents** | Primary | Purchase materials for children, concerned about quality and delivery. |
+| **Methsara Publications** | Primary | Needs sales growth and efficient operations. |
+| **Teachers** | Secondary | Recommend materials, interested in bulk ordering. |
+| **School Administrators** | Secondary | Bulk purchases for libraries. |
+| **Tuition Center Owners** | Secondary | Wholesale purchases for students. |
+| **System Administrators** | Secondary | Manage and maintain platform. |
+| **Customer Support Staff** | Secondary | Handle inquiries and issues. |
+| **Marketing Team** | Secondary | Run campaigns and promotions. |
+| **Delivery Partners** | Tertiary | Handle logistics. |
+| **Payment Gateway Providers** | Tertiary | Process transactions. |
+| **Suppliers/Printers** | Tertiary | Supply books to publisher. |
 
 ### 3. Product Vision Statement
 
@@ -81,7 +88,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 |---|---|
 | **E1** | **User & Admin Component:** Registration, login, role-based access control (RBAC), and security features. |
 | **E2** | **Product Catalog Component:** Book listings, grade/exam filtering (O/L, A/L), advanced search, and product details. |
-| **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment gateway integration, and order tracking. |
+| **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment options (Bank Receipt Upload, Cash on Delivery), and order tracking. |
 | **E4** | **Supplier Management Component:** Management of supplier information and purchase orders for restocking. |
 | **E5** | **Inventory Management Component:** Real-time stock tracking, low stock alerts, and inventory adjustments. |
 | **E6** | **Promotion & Loyalty Component:** Coupon codes, discount campaigns, and customer loyalty rewards system. |
@@ -111,7 +118,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E3 | E3.3 | As a customer, I want to update quantities, so that I get the right amount. | Customer |
 | E3 | E3.4 | As a customer, I want to remove items, so that I don't buy unwanted items. | Customer |
 | E3 | E3.5 | As a customer, I want to apply coupons, so that I get a discount. | Customer |
-| E3 | E3.6 | As a customer, I want to complete checkout, so that I receive my order. | Customer |
+| E3 | E3.6 | As a customer, I want to checkout via Bank Slip/COD, so that I receive my order. | Customer |
 | E3 | E3.7 | As a guest, I want to checkout without account, so that I buy quickly. | Guest |
 | E3 | E3.8 | As a customer, I want order confirmation, so that I have proof of purchase.| Customer |
 | E3 | E3.9 | As a customer, I want to view order history, so that I track purchases. | Customer |
@@ -147,7 +154,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E2.7 | Filter Exam | 3 | - | High |
 | E3.1 | Add to Cart | 5 | - | High |
 | E3.2 | View Cart | 5 | - | High |
-| E3.6 | Checkout | 8 | - | High |
+| E3.6 | Checkout (Bank/COD) | 8 | - | High |
 | E3.8 | Confirmation | 3 | - | High |
 | E3.13 | Admin Orders | 8 | - | High |
 | E5.1 | Track Stock | 5 | - | High |
