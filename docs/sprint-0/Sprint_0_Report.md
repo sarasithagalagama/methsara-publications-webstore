@@ -43,12 +43,11 @@ Sri Lanka Institute of Information Technology
 ### 1. Problem Identification
 
 **Problem Statement:**
-Students, parents, and teachers currently lack a centralized, accessible digital platform to purchase Methsara Publications' educational materials. This forces them to rely on physical bookshops, which may have limited stock or be inconvenient to access. Methsara Publications also faces limited market reach and inefficiencies in manual order processing.
+Methsara Publications currently operates using traditional manual methods for book sales and inventory tracking. This reliance on physical storefront interactions limits the business's reach to local customers and creates delays in order fulfillment. Stakeholders, including the store owners and loyal readers, suffer from a lack of real-time stock visibility and the inability to browse or purchase publications outside of standard business hours. This manual approach is operationally inefficient, causing stock discrepancies and significant customer friction due to the need for physical store visits. Consequently, transitioning to a digital platform is a strategic necessity to eliminate these barriers and secure the publisher's market position against increasingly digital competitors.
 
 **Why is this problem important?**
-• **Accessibility:** Digital access to education resources is now a necessity. Physical stock limitations prevent students from getting exam materials on time.
-• **Convenience:** Parents and teachers need a way to order bulk or individual items without physical travel.
-• **Business Growth:** Competitors are moving online; without a digital presence, Methsara Publications risks losing market share.
+• **Limited Market Reach:** Without a digital presence, the publisher cannot reach the growing demographic of online book buyers.
+• **Operational Errors:** Manual record-keeping leads to frequent errors in stock levels and order management during peak sales periods.
 
 ### 2. Stakeholder Identification
 
@@ -143,42 +142,42 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 | User Story ID | Remarks | Estimated story points | Estimated hours | Priority (High / Medium / Low) |
 |---|---|---|---|---|
-| E1.1 | Registration | 5 | - | High |
-| E1.2 | Login | 3 | - | High |
-| E1.5 | RBAC | 5 | - | High |
-| E2.1 | Browse Category| 5 | - | High |
-| E2.2 | Filter Grade | 5 | - | High |
-| E2.3 | Filter Subject | 3 | - | High |
-| E2.4 | Product Details| 5 | - | High |
-| E2.5 | Search | 5 | - | High |
-| E2.7 | Filter Exam | 3 | - | High |
-| E3.1 | Add to Cart | 5 | - | High |
-| E3.2 | View Cart | 5 | - | High |
-| E3.6 | Checkout (Bank/COD) | 8 | - | High |
-| E3.8 | Confirmation | 3 | - | High |
-| E3.13 | Admin Orders | 8 | - | High |
-| E5.1 | Track Stock | 5 | - | High |
-| E1.3 | Password Reset | 5 | - | Medium |
-| E1.4 | Logout | 2 | - | Medium |
-| E1.6 | Profile | 3 | - | Medium |
-| E2.6 | Sort | 3 | - | Medium |
-| E3.3 | Update Cart | 3 | - | Medium |
-| E3.4 | Remove Item | 2 | - | Medium |
-| E3.7 | Guest Check. | 5 | - | Medium |
-| E3.9 | Order History | 5 | - | Medium |
-| E3.10 | Track Order | 5 | - | Medium |
-| E3.12 | Invoice | 5 | - | Medium |
-| E4.1 | Manage Supp. | 5 | - | Medium |
-| E4.2 | Purch. Orders | 8 | - | Medium |
-| E5.2 | Stock Alerts | 3 | - | Medium |
-| E5.3 | Update Stock | 3 | - | Medium |
-| E6.1 | Create Coupon | 5 | - | Medium |
-| E6.2 | Coupon Rules | 3 | - | Medium |
-| E2.8 | Reviews | 8 | - | Low |
-| E3.5 | Discounts | 5 | - | Low |
-| E3.11 | Cancel Order | 5 | - | Low |
-| E6.3 | View Reports | 5 | - | Low |
-| E6.4 | Gift Vouchers | 8 | - | Low |
+| E1.1 | Registration | 5 | 16 | High |
+| E1.2 | Login | 3 | 8 | High |
+| E1.5 | RBAC | 5 | 16 | High |
+| E2.1 | Browse Category| 5 | 16 | High |
+| E2.2 | Filter Grade | 5 | 16 | High |
+| E2.3 | Filter Subject | 3 | 8 | High |
+| E2.4 | Product Details| 5 | 16 | High |
+| E2.5 | Search | 5 | 16 | High |
+| E2.7 | Filter Exam | 3 | 8 | High |
+| E3.1 | Add to Cart | 5 | 16 | High |
+| E3.2 | View Cart | 5 | 16 | High |
+| E3.6 | Checkout (Bank/COD) | 8 | 24 | High |
+| E3.8 | Confirmation | 3 | 8 | High |
+| E3.13 | Admin Orders | 8 | 24 | High |
+| E5.1 | Track Stock | 5 | 16 | High |
+| E1.3 | Password Reset | 5 | 16 | Medium |
+| E1.4 | Logout | 2 | 4 | Medium |
+| E1.6 | Profile | 3 | 8 | Medium |
+| E2.6 | Sort | 3 | 8 | Medium |
+| E3.3 | Update Cart | 3 | 8 | Medium |
+| E3.4 | Remove Item | 2 | 4 | Medium |
+| E3.7 | Guest Check. | 5 | 16 | Medium |
+| E3.9 | Order History | 5 | 16 | Medium |
+| E3.10 | Track Order | 5 | 16 | Medium |
+| E3.12 | Invoice | 5 | 16 | Medium |
+| E4.1 | Manage Supp. | 5 | 16 | Medium |
+| E4.2 | Purch. Orders | 8 | 24 | Medium |
+| E5.2 | Stock Alerts | 3 | 8 | Medium |
+| E5.3 | Update Stock | 3 | 8 | Medium |
+| E6.1 | Create Coupon | 5 | 16 | Medium |
+| E6.2 | Coupon Rules | 3 | 8 | Medium |
+| E2.8 | Reviews | 8 | 24 | Low |
+| E3.5 | Discounts | 5 | 16 | Low |
+| E3.11 | Cancel Order | 5 | 16 | Low |
+| E6.3 | View Reports | 5 | 16 | Low |
+| E6.4 | Gift Vouchers | 8 | 24 | Low |
 
 
 *Note: Some user stories were renumbered to align with the correct Epic structure.*
