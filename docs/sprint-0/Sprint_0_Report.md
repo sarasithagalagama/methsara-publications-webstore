@@ -85,12 +85,12 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 | Epic ID | Epic Description |
 |---|---|
-| **E1** | **User & Admin Component:** Registration, login, role-based access control (RBAC), and security features. |
-| **E2** | **Product Catalog Component:** Book listings, grade/exam filtering (O/L, A/L), advanced search, and product details. |
-| **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment options (Bank Receipt Upload, Cash on Delivery), and order tracking. |
-| **E4** | **Supplier Management Component:** Management of supplier information and purchase orders for restocking. |
-| **E5** | **Inventory Management Component:** Real-time stock tracking, low stock alerts, and inventory adjustments. |
-| **E6** | **Promotion & Loyalty Component:** Coupon codes, discount campaigns, and customer loyalty rewards system. |
+| **E1** | **User & Admin Management Component:** Customer self-registration with email verification, staff account management with location-specific assignments, authentication & session management with MFA, role-based access control, profile management, and admin support. |
+| **E2** | **Product Catalog Component:** Product CRUD, category management, advanced search & filtering, product display & sorting, reviews & ratings management, and product recommendations. |
+| **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment options (Bank Receipt, COD), order tracking, and financial reporting. |
+| **E4** | **Supplier Management Component:** Supplier CRUD with verification, Purchase Order (PO) management with status tracking and partial deliveries, and supplier performance tracking. |
+| **E5** | **Inventory Management Component:** Multi-location stock tracking (Main, Balangoda, Kottawa), transfers with approval workflow, stock CRUD, and low stock alerts. |
+| **E6** | **Promotion & Loyalty Component:** Coupon CRUD, campaign management, loyalty program operations (tiers, points), and gift voucher management. |
 
 ### 5. User Stories
 
@@ -98,42 +98,39 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 | Epic ID | User Story ID | User Story | Stakeholder |
 |---|---|---|---|
-| E1 | E1.1 | As a new customer, I want to create an account, so that I can track orders. | Customer |
-| E1 | E1.2 | As a registered customer, I want to log in, so that I can access my history. | Customer |
-| E1 | E1.3 | As a customer, I want to reset my password, so that I can regain access. | Customer |
-| E1 | E1.4 | As a logged-in user, I want to log out, so that I can secure my account. | Customer |
-| E1 | E1.5 | As an admin, I want role-based access, so that I can control system access. | Admin |
-| E1 | E1.6 | As a user, I want to update my profile, so that my details are current. | User |
-| E2 | E2.1 | As a teacher, I want to browse by category, so that I find relevant resources. | Teacher |
-| E2 | E2.2 | As a parent, I want to filter by grade, so that I find appropriate materials. | Parent |
-| E2 | E2.3 | As a student, I want to filter by subject, so that I find specific items. | Student |
-| E2 | E2.4 | As a customer, I want to view product details, so that I make informed choices. | Customer |
-| E2 | E2.5 | As a customer, I want to search for books, so that I find them quickly. | Customer |
-| E2 | E2.6 | As a customer, I want to sort products, so that I find the best match. | Customer |
-| E2 | E2.7 | As a student, I want to filter by exam type, so that I prep for O/L or A/L. | Student |
-| E2 | E2.8 | As a customer, I want to read reviews, so that I see others' feedback. | Customer |
-| E3 | E3.1 | As a customer, I want to add items to cart, so that I can buy them. | Customer |
-| E3 | E3.2 | As a customer, I want to view my cart, so that I can review items. | Customer |
-| E3 | E3.3 | As a customer, I want to update quantities, so that I get the right amount. | Customer |
-| E3 | E3.4 | As a customer, I want to remove items, so that I don't buy unwanted items. | Customer |
-| E3 | E3.5 | As a customer, I want to apply coupons, so that I get a discount. | Customer |
-| E3 | E3.6 | As a customer, I want to checkout via Bank Slip/COD, so that I receive my order. | Customer |
-| E3 | E3.7 | As a guest, I want to checkout without account, so that I buy quickly. | Guest |
-| E3 | E3.8 | As a customer, I want order confirmation, so that I have proof of purchase.| Customer |
-| E3 | E3.9 | As a customer, I want to view order history, so that I track purchases. | Customer |
-| E3 | E3.10 | As a customer, I want to track status, so that I know delivery time. | Customer |
-| E3 | E3.11 | As a customer, I want to cancel orders, so that I stop unwanted shipments.| Customer |
-| E3 | E3.12 | As a customer, I want an invoice, so that I have payment proof. | Customer |
-| E3 | E3.13 | As an admin, I want to manage orders, so that I can fulfill them. | Admin |
-| E4 | E4.1 | As an admin, I want to manage suppliers, so that I can contact them. | Admin |
-| E4 | E4.2 | As an admin, I want to create purchase orders, so that I can restock. | Admin |
-| E5 | E5.1 | As an admin, I want to track stock, so that I know availability. | Admin |
-| E5 | E5.2 | As an admin, I want low stock alerts, so that I can reorder in time. | Admin |
-| E5 | E5.3 | As an admin, I want to update stock levels, so that inventory is accurate.| Admin |
-| E6 | E6.1 | As an admin, I want to create coupons, so that I run promotions. | Admin |
-| E6 | E6.2 | As an admin, I want to manage user rules, so that I control usage. | Admin |
-| E6 | E6.3 | As an admin, I want to view coupon reports, so that I measure success. | Admin |
-| E6 | E6.4 | As a customer, I want to buy gift vouchers, so that I can gift them. | Customer |
+| E1 | E1.1 | As a Customer, I want to register with email verification, so that I can access features. | Customer |
+| E1 | E1.2 | As a User, I want to login securely with MFA (staff), so that my account is safe. | User |
+| E1 | E1.3 | As a Customer, I want to manage my profile and addresses, so that info is current. | Customer |
+| E1 | E1.4 | As an Admin, I want to manage staff accounts and roles, so that employees have access. | Admin |
+| E1 | E1.5 | As a System, I want to enforce RBAC, so that users access only authorized features. | System |
+| E1 | E1.6 | As an Admin, I want to view customer accounts, so that I can provide support. | Admin |
+| E1 | E1.7 | As an Admin, I want to track login history, so that I can monitor security. | Admin |
+| E2 | E2.1 | As an Admin or Product Mgr, I want to manage products, so that the catalog is accurate. | Admin / Product Mgr |
+| E2 | E2.2 | As an Admin or Product Mgr, I want to edit product details, so that information is updated. | Admin / Product Mgr |
+| E2 | E2.3 | As an Admin or Product Mgr, I want to manage categories, so that products are organized. | Admin / Product Mgr |
+| E2 | E2.4 | As a Customer, I want to search and filter products, so that I find items quickly. | Customer |
+| E2 | E2.5 | As a Customer, I want to view product details, so that I can decide to buy. | Customer |
+| E2 | E2.6 | As a Customer, I want to review products, so that I share my experience. | Customer |
+| E2 | E2.7 | As a Customer, I want to see related products, so that I might find other useful items. | Customer |
+| E2 | E2.8 | As a Customer, I want to review products I bought, so that I can share my opinion. | Customer |
+| E2 | E2.9 | As an Admin or Product Mgr, I want to moderate reviews, so that inappropriate content is removed. | Admin / Product Mgr |
+| E3 | E3.1 | As a Customer, I want to manage my cart, so that I can review items. | Customer |
+| E3 | E3.2 | As a Customer, I want to checkout securely, so that I complete my purchase. | Customer |
+| E3 | E3.3 | As an Admin, I want to manage orders, so that I can fulfill them. | Admin |
+| E3 | E3.4 | As a Customer, I want to view order history, so that I track deliveries. | Customer |
+| E3 | E3.5 | As a Supervisor, I want to view financial reports, so that I track revenue. | Supervisor |
+| E4 | E4.1 | As an Inventory Mgr, I want to manage suppliers, so that I maintain vendor data. | Inventory Mgr |
+| E4 | E4.2 | As an Inventory Mgr, I want to manage POs, so that I restock inventory. | Inventory Mgr |
+| E5 | E5.1 | As an Inventory Mgr, I want to track multi-location stock, so that I know availability. | Inventory Mgr |
+| E5 | E5.2 | As an Inventory Mgr, I want to adjust stock levels, so that records are accurate. | Inventory Mgr |
+| E5 | E5.3 | As an Inventory Mgr, I want to transfer stock, so that I balance inventory. | Inventory Mgr |
+| E5 | E5.4 | As an Inventory Mgr, I want low stock alerts, so that I reorder in time. | Inventory Mgr |
+| E5 | E5.5 | As an Admin, I want to manage locations, so that I can assign managers. | Admin |
+| E6 | E6.1 | As a Marketing Mgr, I want to manage coupons, so that I run promotions. | Marketing Mgr |
+| E6 | E6.2 | As a Marketing Mgr, I want to manage loyalty tiers, so that I reward customers. | Marketing Mgr |
+| E6 | E6.3 | As a Customer, I want to redeem loyalty points, so that I get discounts. | Customer |
+| E6 | E6.4 | As a Marketing Mgr, I want to manage gift vouchers, so that customers buy them. | Marketing Mgr |
+| E6 | E6.5 | As a Marketing Mgr, I want to run campaigns, so that I track performance. | Marketing Mgr |
 
 
 ### 6. Initial Product Backlog
@@ -142,42 +139,54 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 | User Story ID | Remarks | Estimated story points | Estimated hours | Priority (High / Medium / Low) |
 |---|---|---|---|---|
-| E1.1 | Registration | 5 | 16 | High |
-| E1.2 | Login | 3 | 8 | High |
-| E1.5 | RBAC | 5 | 16 | High |
-| E2.1 | Browse Category| 5 | 16 | High |
-| E2.2 | Filter Grade | 5 | 16 | High |
-| E2.3 | Filter Subject | 3 | 8 | High |
-| E2.4 | Product Details| 5 | 16 | High |
-| E2.5 | Search | 5 | 16 | High |
-| E2.7 | Filter Exam | 3 | 8 | High |
-| E3.1 | Add to Cart | 5 | 16 | High |
-| E3.2 | View Cart | 5 | 16 | High |
-| E3.6 | Checkout (Bank/COD) | 8 | 24 | High |
-| E3.8 | Confirmation | 3 | 8 | High |
-| E3.13 | Admin Orders | 8 | 24 | High |
-| E5.1 | Track Stock | 5 | 16 | High |
-| E1.3 | Password Reset | 5 | 16 | Medium |
-| E1.4 | Logout | 2 | 4 | Medium |
-| E1.6 | Profile | 3 | 8 | Medium |
-| E2.6 | Sort | 3 | 8 | Medium |
-| E3.3 | Update Cart | 3 | 8 | Medium |
-| E3.4 | Remove Item | 2 | 4 | Medium |
-| E3.7 | Guest Check. | 5 | 16 | Medium |
-| E3.9 | Order History | 5 | 16 | Medium |
-| E3.10 | Track Order | 5 | 16 | Medium |
-| E3.12 | Invoice | 5 | 16 | Medium |
-| E4.1 | Manage Supp. | 5 | 16 | Medium |
-| E4.2 | Purch. Orders | 8 | 24 | Medium |
-| E5.2 | Stock Alerts | 3 | 8 | Medium |
-| E5.3 | Update Stock | 3 | 8 | Medium |
-| E6.1 | Create Coupon | 5 | 16 | Medium |
-| E6.2 | Coupon Rules | 3 | 8 | Medium |
-| E2.8 | Reviews | 8 | 24 | Low |
-| E3.5 | Discounts | 5 | 16 | Low |
-| E3.11 | Cancel Order | 5 | 16 | Low |
-| E6.3 | View Reports | 5 | 16 | Low |
-| E6.4 | Gift Vouchers | 8 | 24 | Low |
+| E1.1 | Registration | 5 | 16 | Highest |
+| E1.2 | Login | 3 | 8 | Highest |
+| E1.8 | RBAC | 8 | 24 | Highest |
+| E2.4 | Search | 5 | 16 | Highest |
+| E2.6 | Product Details | 5 | 16 | Highest |
+| E3.1 | Add to Cart | 3 | 8 | Highest |
+| E3.2 | Manage Cart | 3 | 8 | Highest |
+| E3.3 | Checkout Address | 3 | 8 | Highest |
+| E3.4 | Checkout Payment | 8 | 24 | Highest |
+| E5.1 | View Stock | 5 | 16 | Highest |
+| E1.3 | Forgot Password | 3 | 8 | High |
+| E1.5 | Delivery Addresses | 5 | 16 | High |
+| E1.6 | Manage Staff | 5 | 16 | High |
+| E1.7 | Assign Roles | 5 | 16 | Highest |
+| E1.11 | Security Logs | 3 | 8 | High |
+| E2.1 | Create Product | 5 | 16 | High |
+| E2.2 | Update Product | 3 | 8 | High |
+| E2.5 | Filter Products | 5 | 16 | High |
+| E3.5 | Order Confirm | 3 | 8 | High |
+| E3.7 | Admin Orders | 5 | 16 | High |
+| E3.8 | Update Order Status | 3 | 8 | High |
+| E3.10 | Sales Dashboard | 5 | 16 | High |
+| E4.3 | Create PO | 8 | 24 | High |
+| E4.4 | Receive PO | 5 | 16 | High |
+| E5.2 | Adjust Stock | 3 | 8 | High |
+| E5.3 | Request Transfer | 5 | 16 | High |
+| E5.4 | Approve Transfer | 5 | 16 | High |
+| E6.2 | Validate Coupons | 3 | 8 | High |
+| E1.4 | Manage Profile | 3 | 8 | Medium |
+| E1.9 | View Customers | 3 | 8 | Medium |
+
+| E2.3 | Manage Categories | 5 | 16 | Medium |
+| E3.6 | Guest Checkout | 5 | 16 | Medium |
+| E3.9 | Order History | 3 | 8 | Medium |
+| E3.11 | Financial Reports | 5 | 16 | Medium |
+| E4.1 | Add Supplier | 3 | 8 | Medium |
+| E4.2 | Verify Supplier | 3 | 8 | Medium |
+| E5.5 | Low Stock Alerts | 3 | 8 | Medium |
+| E5.6 | Manage Locations | 3 | 8 | Medium |
+| E6.1 | Create Coupons | 5 | 16 | Medium |
+| E6.3 | Earn Points | 5 | 16 | Medium |
+| E6.4 | Redeem Points | 5 | 16 | Medium |
+| E2.7 | Recommendations | 5 | 16 | Low |
+| E2.8 | Write Review | 3 | 8 | Low |
+| E2.9 | Moderate Reviews | 3 | 8 | Low |
+| E6.5 | Create Vouchers | 3 | 8 | Low |
+| E6.6 | Redeem Vouchers | 3 | 8 | Low |
+| E6.7 | Campaigns | 5 | 16 | Low |
 
 
 *Note: Some user stories were renumbered to align with the correct Epic structure.*
@@ -196,41 +205,52 @@ For any User Story or Epic to be considered "Done," the following criteria must 
 *   [ ] **No Bugs:** No critical or high-severity bugs remain open related to the feature.
 *   [ ] **Documentation:** Relevant documentation (API docs, user guides) is updated if applicable.
 
-**Epic-Specific DoD (Epic 1: User & Admin Component)**
-
-*   [ ] **Security:** Authentication endpoints must be secure (JWT/Session).
-*   [ ] **Data Protection:** Sensitive user data (passwords) must be hashed/encrypted.
-*   [ ] **Validation:** Input validation implemented on both client and server sides.
+**Epic-Specific DoD**
+*   **Epic 1: User & Admin Management Component**
+    *   **Focus:** Customer self-registration, staff account management (Inventory Managers, Payment Manager, Supplier Manager, Marketing Team), authentication, and role-based access control.
+    *   **Goal:** Secure access with clear separation between customer and staff accounts.
+    *   **Security:** Authentication endpoints must be secure (JWT/Session).
+    *   **Data Protection:** Sensitive user data (passwords) must be hashed/encrypted.
+    *   **Validation:** Input validation implemented on both client and server sides.
 
 ### 8. Sprint 1 Preview
 
-**Sprint Goal:** Establish the core system foundation by implementing secure User Authentication and the Product Catalog.
+**Sprint Goal:** deliver a "Vertical Slice" of the application, establishing the core foundation and implementing key features across **all** 6 Epics (User Management, Catalog, Orders, Suppliers, Inventory, and Promotions).
 
-**Planned Work:**
+**Planned Work (Targeting ~50% of each Epic):**
 
-*   **Epic 1: User & Admin Component (**High Priority**)**
+*   **Epic 1: User & Role Management Component (3/6 Stories)**
     *   **E1.1:** User Registration (Student, Teacher, Parent)
     *   **E1.2:** User Login (Secure Authentication)
     *   **E1.5:** Role-Based Access Control (Admin vs. Customer)
 
-*   **Epic 2: Product Catalog Component (**High Priority**)**
+*   **Epic 2: Product Catalog Component (5/8 Stories)**
     *   **E2.1:** Browse Product Categories
     *   **E2.2:** Filter by Grade
     *   **E2.3:** Filter by Subject
-    *   **E2.4:** View Product Details
     *   **E2.5:** Search Functionality
     *   **E2.7:** Filter by Exam
 
-**(Team Utilization & Parallel Preparation)**
+*   **Epic 3: Order & Transaction Component (7/13 Stories)**
+    *   **E3.1:** Add Items to Cart
+    *   **E3.2:** View Shopping Cart
+    *   **E3.3:** Update Cart Quantities
+    *   **E3.4:** Remove Items from Cart
+    *   **E3.6:** Checkout via Bank Slip/COD
+    *   **E3.8:** Order Confirmation
+    *   **E3.9:** View Order History
 
-While the core development team focuses on Epics 1 & 2, other members will prepare the technical foundation for upcoming complex features to ensure a smooth workflow in subsequent sprints.
+*   **Epic 4: Supplier Management Component (1/2 Stories)**
+    *   **E4.1:** Manage Suppliers
 
-*   **Primary Development (Active Coding):**
-    *   **E1 (User & Admin):** Registration & Login (Galagama S.T)
-    *   **E2 (Product Catalog):** Browsing & Search (Appuhami H A P L)
+*   **Epic 5: Inventory Management Component (2/3 Stories)**
+    *   **E5.1:** Track Stock Levels
+    *   **E5.3:** Stock Adjustment
 
-*   **Parallel Technical Preparation (Design & Schema):**
-    *   **E3 (Orders):** Database schema for Cart/Orders (Jayasinghe D.B.P)
-    *   **E4 (Suppliers):** Supplier research & API planning (Gawrawa G H Y)
-    *   **E5 (Inventory):** Stock tracking logic design (Bandara N W C D)
-    *   **E6 (Promotions):** Coupon system architecture (Perera M.U.E)
+*   **Epic 6: Promotion & Loyalty Component (2/4 Stories)**
+    *   **E6.1:** Create Discount Coupons
+    *   **E6.2:** Manage Coupon Rules
+
+**Team Utilization:**
+
+All team members will be actively developing features for their respective Epics to meet this aggressive Sprint 1 goal. Parallel technical preparation will continue for the remaining complex features scheduled for Sprint 2.

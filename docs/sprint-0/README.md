@@ -117,7 +117,7 @@ Development Team: 6 Members
     ↓ Builds the product
     
 Each developer owns 1 Epic:
-- Galagama S.T → User & Admin Component
+- Galagama S.T → User & Role Management Component
 - Appuhami H A P L → Product Catalog Component
 - Jayasinghe D.B.P → Order & Transaction Component
 - Gawrawa G H Y → Supplier Management Component

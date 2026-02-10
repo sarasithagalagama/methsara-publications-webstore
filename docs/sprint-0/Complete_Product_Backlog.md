@@ -1,1059 +1,414 @@
-# Complete Product Backlog - Methsara Publications Webstore
-## User Stories for 6-Epic Structure
+# Complete Product Backlog
+
+**Project**: Methsara Publications Webstore
+**Version**: 3.0 (Expanded & Refined)
+**Date**: February 10, 2026
+
+## Overview
+
+This backlog is structured around the **6 Core Components** defined in the system architecture.
 
 ---
 
-## 🎯 Project Overview
+# Epic 1 (E1): User & Admin Management Component
 
-**Project Name**: Methsara Publications Webstore  
-**Project Key**: MPW  
-**Product Owner**: Methsara Publications  
-**Total User Stories**: 37  
-**Total Epics**: 6
+**Epic Description**: Customer self-registration with email verification, staff account management with location-specific assignments, authentication & session management, role-based access control, profile management, and admin support functions.
 
-**Epic Structure**:
-- **E1: User & Admin Component** - Registration, login, role-based access, and security
-- **E2: Product Catalog Component** - Book listings, grade/exam filtering, and search
-- **E3: Order & Transaction Component** - Cart, checkout, payment, order processing, and tracking
-- **E4: Supplier Management Component** - Supplier relations and purchase orders
-- **E5: Inventory Management Component** - Stock tracking, alerts, and adjustments
-- **E6: Promotion & Loyalty Component** - Coupons, campaigns, and loyalty rewards
-
----
-
-# Epic 1 (E1): User & Admin Component
-
-**Epic Description**: Registration, login, role-based access, and security  
-**Priority**: Highest  
-**Story Count**: 6  
-**Assigned To**: Galagama S.T (IT24100548)
-
----
-
-## Story E1.1: User Registration
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a new customer,
-I want to create an account on the Methsara Publications webstore,
-So that I can track my orders and save my preferences.
-```
-
+## Story E1.1: Customer Registration
+**Priority**: Highest | **Points**: 5
+**User Story**: As a new customer, I want to register for an account with email verification, so that I can access personalized features.
 **Acceptance Criteria**:
-- [ ] Registration form includes: Full Name, Email, Password, Confirm Password, Phone Number
-- [ ] Email validation ensures proper format
-- [ ] Password minimum 8 characters with 1 uppercase, 1 lowercase, 1 number
-- [ ] Phone number validation for Sri Lankan format (+94 or 0)
-- [ ] Email verification link sent to user's email
-- [ ] User cannot log in until email is verified
-- [ ] Terms and conditions checkbox required
-- [ ] Success message displayed after registration
+- [ ] Registration form (Name, Email, Phone, Password, Type)
+- [ ] Email verification link sent
+- [ ] Account activation flow
+- [ ] Password strength validation
 
-**Labels**: `frontend`, `backend`, `authentication`, `must-have`
-
----
-
-## Story E1.2: User Login
-**Priority**: High  
-**Story Points**: 3
-
-**User Story**:
-```
-As a registered customer,
-I want to log in to my account,
-So that I can access my personalized features and order history.
-```
-
+## Story E1.2: Customer Login
+**Priority**: Highest | **Points**: 3
+**User Story**: As a registered user, I want to login securely, so that I can access my account.
 **Acceptance Criteria**:
-- [ ] Login form with Email and Password fields
-- [ ] "Remember Me" checkbox to persist session
-- [ ] Error message for invalid credentials
-- [ ] Error message for unverified email accounts
-- [ ] Successful login redirects to previous page or home page
-- [ ] Session expires after 24 hours (or 7 days if "Remember Me" checked)
-- [ ] Login attempt limit: 5 failed attempts lock account for 15 minutes
+- [ ] Login screen (Email/Password)
+- [ ] "Remember Me" option
+- [ ] Account lockout after 5 failed attempts
+- [ ] Session timeout handling
 
-**Labels**: `frontend`, `backend`, `authentication`, `must-have`
-
----
-
-## Story E1.3: Password Reset
-**Priority**: Medium  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer who forgot my password,
-I want to reset my password securely,
-So that I can regain access to my account.
-```
-
+## Story E1.3: Forgot Password
+**Priority**: High | **Points**: 3
+**User Story**: As a user, I want to reset my password if I forget it, so that I can regain access.
 **Acceptance Criteria**:
-- [ ] "Forgot Password" link visible on login page
-- [ ] Password reset form requests email address
-- [ ] Reset link sent to email (valid for 1 hour)
-- [ ] Reset link opens password reset page
-- [ ] New password form with password and confirm password fields
-- [ ] Same password validation rules as registration
-- [ ] Success message after password reset
-- [ ] Email notification sent confirming password change
+- [ ] "Forgot Password" link
+- [ ] Email reset link generation
+- [ ] Secure password reset page
+- [ ] Confirmation email
 
-**Labels**: `frontend`, `backend`, `authentication`, `should-have`
-
----
-
-## Story E1.4: User Logout
-**Priority**: Medium  
-**Story Points**: 2
-
-**User Story**:
-```
-As a logged-in customer,
-I want to log out of my account,
-So that I can secure my account when using shared devices.
-```
-
+## Story E1.4: Manage Profile
+**Priority**: Medium | **Points**: 3
+**User Story**: As a customer, I want to update my personal information, so that my details are current.
 **Acceptance Criteria**:
-- [ ] Logout button visible in user menu/header
-- [ ] Clicking logout clears session
-- [ ] Redirect to home page after logout
-- [ ] Confirmation message displayed
-- [ ] Shopping cart saved for logged-in users (not cleared)
-- [ ] Cannot access protected pages after logout
+- [ ] Edit Name and Phone Number
+- [ ] Change Password
+- [ ] Manage Email Preferences
 
-**Labels**: `frontend`, `backend`, `authentication`, `must-have`
-
----
-
-## Story E1.5: Role-Based Access Control
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a system administrator,
-I want different user roles with specific permissions,
-So that I can control access to admin features and protect sensitive data.
-```
-
+## Story E1.5: Manage Delivery Addresses
+**Priority**: High | **Points**: 5
+**User Story**: As a customer, I want to manage multiple delivery addresses, so that I can choose where to ship.
 **Acceptance Criteria**:
-- [ ] Three user roles: Customer, Admin, Super Admin
-- [ ] Customers can: browse, purchase, view own orders
-- [ ] Admins can: manage products, view all orders, generate reports
-- [ ] Super Admins can: manage users, manage admins, system settings
-- [ ] Unauthorized access attempts redirect to login or show 403 error
-- [ ] Role displayed in user profile
-- [ ] Admin panel only accessible to Admin and Super Admin roles
+- [ ] Add new address (Street, City, Zip)
+- [ ] Edit existing address
+- [ ] Delete address
+- [ ] Set default address
 
-**Labels**: `backend`, `authentication`, `authorization`, `must-have`
-
----
-
-## Story E1.6: User Profile Management
-**Priority**: Medium  
-**Story Points**: 3
-
-**User Story**:
-```
-As a registered user,
-I want to update my profile information,
-So that my account details remain current.
-```
-
+## Story E1.6: Admin - Manage Staff Accounts
+**Priority**: High | **Points**: 5
+**User Story**: As an Admin, I want to create and manage staff accounts, so that employees can access the system.
 **Acceptance Criteria**:
-- [ ] Profile page displays: name, email, phone, address
-- [ ] Edit profile form with all fields editable except email
-- [ ] Email change requires verification
-- [ ] Phone number validation
-- [ ] Success message after profile update
-- [ ] Profile picture upload (optional)
+- [ ] Create staff account (Name, Email, Role)
+- [ ] Deactivate staff account
+- [ ] Update staff details
+- [ ] Assign initial temporary password
 
-**Labels**: `frontend`, `backend`, `profile`, `should-have`
+## Story E1.7: Admin - Staff Role Assignment
+**Priority**: Highest | **Points**: 5
+**User Story**: As an Admin, I want to assign specific roles to staff, so that they have appropriate access.
+**Acceptance Criteria**:
+- [ ] Assign roles: Inventory Manager, Product Manager, etc.
+- [ ] Assign location (for Inventory Managers)
+- [ ] Modify existing roles
+
+## Story E1.8: RBAC Enforcement
+**Priority**: Highest | **Points**: 8
+**User Story**: As the System, I want to restrict access based on roles, so that data is secure.
+**Acceptance Criteria**:
+- [ ] Restrict menu items by role
+- [ ] ID-based resource access (e.g., specific location stock)
+- [ ] API endpoint protection
+
+## Story E1.9: Admin - View Customer Accounts
+**Priority**: Medium | **Points**: 3
+**User Story**: As an Admin, I want to view customer lists, so that I can manage the user base.
+**Acceptance Criteria**:
+- [ ] List all customers with pagination
+- [ ] Search by Name or Email
+- [ ] View customer status (Active/Banned)
+
+
+## Story E1.11: Security Logs
+**Priority**: High | **Points**: 3
+**User Story**: As an Admin, I want to view login logs, so that I can monitor security.
+**Acceptance Criteria**:
+- [ ] Log successful/failed logins
+- [ ] View logs by user or date
+- [ ] Export logs
 
 ---
 
 # Epic 2 (E2): Product Catalog Component
 
-**Epic Description**: Book listings, grade/exam filtering, and search  
-**Priority**: Highest  
-**Story Count**: 8  
-**Assigned To**: Appuhami H A P L (IT24101314)
+**Epic Description**: Product CRUD, category management, advanced search & filtering, product display & sorting, reviews & ratings management, and product recommendations.
 
----
-
-## Story E2.1: Browse Products by Category
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a teacher,
-I want to browse educational materials by category,
-So that I can quickly find relevant resources for my students.
-```
-
+## Story E2.1: Admin & Product Mgr - Create Product
+**Priority**: High | **Points**: 5
+**User Story**: As an Admin or Product Manager, I want to add new products, so that they are available for sale.
 **Acceptance Criteria**:
-- [ ] Categories: Textbooks, Workbooks, Past Papers, Teacher Guides, Revision Materials
-- [ ] Category navigation visible in header/sidebar
-- [ ] Clicking category shows all products in that category
-- [ ] Product grid displays: image, title, grade, subject, price
-- [ ] Pagination with 20 products per page
-- [ ] Product count displayed for each category
-- [ ] Breadcrumb navigation showing current category
-- [ ] Mobile-responsive grid layout
+- [ ] Enter Product Name, SKU, Price, Description
+- [ ] Upload multiple images
+- [ ] Assign Categories
+- [ ] Set Specifications
 
-**Labels**: `frontend`, `backend`, `catalog`, `must-have`
-
----
-
-## Story E2.2: Filter Products by Grade Level
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a parent,
-I want to filter products by grade level,
-So that I can find materials appropriate for my child's education level.
-```
-
+## Story E2.2: Admin & Product Mgr - Update Product
+**Priority**: High | **Points**: 3
+**User Story**: As an Admin or Product Manager, I want to edit product details, so that information is accurate.
 **Acceptance Criteria**:
-- [ ] Filter sidebar with grade checkboxes (Grade 6-13)
-- [ ] Multiple grade selection allowed
-- [ ] Product list updates dynamically when filters applied
-- [ ] Selected filters clearly displayed
-- [ ] "Clear all filters" button available
-- [ ] Filter count shows number of products matching criteria
-- [ ] Filters persist when navigating between pages
-- [ ] URL updates to reflect filter selections
+- [ ] Edit all product fields
+- [ ] Archive/Delete product
+- [ ] Update prices
 
-**Labels**: `frontend`, `backend`, `catalog`, `must-have`
-
----
-
-## Story E2.3: Filter Products by Subject
-**Priority**: High  
-**Story Points**: 3
-
-**User Story**:
-```
-As a student,
-I want to filter products by subject,
-So that I can find materials for specific subjects I'm studying.
-```
-
+## Story E2.3: Admin & Product Mgr - Manage Categories
+**Priority**: Medium | **Points**: 5
+**User Story**: As an Admin or Product Manager, I want to manage categories, so that products are organized.
 **Acceptance Criteria**:
-- [ ] Subject filter: Mathematics, Science, English, Sinhala, Tamil, History, Geography, ICT, Commerce, Arts
-- [ ] Multiple subject selection allowed
-- [ ] Combine with grade level filters
-- [ ] Product count updates with filter changes
-- [ ] Mobile-friendly filter interface
-- [ ] Filters can be collapsed/expanded on mobile
+- [ ] Create Category text/structure (Grade, Subject)
+- [ ] Edit Category Name
+- [ ] Delete Empty Categories
 
-**Labels**: `frontend`, `backend`, `catalog`, `must-have`
-
----
-
-## Story E2.4: View Product Details
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to view detailed information about a product,
-So that I can make an informed purchase decision.
-```
-
+## Story E2.4: Search Products
+**Priority**: Highest | **Points**: 5
+**User Story**: As a Customer, I want to search for books, so that I can find what I need quickly.
 **Acceptance Criteria**:
-- [ ] Product page displays: title, author/publisher, ISBN, price, description
-- [ ] High-quality product images with zoom functionality
-- [ ] Image gallery if multiple images available
-- [ ] Product specs: grade level, subject, publication type, pages, language
-- [ ] Stock availability status (In Stock, Out of Stock, Limited Stock)
-- [ ] Sample pages or table of contents (if available)
-- [ ] "Add to Cart" button (disabled if out of stock)
-- [ ] Related products section
-- [ ] Breadcrumb navigation
+- [ ] Search by Title, Author, or ISBN
+- [ ] Auto-suggestions drop-down
 
-**Labels**: `frontend`, `backend`, `catalog`, `must-have`
-
----
-
-## Story E2.5: Product Search
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to search for specific books or materials,
-So that I can quickly find what I need without browsing categories.
-```
-
+## Story E2.5: Filter Products
+**Priority**: High | **Points**: 5
+**User Story**: As a Customer, I want to filter search results, so that I can narrow down options.
 **Acceptance Criteria**:
-- [ ] Search bar visible in header on all pages
-- [ ] Search by: title, author, ISBN, subject, keywords
-- [ ] Search results displayed in grid format
-- [ ] Results ranked by relevance
-- [ ] Highlight search terms in results
-- [ ] "No results found" message with suggestions
-- [ ] Search autocomplete/suggestions as user types
-- [ ] Recent searches saved (for logged-in users)
-- [ ] Filters applicable to search results
-- [ ] Minimum 3 characters required for search
+- [ ] Filter by Grade (1-13)
+- [ ] Filter by Subject
+- [ ] Filter by Price Range
 
-**Labels**: `frontend`, `backend`, `search`, `must-have`
-
----
-
-## Story E2.6: Sort Products
-**Priority**: Medium  
-**Story Points**: 3
-
-**User Story**:
-```
-As a customer,
-I want to sort products by different criteria,
-So that I can find products that best match my preferences.
-```
-
+## Story E2.6: View Product Details
+**Priority**: Highest | **Points**: 5
+**User Story**: As a Customer, I want to see detailed product info, so that I can make a buying decision.
 **Acceptance Criteria**:
-- [ ] Sort options: Price (Low to High), Price (High to Low), Name (A-Z), Name (Z-A), Newest First, Most Popular
-- [ ] Sort applies to current product list/search results
-- [ ] Default sort: Most Popular
-- [ ] Sort selection persists during session
-- [ ] Page reloads to top after sort applied
-- [ ] Sort works with active filters
+- [ ] View Title, Price, Description
+- [ ] View Image Gallery
+- [ ] View Specifications
 
-**Labels**: `frontend`, `backend`, `catalog`, `should-have`
-
----
-
-## Story E2.7: Filter by Exam Type
-**Priority**: High  
-**Story Points**: 3
-
-**User Story**:
-```
-As a student preparing for exams,
-I want to filter materials by exam type (O/L or A/L),
-So that I can find exam-specific preparation materials.
-```
-
+## Story E2.7: Product Recommendations
+**Priority**: Low | **Points**: 5
+**User Story**: As a Customer, I want to see related products, so that I might find other useful items.
 **Acceptance Criteria**:
-- [ ] Exam type filter: O/L (Ordinary Level), A/L (Advanced Level)
-- [ ] Filter works in combination with grade and subject filters
-- [ ] Clear indication of exam type on product cards
-- [ ] Filter count updates dynamically
-- [ ] Mobile-responsive filter design
+- [ ] "Related Products" section
+- [ ] "Customers Also Bought" section
 
-**Labels**: `frontend`, `backend`, `catalog`, `must-have`
-
----
-
-## Story E2.8: Product Reviews and Ratings
-**Priority**: Low  
-**Story Points**: 8
-
-**User Story**:
-```
-As a customer,
-I want to read and write product reviews,
-So that I can make better purchasing decisions and share my experience.
-```
-
+## Story E2.8: Write Review
+**Priority**: Low | **Points**: 3
+**User Story**: As a Customer, I want to review products I bought, so that I can share my opinion.
 **Acceptance Criteria**:
-- [ ] Star rating system (1-5 stars) visible on product page
-- [ ] Average rating displayed with total number of reviews
-- [ ] Reviews section shows: reviewer name, rating, date, review text
-- [ ] Only verified purchasers can write reviews
-- [ ] Review form with: star rating, title, review text
-- [ ] Character limit: 1000 characters for review text
-- [ ] Reviews sorted by: Most Recent, Highest Rating, Lowest Rating
-- [ ] Admin can moderate/remove inappropriate reviews
+- [ ] Rate 1-5 Stars
+- [ ] Write text review
+- [ ] Verified Buyer check
 
-**Labels**: `frontend`, `backend`, `catalog`, `could-have`
+## Story E2.9: Admin & Product Mgr - Moderate Reviews
+**Priority**: Low | **Points**: 3
+**User Story**: As an Admin or Product Manager, I want to moderate reviews, so that inappropriate content is removed.
+**Acceptance Criteria**:
+- [ ] List all recent reviews
+- [ ] Delete offensive reviews
+- [ ] Reply to reviews
 
 ---
 
 # Epic 3 (E3): Order & Transaction Component
 
-**Epic Description**: Cart, checkout, payment, order processing, and tracking  
-**Priority**: Highest  
-**Story Count**: 13  
-**Assigned To**: Jayasinghe D.B.P (IT24100191)
+**Epic Description**: Shopping cart management, checkout process, payment options (Bank Receipt, COD), order tracking, and financial reporting.
 
----
-
-## Story E3.1: Add Items to Cart
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to add products to my shopping cart,
-So that I can purchase multiple items in a single transaction.
-```
-
+## Story E3.1: Add to Cart
+**Priority**: Highest | **Points**: 3
+**User Story**: As a Customer, I want to add items to my cart, so that I can purchase them.
 **Acceptance Criteria**:
-- [ ] "Add to Cart" button visible on product pages
-- [ ] Quantity selector (default: 1, max: available stock)
-- [ ] Success message/notification when item added
-- [ ] Cart icon in header shows item count
-- [ ] Cart badge updates in real-time
-- [ ] Duplicate items increase quantity (not create new line)
-- [ ] Cart persists for logged-in users across sessions
-- [ ] Cart saved in session storage for guest users
-- [ ] Cannot add out-of-stock items
-- [ ] Stock validation before adding to cart
+- [ ] "Add to Cart" button on product page
+- [ ] Update cart badge count
+- [ ] Success notification
 
-**Labels**: `frontend`, `backend`, `cart`, `must-have`
-
----
-
-## Story E3.2: View Shopping Cart
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to view all items in my shopping cart,
-So that I can review my selections before checkout.
-```
-
+## Story E3.2: Manage Cart
+**Priority**: Highest | **Points**: 3
+**User Story**: As a Customer, I want to view and edit my cart, so that I can adjust my order.
 **Acceptance Criteria**:
-- [ ] Cart page displays all items with: image, title, price, quantity, subtotal
-- [ ] Update quantity controls (+/- buttons or input field)
-- [ ] Remove item button for each product
-- [ ] Cart summary showing: Subtotal, Tax, Shipping, Total
-- [ ] "Continue Shopping" button
-- [ ] "Proceed to Checkout" button
-- [ ] Empty cart message if no items
-- [ ] Real-time calculation of totals when quantities change
-- [ ] Stock availability check displayed
-- [ ] Promotional/discount code input field
+- [ ] View item list, prices, total
+- [ ] Update quantities
+- [ ] Remove items
 
-**Labels**: `frontend`, `backend`, `cart`, `must-have`
-
----
-
-## Story E3.3: Update Cart Quantities
-**Priority**: Medium  
-**Story Points**: 3
-
-**User Story**:
-```
-As a customer,
-I want to update product quantities in my cart,
-So that I can adjust my order before checkout.
-```
-
+## Story E3.3: Checkout - Address
+**Priority**: Highest | **Points**: 3
+**User Story**: As a Customer, I want to select a delivery address during checkout, so that I receive my order.
 **Acceptance Criteria**:
-- [ ] Quantity can be increased or decreased
-- [ ] Minimum quantity: 1
-- [ ] Maximum quantity: available stock
-- [ ] Subtotal updates automatically
-- [ ] Total cart value updates automatically
-- [ ] Warning if requested quantity exceeds stock
-- [ ] Quantity input validates numeric values only
-- [ ] Changes saved immediately
+- [ ] Select from saved addresses
+- [ ] Enter new address
+- [ ] Validate address fields
 
-**Labels**: `frontend`, `backend`, `cart`, `must-have`
-
----
-
-## Story E3.4: Remove Items from Cart
-**Priority**: Medium  
-**Story Points**: 2
-
-**User Story**:
-```
-As a customer,
-I want to remove items from my cart,
-So that I can eliminate products I no longer wish to purchase.
-```
-
+## Story E3.4: Checkout - Payment Method
+**Priority**: Highest | **Points**: 8
+**User Story**: As a Customer, I want to choose a payment method, so that I can pay for my order.
 **Acceptance Criteria**:
-- [ ] Remove/delete button for each cart item
-- [ ] Confirmation dialog before removal (optional)
-- [ ] Item removed immediately from cart
-- [ ] Cart totals recalculated
-- [ ] Success message displayed
-- [ ] "Undo" option to restore removed item (5 seconds)
-- [ ] Cart icon count updates
-- [ ] Empty cart message if all items removed
+- [ ] Option: Cash on Delivery (COD)
+- [ ] Option: Bank Deposit Upload
+- [ ] Upload payment receipt image
 
-**Labels**: `frontend`, `backend`, `cart`, `must-have`
-
----
-
-## Story E3.5: Apply Discount Codes
-**Priority**: Low  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to apply promotional discount codes,
-So that I can save money on my purchase.
-```
-
+## Story E3.5: Order Confirmation
+**Priority**: High | **Points**: 3
+**User Story**: As a Customer, I want to receive an order confirmation, so that I know my order was placed.
 **Acceptance Criteria**:
-- [ ] Discount code input field in cart page
-- [ ] "Apply" button to validate and apply code
-- [ ] Success message if code is valid
-- [ ] Error message if code is invalid/expired
-- [ ] Discount amount displayed in cart summary
-- [ ] Discount applied to total before tax
-- [ ] Only one discount code per order
-- [ ] Code validation: active dates, usage limits, minimum order value
-- [ ] "Remove" option to remove applied discount
-- [ ] Discount details shown (e.g., "10% off")
+- [ ] Show Order Success page with Order ID
+- [ ] Send Confirmation Email
+- [ ] Deduct stock (provisional)
 
-**Labels**: `frontend`, `backend`, `cart`, `promotions`, `could-have`
-
----
-
-## Story E3.13: Admin Order Management
-**Priority**: High  
-**Story Points**: 8
-
-**User Story**:
-```
-As an admin,
-I want to manage all customer orders,
-So that I can process and fulfill orders efficiently.
-```
-
+## Story E3.6: Guest Checkout
+**Priority**: Medium | **Points**: 5
+**User Story**: As a Guest, I want to checkout without creating an account, so that I can buy quickly.
 **Acceptance Criteria**:
-- [ ] Admin dashboard shows all orders
-- [ ] Filter orders by status, date range, customer
-- [ ] Search orders by order number, customer name, email
-- [ ] View full order details
-- [ ] Update order status manually
-- [ ] Mark orders as shipped with tracking number
-- [ ] Mark orders as delivered
-- [ ] Process refunds for cancelled orders
-- [ ] Export orders to CSV/Excel
-- [ ] Bulk status updates
+- [ ] Checkout flow without login
+- [ ] Option to register after checkout
 
-**Labels**: `backend`, `admin`, `orders`, `must-have`
+## Story E3.7: Admin - List Orders
+**Priority**: High | **Points**: 5
+**User Story**: As an Admin, I want to view all orders, so that I can process them.
+**Acceptance Criteria**:
+- [ ] List orders with status (Pending, Processing, Completed)
+- [ ] Filter by Date or Status
+- [ ] View Order Details
+
+## Story E3.8: Admin - Update Order Status
+**Priority**: High | **Points**: 3
+**User Story**: As an Admin, I want to update order status, so that customers are informed.
+**Acceptance Criteria**:
+- [ ] Change status (e.g., Pending -> Shipped)
+- [ ] Trigger email notification on change
+
+## Story E3.9: Customer Order History
+**Priority**: Medium | **Points**: 3
+**User Story**: As a Customer, I want to view my past orders, so that I can track my purchases.
+**Acceptance Criteria**:
+- [ ] List past orders
+- [ ] View order status and details
+- [ ] Re-order option
+
+## Story E3.10: Sales Dashboard
+**Priority**: High | **Points**: 5
+**User Story**: As a Supervisor, I want to see a sales dashboard, so that I can monitor performance.
+**Acceptance Criteria**:
+- [ ] View Total Revenue (Daily/Weekly)
+- [ ] View Order Counts
+- [ ] Visual charts/graphs
+
+## Story E3.11: Financial Reports
+**Priority**: Medium | **Points**: 5
+**User Story**: As a Supervisor, I want to generate financial reports, so that I can audit revenue.
+**Acceptance Criteria**:
+- [ ] Export sales data to CSV/PDF
+- [ ] Filter by date range
 
 ---
 
 # Epic 4 (E4): Supplier Management Component
 
-**Epic Description**: Supplier relations and purchase orders  
-**Priority**: Medium  
-**Story Count**: 2  
-**Assigned To**: Gawrawa G H Y (IT24100799)
+**Epic Description**: Supplier CRUD with verification, Purchase Order (PO) management with status tracking, and supplier performance.
 
----
-
-## Story E3.6: Checkout via Bank Slip/COD
-**Priority**: High  
-**Story Points**: 8
-
-**User Story**:
-```
-As a customer,
-I want to checkout via Bank Slip Upload or Cash on Delivery,
-So that I can complete my purchase using my preferred payment method.
-```
-
+## Story E4.1: Add Supplier
+**Priority**: Medium | **Points**: 3
+**User Story**: As an Inventory Mgr, I want to add new suppliers, so that I can order stock.
 **Acceptance Criteria**:
-- [ ] Multi-step checkout: Shipping Address → Payment → Review → Confirmation
-- [ ] Shipping address form: name, address line 1, address line 2, city, postal code, phone
-- [ ] Address validation for Sri Lankan addresses
-- [ ] Saved addresses for logged-in users
-- [ ] Payment method selection:
-    - [ ] Bank Receipt Upload (File upload field, file type/size validation)
-    - [ ] Cash on Delivery (COD)
-- [ ] Order review page showing: items, quantities, prices, shipping, total
-- [ ] Terms and conditions acceptance required
-- [ ] "Place Order" button
-- [ ] Loading indicator during order processing
-- [ ] Order confirmation page with order number
-- [ ] Confirmation email sent immediately
+- [ ] Enter Supplier Name, Contact, Address
+- [ ] Save Supplier details
 
-**Labels**: `frontend`, `backend`, `checkout`, `must-have`
-
----
-
-## Story E3.7: Guest Checkout
-**Priority**: Medium  
-**Story Points**: 5
-
-**User Story**:
-```
-As a guest customer,
-I want to checkout without creating an account,
-So that I can make a quick purchase.
-```
-
+## Story E4.2: Verify Supplier
+**Priority**: Medium | **Points**: 3
+**User Story**: As an Inventory Mgr, I want to mark suppliers as verified, so that I ensure quality.
 **Acceptance Criteria**:
-- [ ] "Checkout as Guest" option on cart page
-- [ ] Guest checkout form collects: name, email, phone, shipping address
-- [ ] Email validation required
-- [ ] Order confirmation sent to provided email
-- [ ] Option to create account after order completion
-- [ ] Guest orders tracked by email and order number
-- [ ] Same checkout flow as registered users
-- [ ] Guest cart cleared after order completion
+- [ ] Verification status toggle
+- [ ] Upload business registration doc
 
-**Labels**: `frontend`, `backend`, `checkout`, `should-have`
-
----
-
-## Story E3.8: Order Confirmation
-**Priority**: High  
-**Story Points**: 3
-
-**User Story**:
-```
-As a customer,
-I want to receive order confirmation,
-So that I have proof of my purchase and order details.
-```
-
+## Story E4.3: Create Purchase Order
+**Priority**: High | **Points**: 8
+**User Story**: As an Inventory Mgr, I want to create a PO, so that I can request stock.
 **Acceptance Criteria**:
-- [ ] Confirmation page displays: order number, date, items, total, shipping address
-- [ ] "Print Order" button
-- [ ] "Download Invoice" button (PDF)
-- [ ] Confirmation email sent with same details
-- [ ] Email includes: order summary, estimated delivery date, tracking info (when available)
-- [ ] "Continue Shopping" button
-- [ ] "Track Order" link
-- [ ] Order saved to user's order history
+- [ ] Select Supplier
+- [ ] Add Products and Quantities
+- [ ] Calculate Cost
+- [ ] Generate PO PDF
 
-**Labels**: `frontend`, `backend`, `orders`, `must-have`
-
----
-
-## Story E3.9: View Order History
-**Priority**: Medium  
-**Story Points**: 5
-
-**User Story**:
-```
-As a registered customer,
-I want to view my past orders,
-So that I can track my purchases and reorder items.
-```
-
+## Story E4.4: Receive Purchase Order
+**Priority**: High | **Points**: 5
+**User Story**: As an Inventory Mgr, I want to mark a PO as received, so that stock is updated.
 **Acceptance Criteria**:
-- [ ] "My Orders" page in user account section
-- [ ] List of all orders with: order number, date, status, total
-- [ ] Orders sorted by date (newest first)
-- [ ] Filter by order status: All, Processing, Shipped, Delivered, Cancelled
-- [ ] Search orders by order number or product name
-- [ ] Click order to view full details
-- [ ] Pagination for orders (10 per page)
-- [ ] "Reorder" button to add same items to cart
-- [ ] Download invoice for each order
-
-**Labels**: `frontend`, `backend`, `orders`, `should-have`
-
----
-
-## Story E3.10: Track Order Status
-**Priority**: Medium  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to track my order status,
-So that I know when to expect delivery.
-```
-
-**Acceptance Criteria**:
-- [ ] Order detail page shows current status
-- [ ] Status options: Order Placed, Processing, Packed, Shipped, Out for Delivery, Delivered
-- [ ] Visual progress indicator/timeline
-- [ ] Estimated delivery date displayed
-- [ ] Tracking number shown when available
-- [ ] Link to courier tracking page (if applicable)
-- [ ] Status update timestamps
-- [ ] Email notifications for status changes
-
-**Labels**: `frontend`, `backend`, `orders`, `should-have`
-
----
-
-## Story E3.11: Cancel Order
-**Priority**: Low  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to cancel my order before it ships,
-So that I can avoid unwanted purchases.
-```
-
-**Acceptance Criteria**:
-- [ ] "Cancel Order" button visible for eligible orders
-- [ ] Only orders with status "Order Placed" or "Processing" can be cancelled
-- [ ] Confirmation dialog before cancellation
-- [ ] Reason for cancellation dropdown (optional)
-- [ ] Order status updated to "Cancelled"
-- [ ] Refund processed if payment already made
-- [ ] Cancellation confirmation email sent
-- [ ] Cancelled items returned to inventory
-- [ ] Admin notified of cancellation
-
-**Labels**: `frontend`, `backend`, `orders`, `could-have`
-
----
-
-## Story E3.12: Generate Invoice
-**Priority**: Medium  
-**Story Points**: 5
-
-**User Story**:
-```
-As a customer,
-I want to receive a payment receipt and invoice,
-So that I have proof of payment for my records.
-```
-
-**Acceptance Criteria**:
-- [ ] Invoice generated automatically after successful payment
-- [ ] Invoice includes: invoice number, date, customer details, items, prices, tax, total
-- [ ] Invoice downloadable as PDF
-- [ ] Invoice sent via email
-- [ ] Receipt shows payment method and transaction ID
-- [ ] Company details and tax registration on invoice
-- [ ] Sequential invoice numbering
-- [ ] "Download Invoice" button in order history
-- [ ] Invoices stored securely in system
-
-**Labels**: `backend`, `orders`, `reporting`, `must-have`
-
----
-
-## Story E3.13: Admin Order Management
-**Priority**: High  
-**Story Points**: 8
-
-**User Story**:
-```
-As an admin,
-I want to manage all customer orders,
-So that I can process and fulfill orders efficiently.
-```
-
-**Acceptance Criteria**:
-- [ ] Admin dashboard shows all orders
-- [ ] Filter orders by status, date range, customer
-- [ ] Search orders by order number, customer name, email
-- [ ] View full order details
-- [ ] Update order status manually
-- [ ] Mark orders as shipped with tracking number
-- [ ] Mark orders as delivered
-- [ ] Process refunds for cancelled orders
-- [ ] Export orders to CSV/Excel
-- [ ] Bulk status updates
-
-**Labels**: `backend`, `admin`, `orders`, `must-have`
-
----
-
-# Epic 4 (E4): Supplier Management Component
-
-**Epic Description**: Supplier relations and purchase orders  
-**Priority**: Medium  
-**Story Count**: 2  
-**Assigned To**: Gawrawa G H Y (IT24100799)
-
----
-
-## Story E4.1: Manage Suppliers
-**Priority**: Medium
-**Story Points**: 5
-
-**User Story**:
-```
-As an admin,
-I want to manage supplier information,
-So that I can maintain a database of vendors.
-```
-
-**Acceptance Criteria**:
-- [ ] Add new supplier (Name, Contact, Email, Address)
-- [ ] Edit supplier details
-- [ ] View list of all suppliers
-- [ ] Search suppliers by name or ID
-- [ ] Delete or deactivate suppliers
-- [ ] Link products to suppliers
-
-**Labels**: `backend`, `suppliers`, `admin`, `should-have`
-
----
-
-## Story E4.2: Create Purchase Orders
-**Priority**: Medium
-**Story Points**: 8
-
-**User Story**:
-```
-As an admin,
-I want to create purchase orders,
-So that I can restock products from suppliers.
-```
-
-**Acceptance Criteria**:
-- [ ] Create new purchase order (PO)
-- [ ] Select supplier for PO
-- [ ] Add products and quantities to PO
-- [ ] Calculate total cost based on supplier prices
-- [ ] Send PO to supplier via email
-- [ ] Track PO status (Draft, Sent, Received, Cancelled)
-- [ ] Update inventory when PO is received
-
-**Labels**: `backend`, `suppliers`, `admin`, `should-have`
+- [ ] View Sent POs
+- [ ] Mark as Received (Full/Partial)
+- [ ] Update Inventory automatically
 
 ---
 
 # Epic 5 (E5): Inventory Management Component
 
-**Epic Description**: Real-time stock tracking, low stock alerts, and inventory adjustments
-**Priority**: Medium  
-**Story Count**: 3  
-**Assigned To**: Bandara N W C D (IT24100264)
+**Epic Description**: Multi-location stock tracking (Main, Balangoda, Kottawa), transfers with approval workflow, stock CRUD, and low stock alerts.
 
----
-
-## Story E5.1: Track Stock Levels
-**Priority**: High  
-**Story Points**: 5
-
-**User Story**:
-```
-As an admin,
-I want to track stock levels in real-time,
-So that I know product availability at all times.
-```
-
+## Story E5.1: View Stock Levels
+**Priority**: Highest | **Points**: 5
+**User Story**: As an Inventory Mgr, I want to view stock levels across locations, so that I know what is available.
 **Acceptance Criteria**:
-- [ ] Dashboard shows current stock levels for all products
-- [ ] Stock automatically decreases when order is placed
-- [ ] Stock increases when order is cancelled
-- [ ] Stock status indicators: In Stock, Low Stock, Out of Stock
-- [ ] Stock count visible on product management page
-- [ ] Filter products by stock status
-- [ ] Search products by name or SKU
-- [ ] Export stock report to CSV/Excel
+- [ ] List products with stock count
+- [ ] Filter by Location (Main, Balangoda, Kottawa)
+- [ ] Search by SKU
 
-**Labels**: `backend`, `inventory`, `admin`, `should-have`
-
----
-
-## Story E5.2: Low Stock Alerts
-**Priority**: Medium  
-**Story Points**: 3
-
-**User Story**:
-```
-As an admin,
-I want to receive alerts when stock is low,
-So that I can reorder before stockouts occur.
-```
-
+## Story E5.2: Adjust Stock
+**Priority**: High | **Points**: 3
+**User Story**: As an Inventory Mgr, I want to manually adjust stock, so that records match reality.
 **Acceptance Criteria**:
-- [ ] Set low stock threshold per product
-- [ ] Email alert sent when stock falls below threshold
-- [ ] Dashboard notification for low stock items
-- [ ] Low stock products highlighted in inventory list
-- [ ] Alert includes: product name, current stock, threshold
-- [ ] Option to dismiss or snooze alerts
-- [ ] Alert history log
+- [ ] Update quantity (+/-)
+- [ ] Select Reason (Damage, Loss, Correction)
 
-**Labels**: `backend`, `inventory`, `admin`, `should-have`
-
----
-
-## Story E5.3: Stock Adjustment
-**Priority**: Medium  
-**Story Points**: 3
-
-**User Story**:
-```
-As an admin,
-I want to manually adjust stock levels,
-So that I can correct discrepancies or handle returns.
-```
-
+## Story E5.3: Request Stock Transfer
+**Priority**: High | **Points**: 5
+**User Story**: As a Branch Mgr, I want to request stock from Main Branch, so that I can replenish my store.
 **Acceptance Criteria**:
-- [ ] Stock adjustment form for each product
-- [ ] Increase or decrease stock quantity
-- [ ] Reason for adjustment: Damaged, Lost, Found, Return, Other
-- [ ] Notes field for additional details
-- [ ] Adjustment history log with: date, user, quantity, reason
-- [ ] Stock level updates immediately after adjustment
-- [ ] Adjustment requires admin confirmation
+- [ ] Select Products and Quantity
+- [ ] Select Destination Location
+- [ ] Submit Request
 
-**Labels**: `backend`, `inventory`, `admin`, `should-have`
+## Story E5.4: Approve Stock Transfer
+**Priority**: High | **Points**: 5
+**User Story**: As a Master Inventory Mgr, I want to approve transfers, so that stock movement is controlled.
+**Acceptance Criteria**:
+- [ ] List Step pending requests
+- [ ] Approve or Reject
+- [ ] Initiate Transfer
+
+## Story E5.5: Low Stock Alerts
+**Priority**: Medium | **Points**: 3
+**User Story**: As an Inventory Mgr, I want to receive low stock alerts, so that I reorder in time.
+**Acceptance Criteria**:
+- [ ] Visual indicator for low stock
+- [ ] Dashboard notification
+
+## Story E5.6: Manage Locations
+**Priority**: Medium | **Points**: 3
+**User Story**: As an Admin, I want to manage warehouse locations, so that I can track inventory accurately.
+**Acceptance Criteria**:
+- [ ] Add/Edit Location (Name, Address)
+- [ ] Assign Manager to Location
 
 ---
 
 # Epic 6 (E6): Promotion & Loyalty Component
 
-**Epic Description**: Coupons, campaigns, and loyalty rewards
-**Priority**: Medium
-**Story Count**: 4
-**Assigned To**: Perera M.U.E (IT24101266)
+**Epic Description**: Coupon CRUD, campaign management, loyalty program operations (points), and gift voucher management.
 
----
-
-## Story E6.1: Create Discount Coupons
-**Priority**: Medium  
-**Story Points**: 5
-
-**User Story**:
-```
-As an admin,
-I want to create discount coupons,
-So that I can run promotional campaigns.
-```
-
+## Story E6.1: Create Coupons
+**Priority**: Medium | **Points**: 5
+**User Story**: As a Marketing Mgr, I want to create coupons, so that I can offer discounts.
 **Acceptance Criteria**:
-- [ ] Coupon creation form in admin panel
-- [ ] Coupon code (unique, alphanumeric)
-- [ ] Discount type: Percentage or Fixed Amount
-- [ ] Discount value
-- [ ] Minimum order value requirement
-- [ ] Valid from and valid until dates
-- [ ] Usage limit: total uses and per customer
-- [ ] Applicable to: All products, Specific categories, Specific products
-- [ ] Active/Inactive status toggle
-- [ ] Preview coupon before saving
+- [ ] Set Code, Discount %, Expiry Date
+- [ ] Set Usage Limit
 
-**Labels**: `backend`, `promotions`, `admin`, `should-have`
-
----
-
-## Story E6.2: Manage Coupon Rules
-**Priority**: Medium  
-**Story Points**: 3
-
-**User Story**:
-```
-As an admin,
-I want to set rules for coupon usage,
-So that I can control discount conditions.
-```
-
+## Story E6.2: Validate Coupons
+**Priority**: High | **Points**: 3
+**User Story**: As the System, I want to validate coupons at checkout, so that discounts are applied correctly.
 **Acceptance Criteria**:
-- [ ] Set minimum purchase amount
-- [ ] Set maximum discount amount (for percentage coupons)
-- [ ] Limit to specific user roles (e.g., new customers only)
-- [ ] Limit to specific grades or subjects
-- [ ] Exclude sale items from coupon
-- [ ] Combine with other coupons: Yes/No
-- [ ] First-time customer only option
-- [ ] Rules validation when coupon is applied
+- [ ] Check expiry date
+- [ ] Check min purchase amount
+- [ ] Apply discount to total
 
-**Labels**: `backend`, `promotions`, `admin`, `should-have`
-
----
-
-## Story E6.3: View Coupon Usage Reports
-**Priority**: Low  
-**Story Points**: 5
-
-**User Story**:
-```
-As an admin,
-I want to view coupon usage reports,
-So that I can measure campaign effectiveness.
-```
-
+## Story E6.3: Loyalty Points - Earning
+**Priority**: Medium | **Points**: 5
+**User Story**: As the System, I want to award points for purchases, so that customers are rewarded.
 **Acceptance Criteria**:
-- [ ] Coupon report page in admin panel
-- [ ] List all coupons with: code, discount, usage count, total savings
-- [ ] Filter by: Active, Expired, All
-- [ ] Date range filter
-- [ ] View detailed usage per coupon: customer, order, date, discount amount
-- [ ] Total revenue impact calculation
-- [ ] Export report to CSV/Excel
-- [ ] Chart showing coupon usage over time
+- [ ] Calculate points based on order value
+- [ ] Add points to user account on complete
 
-**Labels**: `backend`, `promotions`, `admin`, `reporting`, `could-have`
-
----
-
-## Story E6.4: Purchase Gift Vouchers
-**Priority**: Low  
-**Story Points**: 8
-
-**User Story**:
-```
-As a customer,
-I want to purchase gift vouchers,
-So that I can gift educational materials to others.
-```
-
+## Story E6.4: Loyalty Points - Redemption
+**Priority**: Medium | **Points**: 5
+**User Story**: As a Customer, I want to redeem points for discounts, so that I can save money.
 **Acceptance Criteria**:
-- [ ] Gift voucher purchase page
-- [ ] Select voucher amount (predefined or custom)
-- [ ] Recipient email address
-- [ ] Personal message (optional)
-- [ ] Sender name
-- [ ] Delivery date: Immediate or scheduled
-- [ ] Voucher code generated automatically
-- [ ] Email sent to recipient with voucher code and message
-- [ ] Voucher redeemable at checkout
-- [ ] Voucher balance tracking
-- [ ] Expiry date (e.g., 1 year from purchase)
+- [ ] View points balance
+- [ ] Convert points to currency discount at checkout
 
-**Labels**: `frontend`, `backend`, `promotions`, `could-have`
+## Story E6.5: Create Gift Vouchers
+**Priority**: Low | **Points**: 3
+**User Story**: As a Marketing Mgr, I want to generate gift vouchers, so that they can be sold.
+**Acceptance Criteria**:
+- [ ] Generate unique code
+- [ ] Set Amount and Expiry
 
----
+## Story E6.6: Redeem Gift Vouchers
+**Priority**: Low | **Points**: 3
+**User Story**: As a Customer, I want to use a gift voucher, so that I can pay for my order.
+**Acceptance Criteria**:
+- [ ] Enter Voucher Code at checkout
+- [ ] Deduct amount from total
 
-
-
-## 📊 Summary
-
-### Total User Stories by Epic
-
-| Epic | Epic Name | Stories | Priority |
-|------|-----------|---------|----------|
-| E1 | User & Admin Component | 6 | Highest |
-| E2 | Product Catalog Component | 8 | Highest |
-| E3 | Order & Transaction Component | 13 | Highest |
-| E4 | Supplier Management Component | 2 | Medium |
-| E5 | Inventory Management Component | 3 | High |
-| E6 | Promotion & Loyalty Component | 4 | Medium |
-| **Total** | | **37** | |
-
-### Story Points Summary
-- **E1: User & Admin Component**: ~23 points
-- **E2: Product Catalog Component**: ~37 points
-- **E3: Order & Transaction Component**: ~64 points
-- **E4: Supplier Management Component**: ~13 points
-- **E5: Inventory Management Component**: ~11 points
-- **E6: Promotion & Loyalty Component**: ~29 points
-- **Total Estimated**: ~177 points
-
----
-
-## 📝 Notes
-
-- All stories follow the format: "As a [user], I want [goal], So that [benefit]"
-- Each story includes acceptance criteria, story points, priority, and labels
-- Stories are ready to be imported into Jira
-- Link each story to its respective Epic (E1-E6) in Jira
-- Adjust story points during sprint planning based on team velocity
-
----
-
-**Document Version**: 4.0 (6-Epic Final Structure)  
-**Last Updated**: February 5, 2026  
-**Ready for Jira Import**: ✅
+## Story E6.7: Marketing Campaigns
+**Priority**: Low | **Points**: 5
+**User Story**: As a Marketing Mgr, I want to create campaigns, so that I can track promotion performance.
+**Acceptance Criteria**:
+- [ ] Define Campaign Name and Dates
+- [ ] Link Coupons to Campaign
+- [ ] Track usage stats

@@ -13,7 +13,7 @@
 
 | Epic ID | Epic Name | Stories | Points | Priority | Assigned To | IT Number |
 |---------|-----------|---------|--------|----------|-------------|-----------|
-| **E1** | User & Admin Component | 6 | ~23 | Highest | Galagama S.T | IT24100548 |
+| **E1** | User & Role Management Component | 6 | ~23 | Highest | Galagama S.T | IT24100548 |
 | **E2** | Product Catalog Component | 8 | ~37 | Highest | Appuhami H A P L | IT24101314 |
 | **E3** | Order & Transaction Component | 13 | ~64 | Highest | Jayasinghe D.B.P | IT24100191 |
 | **E4** | Supplier Management Component | 2 | ~13 | Medium | Gawrawa G H Y | IT24100799 |
@@ -24,7 +24,7 @@
 
 ## Epic Details
 
-### E1: User & Admin Component
+### E1: User & Role Management Component
 **Assigned To**: Galagama S.T (IT24100548)  
 **Description**: Registration, login, role-based access, and security  
 **Stories**: 6 | **Points**: ~23
@@ -107,7 +107,7 @@
 ## Implementation Priority
 
 ```
-1. E1: User & Admin Component (Foundation)
+1. E1: User & Role Management Component (Foundation)
    ↓
 2. E2: Product Catalog Component (Core Value)
    ↓

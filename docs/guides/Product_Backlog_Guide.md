@@ -59,7 +59,7 @@ The Product Backlog is a living document that contains:
 ### Step 3: Create Epics
 Organize your backlog into major feature areas (Epics):
 
-1. **User & Admin Component**
+1. **User & Role Management Component**
 2. **Product Catalog Component**
 3. **Order & Transaction Component**
 4. **Supplier Management Component**
@@ -153,7 +153,7 @@ So that I can receive my educational materials.
 
 ---
 
-#### Epic: User & Admin Component
+#### Epic: User & Role Management Component
 **Story 5: User Registration**
 ```
 As a new customer,
@@ -190,10 +190,10 @@ So that I can access my order history and saved information.
 
 ---
 
-#### Epic: User & Admin Component
+#### Epic: User & Role Management Component
 **Story 7: Manage Products**
 ```
-As an admin,
+As an Inventory Manager,
 I want to add and edit product listings,
 So that I can keep the catalog up to date.
 ```
@@ -212,7 +212,7 @@ So that I can keep the catalog up to date.
 
 **Story 8: View Sales Reports**
 ```
-As an admin,
+As a System Administrator,
 I want to view sales analytics,
 So that I can make informed business decisions.
 ```
