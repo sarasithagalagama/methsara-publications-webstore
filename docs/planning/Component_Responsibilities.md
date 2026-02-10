@@ -52,7 +52,7 @@ Manage **customer self-registration**, **staff account management** (admin-creat
 - **Profile Management**:
   - Customer self-service profile updates
   - Manage delivery addresses (multiple addresses)
-  - Communication preferences (email, SMS notifications)
+  - Communication preferences (email)
   - Order history access
   - Wishlist management
 - **Admin Support Functions**:
@@ -142,10 +142,8 @@ Manage product information and enable product discovery.
 - Product-category associations (many-to-many relationships)
 - Product reviews and ratings (review text, star rating, reviewer, timestamp)
 - Review helpfulness votes
-- Product view counts and popularity metrics
 - Featured product configurations
 - Product images and media assets
-- Search query logs and trends
 
 ### Does NOT Handle
 - Stock quantities or availability (handled by Inventory Management component)
@@ -216,10 +214,6 @@ Manage supplier relationships and procurement.
   - Receive and verify PO deliveries
   - Handle partial deliveries and backorders
   - Link POs to inventory receipts
-- **Supplier Performance Tracking**:
-  - Track delivery times and reliability
-  - Monitor supplier quality ratings
-  - Record supplier response times
 - **Supplier-Product Linking**: Associate products with their suppliers and pricing
 - **Payment Terms Management**: Define and track payment terms, credit limits, and payment schedules
 - **Supplier Communication**: Maintain communication history and notes
@@ -229,8 +223,6 @@ Manage supplier relationships and procurement.
 - Supplier payment terms and credit limits
 - Purchase orders (status, items, quantities, costs, delivery dates)
 - Supplier-product associations and pricing
-- Supplier performance metrics (delivery time, quality ratings)
-- Communication logs and notes
 - PO delivery history and verification records
 
 ### Does NOT Handle
@@ -353,13 +345,7 @@ Manage marketing campaigns, discounts, and customer loyalty programs.
   - Create marketing campaigns (seasonal sales, flash sales, clearance)
   - Set campaign duration and target audience
   - Link multiple coupons to campaigns
-  - Track campaign performance and ROI
   - Schedule automated campaign start/end
-- **Loyalty Program Operations**:
-  - Define loyalty point earning rules (points per purchase amount)
-  - Set point redemption rates (points to currency conversion)
-  - Track customer loyalty points balance
-  - Award bonus points for special actions
 - **Gift Voucher Management**:
   - Create and sell gift vouchers (fixed or custom amounts)
   - Generate unique voucher codes
@@ -374,67 +360,20 @@ Manage marketing campaigns, discounts, and customer loyalty programs.
   - Set up bundle discounts
 - **Usage Tracking & Analytics**:
   - Monitor coupon redemption rates
-  - Track campaign effectiveness
   - Analyze customer engagement with promotions
-  - Generate revenue impact reports
   - Identify most successful promotions
-  - Track loyalty program participation
 
 ### Data Owned
 - Coupon definitions (codes, discount type, amount, rules, validity dates)
 - Campaign details (name, duration, target audience, linked coupons)
-- Loyalty program configuration (earning rules, redemption rates, tiers)
-- Customer loyalty points balances and transaction history
 - Gift voucher records (codes, amounts, purchase/redemption dates, balance)
 - Promotion usage history (who used, when, order value, discount applied)
-- Campaign performance metrics (redemptions, revenue impact, ROI)
-- Loyalty tier assignments and benefits
 
 ### Does NOT Handle
 - Actual discount application at checkout (Order & Transaction component reads and applies coupon data)
 - Product pricing management (handled by Product Catalog component)
 - Order creation (handled by Order & Transaction component)
 - Customer account management (handled by User & Admin Management component)
-
-## Summary
-
-The system is divided into **6 distinct components**, each with clear responsibilities:
-1. **User & Admin Management**: 
-   - Customer self-registration with email verification
-   - Staff account management (admin-created) with location-specific assignments (Master Inventory Manager, Location-Specific Managers for Balangoda/Kottawa/Main Branch)
-   - Authentication & session management with MFA
-   - Role-Based Access Control (RBAC) with location-based permissions
-   - Profile management, admin support functions, audit & security
-2. **Product Catalog**: 
-   - Product CRUD with complete details (name, SKU, price, images, specifications)
-   - Category management (Grade, Subject, Exam type)
-   - Advanced search & filtering with autocomplete
-   - Product display & sorting (price, popularity, newest)
-   - Reviews & ratings management with verified buyer badges
-   - Product recommendations and analytics
-3. **Order & Transaction**: Cart, checkout, payment, order processing, tracking, and financial management (staff/supplier payments, refunds, reporting)
-4. **Supplier Management**: 
-   - Supplier CRUD with verification
-   - Purchase Order (PO) management with status tracking and partial deliveries
-   - Supplier performance tracking
-   - Payment terms management and communication logs
-5. **Inventory Management**: 
-   - Multi-location stock tracking (Main Branch, Balangoda, Kottawa)
-   - Location-specific inventory managers with role-based access
-   - Stock CRUD and location CRUD operations
-   - Inter-branch transfers with approval workflow
-   - Low stock alerts, stock movement history, and analytics
-6. **Promotion & Loyalty**: 
-   - Coupon CRUD with validation
-   - Campaign management with ROI tracking
-   - Loyalty program operations with tier management (Bronze, Silver, Gold)
-   - Gift voucher management and promotion rules engine
-
-This structure ensures:
-- **Clear separation of concerns**
-- **No overlapping responsibilities**
-- **Scalable and maintainable architecture**
-- **Easier team collaboration and development**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

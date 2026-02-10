@@ -85,12 +85,12 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 | Epic ID | Epic Description |
 |---|---|
-| **E1** | **User & Admin Management Component:** Customer self-registration with email verification, staff account management with location-specific assignments, authentication & session management with MFA, role-based access control, profile management, and admin support. |
-| **E2** | **Product Catalog Component:** Product CRUD, category management, advanced search & filtering, product display & sorting, reviews & ratings management, and product recommendations. |
+| **E1** | **User & Admin Management Component:** Customer self-registration with email verification, staff account management with location-specific assignments, authentication & session management (no MFA), role-based access control, profile management. |
+| **E2** | **Product Catalog Component:** Product CRUD, category management, advanced search & filtering, product display & sorting, reviews & ratings management. |
 | **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment options (Bank Receipt, COD), order tracking, and financial reporting. |
-| **E4** | **Supplier Management Component:** Supplier CRUD with verification, Purchase Order (PO) management with status tracking and partial deliveries, and supplier performance tracking. |
+| **E4** | **Supplier Management Component:** Supplier CRUD with verification, Purchase Order (PO) management with status tracking, and supplier performance tracking. |
 | **E5** | **Inventory Management Component:** Multi-location stock tracking (Main, Balangoda, Kottawa), transfers with approval workflow, stock CRUD, and low stock alerts. |
-| **E6** | **Promotion & Loyalty Component:** Coupon CRUD, campaign management, loyalty program operations (tiers, points), and gift voucher management. |
+| **E6** | **Promotion & Loyalty Component:** Coupon CRUD, campaign management, loyalty program operations (points only), and gift voucher management. |
 
 ### 5. User Stories
 
@@ -99,7 +99,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | Epic ID | User Story ID | User Story | Stakeholder |
 |---|---|---|---|
 | E1 | E1.1 | As a Customer, I want to register with email verification, so that I can access features. | Customer |
-| E1 | E1.2 | As a User, I want to login securely with MFA (staff), so that my account is safe. | User |
+| E1 | E1.2 | As a User, I want to login securely, so that my account is safe. | User |
 | E1 | E1.3 | As a Customer, I want to manage my profile and addresses, so that info is current. | Customer |
 | E1 | E1.4 | As an Admin, I want to manage staff accounts and roles, so that employees have access. | Admin |
 | E1 | E1.5 | As a System, I want to enforce RBAC, so that users access only authorized features. | System |
@@ -127,10 +127,8 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E5 | E5.4 | As an Inventory Mgr, I want low stock alerts, so that I reorder in time. | Inventory Mgr |
 | E5 | E5.5 | As an Admin, I want to manage locations, so that I can assign managers. | Admin |
 | E6 | E6.1 | As a Marketing Mgr, I want to manage coupons, so that I run promotions. | Marketing Mgr |
-| E6 | E6.2 | As a Marketing Mgr, I want to manage loyalty tiers, so that I reward customers. | Marketing Mgr |
-| E6 | E6.3 | As a Customer, I want to redeem loyalty points, so that I get discounts. | Customer |
-| E6 | E6.4 | As a Marketing Mgr, I want to manage gift vouchers, so that customers buy them. | Marketing Mgr |
-| E6 | E6.5 | As a Marketing Mgr, I want to run campaigns, so that I track performance. | Marketing Mgr |
+
+| E6 | E6.4 | As a Marketing Mgr, I want to run campaigns, so that I track performance. | Marketing Mgr |
 
 
 ### 6. Initial Product Backlog
@@ -153,7 +151,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E1.5 | Delivery Addresses | 5 | 16 | High |
 | E1.6 | Manage Staff | 5 | 16 | High |
 | E1.7 | Assign Roles | 5 | 16 | Highest |
-| E1.11 | Security Logs | 3 | 8 | High |
+| E1.10 | Security Logs | 3 | 8 | High |
 | E2.1 | Create Product | 5 | 16 | High |
 | E2.2 | Update Product | 3 | 8 | High |
 | E2.5 | Filter Products | 5 | 16 | High |
@@ -169,7 +167,6 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E6.2 | Validate Coupons | 3 | 8 | High |
 | E1.4 | Manage Profile | 3 | 8 | Medium |
 | E1.9 | View Customers | 3 | 8 | Medium |
-
 | E2.3 | Manage Categories | 5 | 16 | Medium |
 | E3.6 | Guest Checkout | 5 | 16 | Medium |
 | E3.9 | Order History | 3 | 8 | Medium |
@@ -179,17 +176,13 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 | E5.5 | Low Stock Alerts | 3 | 8 | Medium |
 | E5.6 | Manage Locations | 3 | 8 | Medium |
 | E6.1 | Create Coupons | 5 | 16 | Medium |
-| E6.3 | Earn Points | 5 | 16 | Medium |
-| E6.4 | Redeem Points | 5 | 16 | Medium |
+
 | E2.7 | Recommendations | 5 | 16 | Low |
 | E2.8 | Write Review | 3 | 8 | Low |
 | E2.9 | Moderate Reviews | 3 | 8 | Low |
 | E6.5 | Create Vouchers | 3 | 8 | Low |
 | E6.6 | Redeem Vouchers | 3 | 8 | Low |
 | E6.7 | Campaigns | 5 | 16 | Low |
-
-
-*Note: Some user stories were renumbered to align with the correct Epic structure.*
 
 ### 7. Definition of Done (DoD)
 
