@@ -318,36 +318,35 @@ For any User Story or Epic to be considered "Done," the following criteria must 
 **Planned Work (Targeting ~50% of each Epic):**
 
 *   **Epic 1: User & Role Management Component (3/6 Stories)**
-    *   **E1.1:** User Registration (Student, Teacher, Parent)
-    *   **E1.2:** User Login (Secure Authentication)
-    *   **E1.6:** Role-Based Access Control (Admin vs. Customer)
+    *   **E1.1:** Self-Register with Email Verification
+    *   **E1.2:** Login Securely
+    *   **E1.6:** Enforce Role-Based Access Control (RBAC)
 
 *   **Epic 2: Product Catalog Component (5/8 Stories)**
-    *   **E2.1:** Browse Product Categories
-    *   **E2.2:** Multi-Image Product Display
-    *   **E2.3:** Filter by Grade/Subject/Exam
-    *   **E2.4:** Search Functionality
-    *   **E2.6:** Detailed Product Views
+    *   **E2.1:** Create and Update Products (Admin)
+    *   **E2.3:** Manage Categories (Admin)
+    *   **E2.4:** Search for Products (Customer)
+    *   **E2.5:** Filter Products by Grade/Subject (Customer)
+    *   **E2.6:** View Detailed Product Information (Customer)
 
 *   **Epic 3: Order & Transaction Component (7/13 Stories)**
-    *   **E3.1:** Add Items to Cart
-    *   **E3.2:** View Shopping Cart
-    *   **E3.3:** Remove/Update Cart Quantities
-    *   **E3.4:** Checkout via Bank Slip (Upload)
+    *   **E3.1:** Add Items to Shopping Cart
+    *   **E3.2:** View and Update Cart
+    *   **E3.3:** Checkout using Cash on Delivery (COD)
+    *   **E3.4:** Checkout by Uploading Bank Transfer Slip
     *   **E3.7:** Track Order Status
     *   **E3.8:** Update Order Status (Admin)
-    *   **E3.12:** Apply Coupon Codes
+    *   **E3.12:** Apply Discounts from Coupons
 
 *   **Epic 4: Supplier Management Component (1/2 Stories)**
-    *   **E4.1:** Manage Supplier Profiles
-    *   **E4.2:** Create Purchase Orders
+    *   **E4.1:** Create and Update Supplier Profiles
 
 *   **Epic 5: Inventory Management Component (2/3 Stories)**
-    *   **E5.1:** Track Stock Levels (Location-Based)
-    *   **E5.8:** Auto-Deduct Stock on Order
+    *   **E5.1:** View Real-Time Stock Levels (Location-Based)
+    *   **E5.8:** Automatically Deduct Stock on Order
 
 *   **Epic 6: Promotion & Loyalty Component (2/4 Stories)**
-    *   **E6.1:** Create Discount Coupons
+    *   **E6.1:** Create Discount Coupons with Rules
     *   **E6.6:** Validate Coupons at Checkout
 
 **Team Utilization:**
