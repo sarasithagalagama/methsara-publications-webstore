@@ -182,119 +182,79 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 **Prioritize user stories based on value:**
 
-| User Story ID | Remarks | Estimated story points | Estimated hours | Priority (High / Medium / Low) |
+| User Story ID | User Story Title | Estimated story points | Estimated hours | Priority (High / Medium / Low) |
 |---|---|---|---|---|
-| E1.1 | Registration | 5 | 16 | Highest |
-| E1.2 | Login | 3 | 8 | Highest |
-| E1.4 | Create Staff (Master Inv) | 3 | 8 | Highest |
-| E1.4.1 | Create Staff (Loc Inv) | 3 | 8 | High |
-| E1.4.6 | Create Staff (Sys Admin) | 3 | 8 | Highest |
-| E1.5 | Assign Locations | 3 | 8 | High |
-| E1.6 | Enforce RBAC | 8 | 24 | Highest |
-| E2.1 | Manage Products | 5 | 16 | Highest |
-| E2.3 | Manage Categories | 5 | 16 | High |
-| E2.4 | Search | 5 | 16 | Highest |
-| E2.6 | Product Details | 5 | 16 | Highest |
-| E3.1 | Add to Cart | 3 | 8 | Highest |
-| E3.2 | Manage Cart | 3 | 8 | Highest |
-| E3.3 | Checkout COD | 3 | 8 | Highest |
-| E3.4 | Checkout Bank Slip | 5 | 16 | Highest |
-| E3.7 | Track Order | 3 | 8 | Highest |
-| E3.8 | Update Order Status | 3 | 8 | High |
-| E3.12 | Apply Coupons (System) | 5 | 16 | High |
-| E4.1 | Manage Suppliers | 3 | 8 | High |
-| E4.2 | Create PO | 8 | 24 | High |
-| E4.3 | Track PO | 5 | 16 | High |
-| E4.7 | Verify Delivery | 5 | 16 | High |
-| E5.1 | View Stock (Loc) | 5 | 16 | Highest |
-| E5.2 | View Stock (Master) | 5 | 16 | Highest |
-| E5.3 | Adjust Stock | 3 | 8 | High |
-| E5.6 | Receive Stock (PO) | 5 | 16 | Highest |
-| E5.8 | Auto Deduct Stock | 5 | 16 | Highest |
-| E6.1 | Create Coupons | 5 | 16 | High |
-| E6.6 | Validate Coupons | 5 | 16 | High |
-| E1.3 | Manage Profile | 3 | 8 | High |
-| E1.13 | Session Mgmt | 5 | 16 | Medium |
-| E2.2 | Product Images | 3 | 8 | High |
-| E2.5 | Filter Products | 5 | 16 | High |
-| E2.7 | Sort Products | 3 | 8 | Medium |
-| E2.8 | Submit Reviews | 3 | 8 | Medium |
-| E3.5 | Guest Checkout | 5 | 16 | Medium |
-| E3.6 | Order History | 3 | 8 | Medium |
-| E3.9 | Finance Dashboard | 5 | 16 | Medium |
-| E3.10 | Invoices | 3 | 8 | Medium |
-| E3.13 | Staff Salaries | 5 | 16 | Medium |
-| E3.14 | Supplier Payments | 5 | 16 | Medium |
-| E4.4 | Email PO | 3 | 8 | Medium |
-| E4.5 | Link Products | 3 | 8 | Medium |
-| E5.4 | Request Transfer | 5 | 16 | Medium |
-| E5.5 | Approve Transfer | 3 | 8 | Medium |
-| E5.9 | Low Stock Alerts | 3 | 8 | Medium |
-| E6.2 | Coupon Validity | 2 | 4 | Medium |
-| E6.3 | Track Usage | 3 | 8 | Medium |
-| E6.7 | Usage Limits | 3 | 8 | Medium |
-| E1.7 | Reset Password | 5 | 16 | Medium |
-| E1.8 | Force Pwd Change | 3 | 8 | Medium |
-| E1.9 | Search Customers | 3 | 8 | Medium |
-| E1.10 | Deactivate Accts | 2 | 4 | Medium |
-| E1.11 | Security Logs | 3 | 8 | Low |
-| E1.12 | Delivery Addresses | 5 | 16 | Medium |
-| E2.9 | Moderate Reviews | 3 | 8 | Low |
-| E2.10 | Related Products | 5 | 16 | Low |
-| E2.11 | Product Analytics | 3 | 8 | Low |
-| E2.12 | Helpful Reviews | 2 | 4 | Low |
-| E2.13 | Recently Viewed | 3 | 8 | Low |
-| E3.11 | Refunds | 5 | 16 | Low |
-| E4.6 | Payment Terms | 2 | 4 | Low |
-| E5.7 | Manage Locations | 3 | 8 | Low |
-| E5.10 | Stock Reports | 5 | 16 | Low |
-| E6.4 | Gift Vouchers | 5 | 16 | Low |
-| E6.5 | Campaigns | 5 | 16 | Low |
-| E1.2 | Login | 3 | 8 | Highest |
-| E1.8 | RBAC | 8 | 24 | Highest |
-| E2.4 | Search | 5 | 16 | Highest |
-| E2.6 | Product Details | 5 | 16 | Highest |
-| E3.1 | Add to Cart | 3 | 8 | Highest |
-| E3.2 | Manage Cart | 3 | 8 | Highest |
-| E3.3 | Checkout Address | 3 | 8 | Highest |
-| E3.4 | Checkout Payment | 8 | 24 | Highest |
-| E5.1 | View Stock | 5 | 16 | Highest |
-| E1.3 | Forgot Password | 3 | 8 | High |
-| E1.5 | Delivery Addresses | 5 | 16 | High |
-| E1.6 | Manage Staff | 5 | 16 | High |
-| E1.7 | Assign Roles | 5 | 16 | Highest |
-| E1.10 | Security Logs | 3 | 8 | High |
-| E2.1 | Create Product | 5 | 16 | High |
-| E2.2 | Update Product | 3 | 8 | High |
-| E2.5 | Filter Products | 5 | 16 | High |
-| E3.5 | Order Confirm | 3 | 8 | High |
-| E3.7 | Admin Orders | 5 | 16 | High |
-| E3.8 | Update Order Status | 3 | 8 | High |
-| E3.10 | Sales Dashboard | 5 | 16 | High |
-| E4.3 | Create PO | 8 | 24 | High |
-| E4.4 | Receive PO | 5 | 16 | High |
-| E5.2 | Adjust Stock | 3 | 8 | High |
-| E5.3 | Request Transfer | 5 | 16 | High |
-| E5.4 | Approve Transfer | 5 | 16 | High |
-| E6.2 | Validate Coupons | 3 | 8 | High |
-| E1.4 | Manage Profile | 3 | 8 | Medium |
-| E1.9 | View Customers | 3 | 8 | Medium |
-| E2.3 | Manage Categories | 5 | 16 | Medium |
-| E3.6 | Guest Checkout | 5 | 16 | Medium |
-| E3.9 | Order History | 3 | 8 | Medium |
-| E3.11 | Financial Reports | 5 | 16 | Medium |
-| E4.1 | Add Supplier | 3 | 8 | Medium |
-| E4.2 | Verify Supplier | 3 | 8 | Medium |
-| E5.5 | Low Stock Alerts | 3 | 8 | Medium |
-| E5.6 | Manage Locations | 3 | 8 | Medium |
-| E6.1 | Create Coupons | 5 | 16 | Medium |
-
-| E2.7 | Recommendations | 5 | 16 | Low |
-| E2.8 | Write Review | 3 | 8 | Low |
-| E2.9 | Moderate Reviews | 3 | 8 | Low |
-| E6.5 | Create Vouchers | 3 | 8 | Low |
-| E6.6 | Redeem Vouchers | 3 | 8 | Low |
-| E6.7 | Campaigns | 5 | 16 | Low |
+| **E1.1** | Registration | 5 | 16 | **Highest** |
+| **E1.2** | Login | 3 | 8 | **Highest** |
+| **E1.4** | Create Staff (Master Inv) | 3 | 8 | **Highest** |
+| **E1.4.6** | Create Staff (Sys Admin) | 3 | 8 | **Highest** |
+| **E1.6** | Enforce RBAC | 8 | 24 | **Highest** |
+| **E2.1** | Create/Update Products | 5 | 16 | **Highest** |
+| **E2.4** | Search Products | 5 | 16 | **Highest** |
+| **E2.6** | Product Details | 5 | 16 | **Highest** |
+| **E3.1** | Add to Cart | 3 | 8 | **Highest** |
+| **E3.2** | Manage Cart | 3 | 8 | **Highest** |
+| **E3.3** | Checkout COD | 3 | 8 | **Highest** |
+| **E3.4** | Checkout Bank Slip | 5 | 16 | **Highest** |
+| **E3.7** | Track Order | 3 | 8 | **Highest** |
+| **E5.1** | View Stock (Location) | 5 | 16 | **Highest** |
+| **E5.2** | View Stock (Master) | 5 | 16 | **Highest** |
+| **E5.6** | Receive Stock (PO) | 5 | 16 | **Highest** |
+| **E5.8** | Auto Deduct Stock | 5 | 16 | **Highest** |
+| **E1.4.1** | Create Staff (Loc Inv) | 3 | 8 | **High** |
+| **E1.4.2** | Create Staff (Finance) | 3 | 8 | **High** |
+| **E1.4.3** | Create Staff (Supplier) | 3 | 8 | **High** |
+| **E1.4.4** | Create Staff (Marketing) | 3 | 8 | **High** |
+| **E1.4.5** | Create Staff (Product) | 3 | 8 | **High** |
+| **E1.5** | Assign Locations | 3 | 8 | **High** |
+| **E2.2** | Upload Product Images | 3 | 8 | **High** |
+| **E2.3** | Manage Categories | 5 | 16 | **High** |
+| **E2.5** | Filter Products | 5 | 16 | **High** |
+| **E3.8** | Update Order Status | 3 | 8 | **High** |
+| **E3.12** | Apply Coupons (System) | 5 | 16 | **High** |
+| **E4.1** | Manage Supplier Profiles | 3 | 8 | **High** |
+| **E4.2** | Create Purchase Orders | 8 | 24 | **High** |
+| **E4.3** | Track PO Status | 5 | 16 | **High** |
+| **E4.7** | Verify Deliveries | 5 | 16 | **High** |
+| **E5.3** | Adjust Stock (Damage) | 3 | 8 | **High** |
+| **E6.1** | Create Coupons | 5 | 16 | **High** |
+| **E6.6** | Validate Coupons | 5 | 16 | **High** |
+| **E1.3** | Manage Profile | 3 | 8 | **High** |
+| **E1.4.7** | Update Staff Accounts | 3 | 8 | **Medium** |
+| **E1.7** | Reset Password | 5 | 16 | **Medium** |
+| **E1.8** | Force Password Change | 3 | 8 | **Medium** |
+| **E1.9** | Search Accounts | 3 | 8 | **Medium** |
+| **E1.10** | Deactivate Accounts | 2 | 4 | **Medium** |
+| **E1.12** | Delivery Addresses | 5 | 16 | **Medium** |
+| **E1.13** | Session Management | 5 | 16 | **Medium** |
+| **E2.7** | Sort Products | 3 | 8 | **Medium** |
+| **E2.8** | Submit Reviews | 3 | 8 | **Medium** |
+| **E3.5** | Guest Checkout | 5 | 16 | **Medium** |
+| **E3.6** | Order History | 3 | 8 | **Medium** |
+| **E3.9** | Finance Dashboard | 5 | 16 | **Medium** |
+| **E3.10** | Generate Invoices | 3 | 8 | **Medium** |
+| **E3.13** | Manage Salaries | 5 | 16 | **Medium** |
+| **E3.14** | Supplier Payments | 5 | 16 | **Medium** |
+| **E4.4** | Email POs | 3 | 8 | **Medium** |
+| **E4.5** | Link Products | 3 | 8 | **Medium** |
+| **E5.4** | Request Transfer | 5 | 16 | **Medium** |
+| **E5.5** | Approve Transfer | 3 | 8 | **Medium** |
+| **E5.9** | Low Stock Alerts | 3 | 8 | **Medium** |
+| **E6.2** | Coupon Validity | 2 | 4 | **Medium** |
+| **E6.3** | Track Usage | 3 | 8 | **Medium** |
+| **E6.7** | Usage Limits | 3 | 8 | **Medium** |
+| **E1.11** | Security Logs | 3 | 8 | **Low** |
+| **E2.9** | Moderate Reviews | 3 | 8 | **Low** |
+| **E2.10** | Related Products | 5 | 16 | **Low** |
+| **E2.11** | Product Analytics | 3 | 8 | **Low** |
+| **E2.12** | Helpful Reviews | 2 | 4 | **Low** |
+| **E2.13** | Recently Viewed | 3 | 8 | **Low** |
+| **E3.11** | Process Refunds | 5 | 16 | **Low** |
+| **E4.6** | Payment Terms | 2 | 4 | **Low** |
+| **E5.7** | Manage Locations | 3 | 8 | **Low** |
+| **E5.10** | Stock Reports | 5 | 16 | **Low** |
+| **E6.4** | Gift Vouchers | 5 | 16 | **Low** |
+| **E6.5** | Seasonal Campaigns | 5 | 16 | **Low** |
 
 ### 7. Definition of Done (DoD)
 
