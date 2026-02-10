@@ -43,7 +43,10 @@ Sri Lanka Institute of Information Technology
 ### 1. Problem Identification
 
 **Problem Statement:**
-Methsara Publications currently operates using traditional manual methods for book sales and inventory tracking. This reliance on physical storefront interactions limits the business's reach to local customers and creates delays in order fulfillment. Stakeholders, including the store owners and loyal readers, suffer from a lack of real-time stock visibility and the inability to browse or purchase publications outside of standard business hours. This manual approach is operationally inefficient, causing stock discrepancies and significant customer friction due to the need for physical store visits. Consequently, transitioning to a digital platform is a strategic necessity to eliminate these barriers and secure the publisher's market position against increasingly digital competitors.
+
+Methsara Publications currently operates using traditional manual methods for book sales and inventory tracking. This reliance on physical storefront interactions limits the business's reach to local customers and creates delays in order fulfillment. Stakeholders, including the store owners and loyal readers, suffer from a lack of real-time stock visibility and the inability to browse or purchase publications outside of standard business hours. 
+
+Crucially, the lack of a centralized system for managing inventory across multiple branches (Main, Balangoda, Kottawa) leads to significant stock discrepancies and inefficient manual transfers. Manual procurement processes further complicate operations, making it difficult to coordinate with suppliers and restock popular items in a timely manner. Consequently, transitioning to a digital platform is a strategic necessity to eliminate these barriers, unify branch operations, and secure the publisher's market position.
 
 **Why is this problem important?**
 • **Limited Market Reach:** Without a digital presence, the publisher cannot reach the growing demographic of online book buyers.
@@ -58,12 +61,16 @@ Methsara Publications currently operates using traditional manual methods for bo
 | **Students (Grades 6-13)** | Primary | Need grade-specific materials for exam prep. |
 | **Parents** | Primary | Purchase materials for children, concerned about quality and delivery. |
 | **Methsara Publications** | Primary | Needs sales growth and efficient operations. |
+| **Master Inventory Manager** | Primary | Oversees stock across all locations (Main, Balangoda, Kottawa). |
 | **Teachers** | Secondary | Recommend materials, interested in bulk ordering. |
 | **School Administrators** | Secondary | Bulk purchases for libraries. |
 | **Tuition Center Owners** | Secondary | Wholesale purchases for students. |
-| **System Administrators** | Secondary | Manage and maintain platform. |
-| **Customer Support Staff** | Secondary | Handle inquiries and issues. |
-| **Marketing Team** | Secondary | Run campaigns and promotions. |
+| **Location-Specific Inventory Mgrs** | Secondary | Manage stock for specific branches (Main, Balangoda, Kottawa). |
+| **Finance Manager** | Secondary | Handles financial reporting, invoices, and payments. |
+| **Supplier Manager** | Secondary | Manages supplier profiles and Purchase Orders. |
+| **Product Manager** | Secondary | Manages product catalog, categories, and reviews. |
+| **Marketing Manager** | Secondary | Creates coupons, vouchers, and runs campaigns. |
+| **System Administrator** | Secondary | Manages users, roles, settings, and security. |
 | **Delivery Partners** | Tertiary | Handle logistics. |
 | **Payment Gateway Providers** | Tertiary | Process transactions. |
 | **Suppliers/Printers** | Tertiary | Supply books to publisher. |
@@ -305,11 +312,28 @@ For any User Story or Epic to be considered "Done," the following criteria must 
 
 **Epic-Specific DoD**
 *   **Epic 1: User & Admin Management Component**
-    *   **Focus:** Customer self-registration, staff account management (Inventory Managers, Payment Manager, Supplier Manager, Marketing Team), authentication, and role-based access control.
-    *   **Goal:** Secure access with clear separation between customer and staff accounts.
-    *   **Security:** Authentication endpoints must be secure (JWT/Session).
-    *   **Data Protection:** Sensitive user data (passwords) must be hashed/encrypted.
-    *   **Validation:** Input validation implemented on both client and server sides.
+    *   **Focus:** Secure authentication, RBAC, and strict separation of customer/staff data.
+    *   **Criteria:** All endpoints protected by role checks (e.g., only Admin can create staff). Passwords hashed. Email verification functional.
+
+*   **Epic 2: Product Catalog Component**
+    *   **Focus:** Accurate product display and efficient search.
+    *   **Criteria:** Proper image optimization (loading speed <2s). Search returns relevant results within 500ms. Filtering correctly narrows down results.
+
+*   **Epic 3: Order & Transaction Component**
+    *   **Focus:** Transaction integrity and accurate calculations.
+    *   **Criteria:** Cart totals (including discounts) are 100% accurate. Orders cannot be modified after "Fulfilling" state. Bank Slip uploads are securely stored.
+
+*   **Epic 4: Supplier Management Component**
+    *   **Focus:** Supplier data accuracy and PO lifecycle.
+    *   **Criteria:** POs correctly link to Suppliers and Products. Email notifications for POs are sent. Delivery verification updates PO status to "Received".
+
+*   **Epic 5: Inventory Management Component**
+    *   **Focus:** Real-time stock accuracy across locations.
+    *   **Criteria:** Stock deduction is atomic (prevents overselling). Stock transfers require source deduction and destination addition only upon approval. Low stock alerts trigger at defined thresholds.
+
+*   **Epic 6: Promotion & Loyalty Component**
+    *   **Focus:** Correct application of discounts and rules.
+    *   **Criteria:** Coupons validated against date, min spend, and usage limits. Expired coupons are rejected. Discount calculations are precise to 2 decimal places.
 
 ### 8. Sprint 1 Preview
 
