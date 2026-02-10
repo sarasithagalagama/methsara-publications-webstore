@@ -92,7 +92,7 @@ Provides **a seamless, secure, and 24/7 accessible online platform for purchasin
 
 | Epic ID | Epic Description |
 |---|---|
-| **E1** | **User & Admin Management Component:** Customer self-registration with email verification, staff account management with location-specific assignments, authentication & session management (no MFA), role-based access control, profile management. |
+| **E1** | **User & Admin Management Component:** Customer self-registration with email verification, staff account management with location-specific assignments, authentication & session management, role-based access control, profile management. |
 | **E2** | **Product Catalog Component:** Product CRUD, category management, advanced search & filtering, product display & sorting, reviews & ratings management. |
 | **E3** | **Order & Transaction Component:** Shopping cart management, checkout process, payment options (Bank Receipt, COD), order tracking, and financial reporting. |
 | **E4** | **Supplier Management Component:** Supplier CRUD with verification, Purchase Order (PO) management with status tracking, and supplier performance tracking. |
