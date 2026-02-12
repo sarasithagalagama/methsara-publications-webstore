@@ -18,6 +18,7 @@
 
 ### 📂 Documentation
 - **Sprint 0**: [`docs/sprint-0/`](docs/sprint-0/) - Product Backlog, Epic Structure
+- **RE Assignment 1**: [`docs/re-assignment/`](docs/re-assignment/) - Requirements Engineering Deliverables
 - **Guides**: [`docs/guides/`](docs/guides/) - Jira Setup, Assignment Guides
 - **Planning**: [`docs/planning/`](docs/planning/) - Agile Plan, Git Workflow
 - **Presentations**: [`docs/presentations/`](docs/presentations/) - Sprint Presentations
@@ -27,6 +28,7 @@
 methsara-publications-webstore/
 ├── docs/                    # All documentation
 │   ├── sprint-0/           # Sprint 0 deliverables
+│   ├── re-assignment/      # RE Assignment 1 deliverables
 │   ├── guides/             # How-to guides
 │   ├── planning/           # Project planning
 │   └── presentations/      # Presentation materials
@@ -102,6 +104,7 @@ Sprint 4 (Week 12): Polish & Deployment
 
 - **Product Backlog**: [`docs/sprint-0/Complete_Product_Backlog.md`](docs/sprint-0/Complete_Product_Backlog.md)
 - **Epic Structure**: [`docs/sprint-0/Epic_Structure_Summary.md`](docs/sprint-0/Epic_Structure_Summary.md)
+- **Component Responsibilities**: [`docs/planning/Component_Responsibilities.md`](docs/planning/Component_Responsibilities.md)
 - **Agile Plan**: [`docs/planning/AGILE_PLAN.md`](docs/planning/AGILE_PLAN.md)
 - **Git Workflow**: [`docs/planning/GIT_WORKFLOW.md`](docs/planning/GIT_WORKFLOW.md)
 - **Folder Structure**: [`FOLDER_STRUCTURE.md`](FOLDER_STRUCTURE.md)
@@ -119,6 +122,7 @@ Sprint 4 (Week 12): Polish & Deployment
 - ✅ Epic Structure (6 Epics)
 - ✅ Team Assignments
 - ✅ Documentation Organized
+- ✅ RE Assignment 1 (88 Requirements, 67 User Stories, 88 Test Cases)
 - 🔄 Jira Setup (In Progress)
 - 🔄 Presentation Preparation (In Progress)
 
@@ -138,6 +142,6 @@ This project is developed as part of IE2091 - Information Systems Project course
 
 ---
 
-**Last Updated**: February 5, 2026  
-**Version**: 1.0 (Sprint 0)  
+**Last Updated**: February 12, 2026  
+**Version**: 1.1 (Sprint 0 + RE Assignment 1)  
 **Status**: Active Development 🚀

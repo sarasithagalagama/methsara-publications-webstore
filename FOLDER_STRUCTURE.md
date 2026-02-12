@@ -12,6 +12,17 @@ methsara-publications-webstore/
 │   │   ├── Epic_Structure_Summary.md
 │   │   └── Sprint_0_Checklist.md
 │   │
+│   ├── 📂 re-assignment/             # RE Assignment 1 deliverables
+│   │   ├── README.md                 # Assignment overview & checklist
+│   │   ├── RE_Assignment_1_Report.md # Main assignment report
+│   │   ├── Strategic_Dependency_Diagram.md
+│   │   ├── Business_Model_Canvas.md
+│   │   ├── UML_Use_Case_Diagram.md
+│   │   ├── Product_Backlog_Table.md
+│   │   ├── Burn_Up_Chart.md
+│   │   ├── Requirements_Traceability_Matrix.md
+│   │   └── RE_Assignment_Guidelines.md
+│   │
 │   ├── 📂 guides/                    # How-to guides
 │   │   ├── Jira_Quick_Start.md
 │   │   ├── Assignment_Guide.md
