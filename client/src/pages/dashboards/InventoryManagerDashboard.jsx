@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Package,
   AlertTriangle,
@@ -31,7 +31,7 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import { Input, Select, Button, TextArea } from "../../components/common/Forms";
 import DashboardHeader from "../../components/dashboard/DashboardHeader";
 import StockChart from "../../components/dashboard/charts/StockChart";
-import StockAdjustmentModal from "../../components/Inventory/StockAdjustmentModal";
+import StockAdjustmentModal from "../../epics/E5_InventoryManagement/components/Inventory/StockAdjustmentModal";
 import "../../components/dashboard/dashboard.css";
 import "./InventoryManagerDashboard.css";
 

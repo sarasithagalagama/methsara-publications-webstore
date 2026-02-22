@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   DollarSign,
   ShoppingCart,
@@ -36,7 +36,7 @@ import RevenueChart from "../../components/dashboard/charts/RevenueChart";
 import SalesChart from "../../components/dashboard/charts/SalesChart";
 import "../../components/dashboard/dashboard.css";
 import "./FinanceManagerDashboard.css";
-import Invoice from "../../components/Order/Invoice";
+import Invoice from "../../epics/E3_OrderAndTransaction/components/Order/Invoice";
 import Modal from "../../components/common/Modal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import { Input, Select, TextArea, Button } from "../../components/common/Forms";

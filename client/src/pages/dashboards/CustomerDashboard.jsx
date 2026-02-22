@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   ShoppingBag,
   Bell,
@@ -18,8 +18,8 @@ import {
   LayoutDashboard,
   Box,
 } from "lucide-react";
-import ProfileSettingsModal from "../../components/profile/ProfileSettingsModal";
-import { LogoutModal } from "../../components/Auth/AuthModals";
+import ProfileSettingsModal from "../../epics/E1_UserAndRoleManagement/components/profile/ProfileSettingsModal";
+import { LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
 import "./CustomerDashboard.css";
 
 const CustomerDashboard = () => {

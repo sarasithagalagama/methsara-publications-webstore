@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Ticket,
   CheckCircle,
@@ -30,8 +30,8 @@ import { Input, Select, Button, TextArea } from "../../components/common/Forms";
 import RevenueChart from "../../components/dashboard/charts/RevenueChart";
 import "../../components/dashboard/dashboard.css";
 import "./MarketingManagerDashboard.css";
-import { LogoutModal } from "../../components/Auth/AuthModals";
-import GiftVoucherManagement from "../marketing/GiftVoucherManagement";
+import { LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
+import GiftVoucherManagement from "../../epics/E6_PromotionAndLoyalty/pages/marketing/GiftVoucherManagement";
 
 const MarketingManagerDashboard = () => {
   const navigate = useNavigate();

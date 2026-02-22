@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, useSearchParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Search,
   Heart,
@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 import "./CustomerLayout.css";
-import { LoginModal, RegisterModal, LogoutModal } from "../Auth/AuthModals";
+import { LoginModal, RegisterModal, LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
 
 const CustomerLayout = () => {
   const { user, logout: handleLogout, cartCount, wishlistCount } = useAuth();

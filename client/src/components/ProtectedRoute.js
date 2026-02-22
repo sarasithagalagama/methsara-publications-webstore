@@ -7,7 +7,7 @@
 
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../epics/E1_UserAndRoleManagement/context/AuthContext";
 
 // DEMO: Protected route wrapper (E1.6 - RBAC)
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {

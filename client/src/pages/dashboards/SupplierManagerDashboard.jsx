@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Building,
   ClipboardList,
@@ -34,7 +34,7 @@ import DashboardHeader from "../../components/dashboard/DashboardHeader";
 import Modal from "../../components/common/Modal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import toast from "react-hot-toast";
-import SupplierFormModal from "../../components/Suppliers/SupplierFormModal";
+import SupplierFormModal from "../../epics/E4_SupplierManagement/components/Suppliers/SupplierFormModal";
 
 const SupplierManagerDashboard = () => {
   const navigate = useNavigate();

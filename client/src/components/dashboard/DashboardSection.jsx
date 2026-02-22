@@ -1,5 +1,5 @@
 import React from "react";
-import "../../components/dashboard/dashboard.css";
+import "./dashboard.css";
 
 const DashboardSection = ({ title, children, action, className = "" }) => {
   return (

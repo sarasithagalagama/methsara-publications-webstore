@@ -15,7 +15,7 @@ import {
 import { Toaster } from "react-hot-toast";
 
 // Context
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./epics/E1_UserAndRoleManagement/context/AuthContext";
 
 // Layouts
 import CustomerLayout from "./components/Layouts/CustomerLayout";
@@ -23,25 +23,25 @@ import DashboardLayout from "./components/Layouts/DashboardLayout";
 
 // Auth Components
 import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import ProductList from "./pages/ProductList";
-import Cart from "./pages/Cart";
-import ManageProducts from "./pages/ManageProducts";
-import OrderHistory from "./pages/OrderHistory";
-import ProductDetail from "./pages/ProductDetail";
-import Checkout from "./pages/Checkout";
-import ReviewModeration from "./pages/ReviewModeration";
-import LowStockAlerts from "./pages/LowStockAlerts";
-import OrderDetail from "./pages/OrderDetail";
+import Login from "./epics/E1_UserAndRoleManagement/pages/Login";
+import Register from "./epics/E1_UserAndRoleManagement/pages/Register";
+import ForgotPassword from "./epics/E1_UserAndRoleManagement/pages/ForgotPassword";
+import ResetPassword from "./epics/E1_UserAndRoleManagement/pages/ResetPassword";
+import ProductList from "./epics/E2_ProductCatalog/pages/ProductList";
+import Cart from "./epics/E3_OrderAndTransaction/pages/Cart";
+import ManageProducts from "./epics/E2_ProductCatalog/pages/ManageProducts";
+import OrderHistory from "./epics/E3_OrderAndTransaction/pages/OrderHistory";
+import ProductDetail from "./epics/E2_ProductCatalog/pages/ProductDetail";
+import Checkout from "./epics/E3_OrderAndTransaction/pages/Checkout";
+import ReviewModeration from "./epics/E2_ProductCatalog/pages/ReviewModeration";
+import LowStockAlerts from "./epics/E5_InventoryManagement/pages/LowStockAlerts";
+import OrderDetail from "./epics/E3_OrderAndTransaction/pages/OrderDetail";
 
 // Customer Pages
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import GiftVouchers from "./pages/GiftVouchers";
+import GiftVouchers from "./epics/E6_PromotionAndLoyalty/pages/GiftVouchers";
 
 // Dashboard Pages
 import CustomerDashboard from "./pages/dashboards/CustomerDashboard";
@@ -50,11 +50,11 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminSettings from "./pages/admin/AdminSettings";
 import SupplierManagerDashboard from "./pages/dashboards/SupplierManagerDashboard";
-import CreatePurchaseOrder from "./pages/supplier/CreatePurchaseOrder";
-import PurchaseOrderList from "./pages/supplier/PurchaseOrderList";
-import SupplierPerformance from "./pages/supplier/SupplierPerformance";
-import DeliverySchedule from "./pages/supplier/DeliverySchedule";
-import SupplierList from "./components/Suppliers/SupplierList";
+import CreatePurchaseOrder from "./epics/E4_SupplierManagement/pages/supplier/CreatePurchaseOrder";
+import PurchaseOrderList from "./epics/E4_SupplierManagement/pages/supplier/PurchaseOrderList";
+import SupplierPerformance from "./epics/E4_SupplierManagement/pages/supplier/SupplierPerformance";
+import DeliverySchedule from "./epics/E4_SupplierManagement/pages/supplier/DeliverySchedule";
+import SupplierList from "./epics/E4_SupplierManagement/components/Suppliers/SupplierList";
 import InventoryManagerDashboard from "./pages/dashboards/InventoryManagerDashboard";
 import FinanceManagerDashboard from "./pages/dashboards/FinanceManagerDashboard";
 import ProductManagerDashboard from "./pages/dashboards/ProductManagerDashboard";

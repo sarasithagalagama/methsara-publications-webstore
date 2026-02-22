@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Search, ChevronLeft, ChevronRight, Filter } from "lucide-react";
-import "../../components/dashboard/dashboard.css";
+import "./dashboard.css";
 
 const DashboardTable = ({
   columns,

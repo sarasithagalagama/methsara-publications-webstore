@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Package,
   Star,
@@ -35,7 +35,7 @@ import "../../components/dashboard/dashboard.css";
 import "./ProductManagerDashboard.css";
 import StatusModal from "../../components/common/StatusModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
-import { LogoutModal } from "../../components/Auth/AuthModals";
+import { LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
 
 const ProductManagerDashboard = () => {
   const navigate = useNavigate();
