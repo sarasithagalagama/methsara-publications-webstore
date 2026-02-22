@@ -1,0 +1,134 @@
+// ============================================
+// DEMO MARKER: Supplier Model
+// Epic: E4 - Supplier Management
+// Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: Supplier and Purchase Order management
+// ============================================
+
+const mongoose = require("mongoose");
+
+const supplierSchema = new mongoose.Schema({
+  // Basic Information
+  name: {
+    type: String,
+    required: [true, "Supplier name is required"],
+    trim: true,
+  },
+  contactPerson: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    lowercase: true,
+    trim: true,
+  },
+  phone: {
+    type: String,
+    required: [true, "Phone is required"],
+  },
+
+  // Partner Category
+  category: {
+    type: String,
+    enum: ["Material Supplier", "Distributor", "Bookshop"],
+    default: "Material Supplier",
+    required: true,
+  },
+
+  // Address
+  address: {
+    street: String,
+    city: String, // Will store District
+    postalCode: String,
+  },
+
+  // Business Details
+  businessRegistration: {
+    type: String,
+    trim: true,
+  },
+  taxId: {
+    type: String, // VAT or SVAT
+    trim: true,
+  },
+
+  // Payment Terms
+  paymentTerms: {
+    type: String,
+    enum: [
+      "Cash",
+      "Credit 7 days",
+      "Credit 14 days",
+      "Credit 30 days",
+      "Credit 60 days",
+    ],
+    default: "Cash",
+  },
+  creditLimit: {
+    type: Number,
+    default: 0,
+  },
+  bankDetails: {
+    accountName: String,
+    bankName: String,
+    branchName: String,
+    accountNumber: String,
+  },
+  outstandingBalance: {
+    type: Number,
+    default: 0,
+  },
+  totalPaid: {
+    type: Number,
+    default: 0,
+  },
+
+  // Status
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  // Performance Metrics
+  totalOrders: {
+    type: Number,
+    default: 0,
+  },
+  totalValue: {
+    type: Number,
+    default: 0,
+  },
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5,
+    default: 3,
+  },
+
+  // Notes
+  notes: String,
+
+  // Timestamps
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// DEMO: Update timestamp
+supplierSchema.pre("save", function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+module.exports = mongoose.model("Supplier", supplierSchema);

@@ -1,0 +1,115 @@
+// ============================================
+// DEMO MARKER: Approval Controller
+// Purpose: Handle Admin Approval Workflow
+// ============================================
+
+const ApprovalRequest = require('../models/ApprovalRequest');
+const FinancialTransaction = require('../../E3_OrderAndTransaction/models/FinancialTransaction');
+const Supplier = require('../../E4_SupplierManagement/models/Supplier');
+const Inventory = require('../../E5_InventoryManagement/models/Inventory');
+
+exports.getPendingRequests = async (req, res) => {
+  try {
+    const requests = await ApprovalRequest.find({ status: "Pending" })
+      .populate("requestedBy", "name email role")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: requests.length,
+      requests,
+    });
+  } catch (error) {
+    console.error("Get pending requests error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching approval requests",
+      error: error.message,
+    });
+  }
+};
+
+exports.reviewRequest = async (req, res) => {
+  try {
+    const { status, remarks } = req.body; // Approved or Rejected
+    const request = await ApprovalRequest.findById(req.params.id);
+
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        message: "Approval request not found",
+      });
+    }
+
+    if (request.status !== "Pending") {
+      return res.status(400).json({
+        success: false,
+        message: `Request acts already ${request.status}`,
+      });
+    }
+
+    if (status === "Approved") {
+      // Apply the target data based on the module
+      switch (request.module) {
+        case "FinancialTransaction":
+          await FinancialTransaction.findByIdAndUpdate(
+            request.documentId,
+            request.targetData,
+            { runValidators: true },
+          );
+          break;
+        case "Supplier":
+          await Supplier.findByIdAndUpdate(
+            request.documentId,
+            request.targetData,
+            { runValidators: true },
+          );
+          break;
+        case "Inventory":
+          if (request.action === "Adjust Stock") {
+            const inventory = await Inventory.findById(request.documentId);
+            if (inventory) {
+              // targetData contains adjustment details
+              inventory.quantity += request.targetData.quantityChange;
+              inventory.movements.push({
+                type: request.targetData.type,
+                quantity: Math.abs(request.targetData.quantityChange),
+                reason:
+                  request.targetData.reason || "Admin Approved Adjustment",
+                performedBy: request.requestedBy,
+              });
+              await inventory.save();
+            }
+          } else if (request.action === "Update") {
+            await Inventory.findByIdAndUpdate(
+              request.documentId,
+              request.targetData,
+              { runValidators: true },
+            );
+          }
+          break;
+      }
+    }
+
+    request.status = status;
+    request.reviewedBy = req.user._id;
+    request.reviewedAt = Date.now();
+    request.reason = remarks || request.reason;
+    await request.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Request ${status} successfully`,
+      request,
+    });
+  } catch (error) {
+    console.error("Review request error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error reviewing approval request",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = exports;

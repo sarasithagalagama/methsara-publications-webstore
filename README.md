@@ -107,6 +107,7 @@ Sprint 4 (Week 12): Polish & Deployment
 - **Component Responsibilities**: [`docs/planning/Component_Responsibilities.md`](docs/planning/Component_Responsibilities.md)
 - **Agile Plan**: [`docs/planning/AGILE_PLAN.md`](docs/planning/AGILE_PLAN.md)
 - **Git Workflow**: [`docs/planning/GIT_WORKFLOW.md`](docs/planning/GIT_WORKFLOW.md)
+- **Postman Testing Guide**: [`docs/guides/Postman_Testing_Guide.md`](docs/guides/Postman_Testing_Guide.md)
 - **Folder Structure**: [`FOLDER_STRUCTURE.md`](FOLDER_STRUCTURE.md)
 
 ---
