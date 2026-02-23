@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Forgot Password Page
 // Epic: E1 - User & Admin Management
 // Owner: IT24100548 (Galagama S.T)
@@ -11,13 +11,19 @@ import axios from "axios";
 import { ArrowRight } from "lucide-react";
 
 const ForgotPassword = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [resetToken, setResetToken] = useState(""); // DEMO: Show token
+  const [resetToken, setResetToken] = useState(""); // Show token
   const [loading, setLoading] = useState(false);
 
-  // DEMO: Handle forgot password submission
+  // Handle forgot password submission
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -33,7 +39,7 @@ const ForgotPassword = () => {
       );
 
       setMessage(res.data.message);
-      setResetToken(res.data.resetToken); // DEMO: Display token
+      setResetToken(res.data.resetToken); // Display token
     } catch (err) {
       setError(err.response?.data?.message || "Error sending reset email");
     } finally {
@@ -41,6 +47,9 @@ const ForgotPassword = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="forgot-password-page">
       <div className="forgot-password-container">

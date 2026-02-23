@@ -1,21 +1,28 @@
+﻿// ============================================
+// AdminUsers
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
+// Purpose: AdminUsers page component
+// ============================================
 // Purpose: Full Admin User Management Page
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { UserPlus, Edit, Ban, Eye, CheckCircle } from "lucide-react";
-import Modal from "../../components/common/Modal";
-import StatusModal from "../../components/common/StatusModal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { Input, Select, Button } from "../../components/common/Forms";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import DashboardSection from "../../components/dashboard/DashboardSection";
-import DashboardTable from "../../components/dashboard/DashboardTable";
-import "../../components/dashboard/dashboard.css";
-import "../dashboards/AdminDashboard.css";
+import Modal from "../../../components/common/Modal";
+import StatusModal from "../../../components/common/StatusModal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { Input, Select, Button } from "../../../components/common/Forms";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import DashboardSection from "../../../components/dashboard/DashboardSection";
+import DashboardTable from "../../../components/dashboard/DashboardTable";
+import "../../../components/dashboard/dashboard.css";
+import "./AdminDashboard.css";
 
 const AdminUsers = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("all");
@@ -57,10 +64,16 @@ const AdminUsers = () => {
     nicBackImage: null,
   });
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -435,6 +448,9 @@ const AdminUsers = () => {
   ];
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

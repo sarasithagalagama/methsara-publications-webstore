@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Protected Route Component
 // Epic: E1 - User & Admin Management
 // Owner: IT24100548 (Galagama S.T)
@@ -7,13 +7,13 @@
 
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
-// DEMO: Protected route wrapper (E1.6 - RBAC)
+// Protected route wrapper (E1.6 - RBAC)
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth();
 
-  // DEMO: Show loading state
+  // Show loading state
   if (loading) {
     return (
       <div
@@ -29,12 +29,12 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     );
   }
 
-  // DEMO: Redirect to login if not authenticated
+  // Redirect to login if not authenticated
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // DEMO: Check role-based access
+  // Check role-based access
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     return (
       <div

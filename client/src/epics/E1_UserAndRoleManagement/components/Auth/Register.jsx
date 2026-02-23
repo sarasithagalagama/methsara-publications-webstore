@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Register Component
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
@@ -12,6 +12,9 @@ import "./Auth.css";
 
 function Register({ setUser }) {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,6 +25,9 @@ function Register({ setUser }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -33,7 +39,7 @@ function Register({ setUser }) {
     e.preventDefault();
     setError("");
 
-    // DEMO: Password validation
+    // Password validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -60,6 +66,9 @@ function Register({ setUser }) {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="auth-container">
       <div className="auth-card card">

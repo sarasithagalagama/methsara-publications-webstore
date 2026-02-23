@@ -1,5 +1,9 @@
-// Epic: E1 - Admin Settings
+﻿// ============================================
+// AdminSettings
+// Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
+// Purpose: AdminSettings page component
+// ============================================
 // Purpose: Admin System Settings Page
 
 import React, { useState, useEffect } from "react";
@@ -16,17 +20,18 @@ import {
   Globe,
   Monitor,
   Smartphone,
+  RefreshCcw,
 } from "lucide-react";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import DashboardSection from "../../components/dashboard/DashboardSection";
-import DashboardTable from "../../components/dashboard/DashboardTable";
-import Modal from "../../components/common/Modal";
-import StatusModal from "../../components/common/StatusModal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { Input, Button, TextArea } from "../../components/common/Forms";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import DashboardSection from "../../../components/dashboard/DashboardSection";
+import DashboardTable from "../../../components/dashboard/DashboardTable";
+import Modal from "../../../components/common/Modal";
+import StatusModal from "../../../components/common/StatusModal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { Input, Button, TextArea } from "../../../components/common/Forms";
 import axios from "axios";
 import toast from "react-hot-toast";
-import "../../components/dashboard/dashboard.css";
+import "../../../components/dashboard/dashboard.css";
 import "./AdminSettings.css";
 
 const roles = [
@@ -92,6 +97,9 @@ const roles = [
 ];
 
 const AdminSettings = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [activeTab, setActiveTab] = useState("overview"); // overview, locations, security
   const [locations, setLocations] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
@@ -117,6 +125,9 @@ const AdminSettings = () => {
   });
 
   // Fetch locations
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchLocations = async () => {
     try {
       setLoadingLocations(true);
@@ -133,6 +144,9 @@ const AdminSettings = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     if (activeTab === "locations") {
       fetchLocations();
@@ -296,6 +310,9 @@ const AdminSettings = () => {
     },
   ];
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="dashboard-container">
       <DashboardHeader
@@ -525,9 +542,20 @@ const AdminSettings = () => {
 
       {activeTab === "security" && (
         <DashboardSection
-          title="Global Security Logs"
+          title={
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <Activity size={22} className="text-primary-color" />
+              Global Security Logs
+            </div>
+          }
           action={
-            <Button variant="secondary" onClick={fetchSecurityLogs}>
+            <Button
+              variant="secondary"
+              icon={RefreshCcw}
+              onClick={fetchSecurityLogs}
+              isLoading={loadingLogs}
+              className="refresh-btn-Styled"
+            >
               Refresh Logs
             </Button>
           }

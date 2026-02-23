@@ -1,3 +1,9 @@
+﻿// ============================================
+// AuthModals
+// Epic: E1 - User & Role Management
+// Owner: IT24100548 (Galagama S.T)
+// Purpose: AuthModals UI component
+// ============================================
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,6 +23,9 @@ import "./AuthModals.css";
 
 // --- LOGIN MODAL ---
 export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,6 +34,9 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -32,6 +44,9 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     } else {
       document.body.style.overflow = "unset";
     }
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -39,6 +54,9 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
 
   if (!isOpen) return null;
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

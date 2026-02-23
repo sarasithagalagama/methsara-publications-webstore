@@ -1,3 +1,9 @@
+﻿// ============================================
+// Login
+// Epic: E1 - User & Role Management
+// Owner: IT24100548 (Galagama S.T)
+// Purpose: Login page component
+// ============================================
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -5,6 +11,9 @@ import { AlertCircle, LogIn } from "lucide-react";
 import "./Auth.css";
 
 const Login = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -15,6 +24,9 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -63,6 +75,9 @@ const Login = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="auth-page">
       <div className="auth-container">

@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Account Deactivation Endpoint
+﻿// ============================================
+// Account Deactivation Endpoint
 // Epic: E1 - User & Admin Management
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Deactivate user accounts (E1.10)
@@ -7,7 +7,7 @@
 
 // Add to authController.js
 
-// DEMO: Deactivate Account (E1.10)
+// Deactivate Account (E1.10)
 exports.deactivateAccount = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -42,7 +42,7 @@ exports.deactivateAccount = async (req, res) => {
   }
 };
 
-// DEMO: Reactivate Account (E1.10)
+// Reactivate Account (E1.10)
 exports.reactivateAccount = async (req, res) => {
   try {
     const { userId } = req.params;

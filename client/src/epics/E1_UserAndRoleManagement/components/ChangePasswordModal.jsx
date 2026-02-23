@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Change Password Modal
 // Epic: E1 - User & Admin Management
 // Owner: IT24100548 (Galagama S.T)
@@ -9,6 +9,9 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const ChangePasswordModal = ({ onClose, onSuccess, logout }) => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -17,7 +20,10 @@ const ChangePasswordModal = ({ onClose, onSuccess, logout }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // DEMO: Handle input changes
+  // Handle input changes
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,7 +31,7 @@ const ChangePasswordModal = ({ onClose, onSuccess, logout }) => {
     });
   };
 
-  // DEMO: Handle password change submission
+  // Handle password change submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -72,6 +78,9 @@ const ChangePasswordModal = ({ onClose, onSuccess, logout }) => {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="dash-modal-overlay">
       <div className="dash-modal-content">

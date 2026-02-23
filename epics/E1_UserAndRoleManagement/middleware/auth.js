@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Authentication Middleware
+﻿// ============================================
+// Authentication Middleware
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
 // Purpose: Protect routes and verify JWT tokens
@@ -8,7 +8,7 @@
 const jwt = require("jsonwebtoken");
 const User = require('../models/User');
 
-// DEMO: Protect routes - verify JWT token
+// Protect routes - verify JWT token
 exports.protect = async (req, res, next) => {
   try {
     let token;
@@ -59,7 +59,7 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-// DEMO: Role-Based Access Control (RBAC)
+// Role-Based Access Control (RBAC)
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -72,7 +72,7 @@ exports.authorize = (...roles) => {
   };
 };
 
-// DEMO: Location-Based Access Control (for inventory managers)
+// Location-Based Access Control (for inventory managers)
 exports.authorizeLocation = (req, res, next) => {
   const requestedLocation = req.params.location || req.body.location;
 
@@ -97,7 +97,7 @@ exports.authorizeLocation = (req, res, next) => {
   next();
 };
 
-// DEMO: Optional protect - populate req.user if token is present, but continue if not
+// Optional protect - populate req.user if token is present, but continue if not
 exports.optionalProtect = async (req, res, next) => {
   try {
     let token;
@@ -119,7 +119,7 @@ exports.optionalProtect = async (req, res, next) => {
   }
 };
 
-// DEMO: Generate JWT Token
+// Generate JWT Token
 exports.generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || "7d",

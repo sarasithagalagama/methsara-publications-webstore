@@ -1,8 +1,9 @@
 // ============================================
-// Authentication Context
-// Epic: E1 - User & Admin Management
+// [Epic E1] User and Role Management
+// --------------------------------------------
+// This context is the "heartbeat" of our security system.
+// It keeps track of who is logged in and what they are allowed to do.
 // Owner: IT24100548 (Galagama S.T)
-// Purpose: Global auth state management
 // ============================================
 
 import React, { createContext, useState, useContext, useEffect } from "react";
@@ -11,7 +12,10 @@ import ChangePasswordModal from "../components/ChangePasswordModal";
 
 const AuthContext = createContext();
 
-// DEMO: Custom hook to use auth context
+/**
+ * A handy hook so any component can easily check if a user is logged in
+ * or get their profile details without passing props down multiple levels.
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -26,7 +30,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  // DEMO: Configure axios defaults
+  /**
+   * Every time the app loads or the token changes, we make sure
+   * axios knows to use that token for all future requests.
+   */
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -34,27 +41,36 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    refreshCounts();
   }, [token]);
 
-  // DEMO: Load user profile
+  /**
+   * [Epic E1.2] - Validating the Session
+   * We ping the server to see if the token is still valid and
+   * grab the latest user details (like their role: Admin, Manager, etc.)
+   */
   const loadUser = async () => {
     try {
       const res = await axios.get("/api/auth/me");
       setUser(res.data.user);
-      // Check if user needs to change password
+
+      // Safety check: if it's their first time, we force a password change
       if (res.data.user && res.data.user.mustChangePassword) {
         setShowPasswordModal(true);
       }
     } catch (error) {
-      console.error("Failed to load user:", error);
+      console.error("Session expired or invalid:", error);
       logout();
     } finally {
       setLoading(false);
     }
   };
 
-  // DEMO: Register new customer (E1.1)
+  /**
+   * [Epic E1.1] - Creating New Accounts
+   * This handles the registration flow, saving the token locally
+   * so the user stays logged in after signing up.
+   */
   const register = async (userData) => {
     try {
       const res = await axios.post("/api/auth/register", userData);
@@ -77,7 +93,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // DEMO: Login (E1.2)
+  /**
+   * [Epic E1.2] - Secure Entry
+   * The main login function. It swaps credentials for a secure JWT token.
+   */
   const login = async (email, password) => {
     try {
       const res = await axios.post("/api/auth/login", {
@@ -103,7 +122,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // DEMO: Logout
+  /**
+   * Cleaning up: we wipe the local storage and reset the auth state
+   * so no sensitive data sticks around.
+   */
   const logout = async () => {
     try {
       await axios.post("/api/auth/logout");
@@ -113,12 +135,15 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
-      setShowPasswordModal(false); // Close modal on logout
+      setShowPasswordModal(false);
       delete axios.defaults.headers.common["Authorization"];
     }
   };
 
-  // DEMO: Update profile (E1.3)
+  /**
+   * [Epic E1.3] - Keeping Profiles Fresh
+   * Allows users to update their personal details.
+   */
   const updateProfile = async (profileData) => {
     try {
       const res = await axios.put("/api/auth/profile", profileData);
@@ -135,20 +160,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // DEMO: Handle password change success
+  /**
+   * A little helper to close the 'Must Change Password' modal
+   * once they've successfully updated it.
+   */
   const handlePasswordChangeSuccess = async () => {
     setShowPasswordModal(false);
-    // Reload user data to update mustChangePassword flag
     await loadUser();
   };
 
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
 
-  const refreshCounts = () => {
-    // Cart Count from Guest local storage or API
+  const refreshCounts = async () => {
+    // 1. Refresh Cart Count
     const token = localStorage.getItem("token");
     if (!token) {
+      // Guest: From local storage
       const guestCart = JSON.parse(localStorage.getItem("guestCart")) || {
         items: [],
       };
@@ -156,13 +184,20 @@ export const AuthProvider = ({ children }) => {
         guestCart.items.reduce((sum, item) => sum + item.quantity, 0),
       );
     } else {
-      // In a real app, you'd fetch this from API. For now, we can check localStorage
-      // or just wait for the component adding to cart to trigger a refresh if it's purely local
-      // since we don't have a getCart API endpoint called here yet.
-      // Let's assume we can fetch it if needed, or just check the last known state.
+      // Authenticated: From API
+      try {
+        const res = await axios.get("/api/cart");
+        if (res.data?.cart?.items) {
+          setCartCount(
+            res.data.cart.items.reduce((sum, item) => sum + item.quantity, 0),
+          );
+        }
+      } catch (error) {
+        console.error("Error refreshing cart count:", error);
+      }
     }
 
-    // Wishlist Count
+    // 2. Refresh Wishlist Count
     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     setWishlistCount(wishlist.length);
   };

@@ -1,3 +1,9 @@
+﻿// ============================================
+// Register
+// Epic: E1 - User & Role Management
+// Owner: IT24100548 (Galagama S.T)
+// Purpose: Register page component
+// ============================================
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -5,6 +11,9 @@ import { AlertCircle, UserPlus } from "lucide-react";
 import "./Auth.css";
 
 const Register = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,6 +28,9 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newErrors = { ...formErrors };
@@ -93,6 +105,9 @@ const Register = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="auth-page">
       <div className="auth-container" style={{ maxWidth: "600px" }}>

@@ -1,5 +1,5 @@
-/* ============================================
-   StatCard Component Styles - Modern Premium
+﻿/* ============================================
+   StatCard Component Styles - Standard
    ============================================ */
 
 .stat-card {
@@ -14,7 +14,7 @@
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
-  /* Glassmorphism 2.0 */
+  /* glass effect 2.0 */
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
 }

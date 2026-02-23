@@ -12,27 +12,27 @@ const path = require("path");
 require("dotenv").config();
 
 // Import Routes
-const authRoutes = require('./epics/E1_UserAndRoleManagement/routes/authRoutes');
-const productRoutes = require('./epics/E2_ProductCatalog/routes/productRoutes');
-const orderRoutes = require('./epics/E3_OrderAndTransaction/routes/orderRoutes');
-const cartRoutes = require('./epics/E3_OrderAndTransaction/routes/cartRoutes');
-const supplierRoutes = require('./epics/E4_SupplierManagement/routes/supplierRoutes');
-const purchaseOrderRoutes = require('./epics/E4_SupplierManagement/routes/purchaseOrderRoutes'); // E4: Supplier Management
-const inventoryRoutes = require('./epics/E5_InventoryManagement/routes/inventoryRoutes');
-const couponRoutes = require('./epics/E6_PromotionAndLoyalty/routes/couponRoutes');
-const financialRoutes = require('./epics/E3_OrderAndTransaction/routes/financialRoutes'); // E3: Financial Management
-const reviewRoutes = require('./epics/E2_ProductCatalog/routes/reviewRoutes');
-const uploadRoutes = require('./epics/E2_ProductCatalog/routes/uploadRoutes');
-const stockTransferRoutes = require('./epics/E5_InventoryManagement/routes/stockTransferRoutes'); // E5: Stock Transfers
-const locationRoutes = require('./epics/E5_InventoryManagement/routes/locationRoutes'); // E5: Locations
+const authRoutes = require("./epics/E1_UserAndRoleManagement/routes/authRoutes");
+const productRoutes = require("./epics/E2_ProductCatalog/routes/productRoutes");
+const orderRoutes = require("./epics/E3_OrderAndTransaction/routes/orderRoutes");
+const cartRoutes = require("./epics/E3_OrderAndTransaction/routes/cartRoutes");
+const supplierRoutes = require("./epics/E4_SupplierManagement/routes/supplierRoutes");
+const purchaseOrderRoutes = require("./epics/E4_SupplierManagement/routes/purchaseOrderRoutes"); // E4: Supplier Management
+const inventoryRoutes = require("./epics/E5_InventoryManagement/routes/inventoryRoutes");
+const couponRoutes = require("./epics/E6_PromotionAndLoyalty/routes/couponRoutes");
+const financialRoutes = require("./epics/E3_OrderAndTransaction/routes/financialRoutes"); // E3: Financial Management
+const reviewRoutes = require("./epics/E2_ProductCatalog/routes/reviewRoutes");
+const uploadRoutes = require("./epics/E2_ProductCatalog/routes/uploadRoutes");
+const stockTransferRoutes = require("./epics/E5_InventoryManagement/routes/stockTransferRoutes"); // E5: Stock Transfers
+const locationRoutes = require("./epics/E5_InventoryManagement/routes/locationRoutes"); // E5: Locations
 
 // Initialize Express App
 const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(morgan("dev")); // Logging
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -59,13 +59,15 @@ app.use("/api/purchase-orders", purchaseOrderRoutes); // E4: Supplier Management
 app.use("/api/inventory", inventoryRoutes); // E5: Inventory Management
 app.use("/api/coupons", couponRoutes); // E6: Promotion & Loyalty
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/reviews", reviewRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/stock-transfers", stockTransferRoutes); // E5: Stock Transfers
 app.use("/api/locations", locationRoutes); // E5: Locations
-app.use("/api/gift-vouchers", require('./epics/E6_PromotionAndLoyalty/routes/giftVoucherRoutes')); // E6: Gift Vouchers
+app.use(
+  "/api/gift-vouchers",
+  require("./epics/E6_PromotionAndLoyalty/routes/giftVoucherRoutes"),
+); // E6: Gift Vouchers
 
-const approvalRoutes = require('./epics/E1_UserAndRoleManagement/routes/approvalRoutes'); // Admin Approvals
+const approvalRoutes = require("./epics/E1_UserAndRoleManagement/routes/approvalRoutes"); // Admin Approvals
 app.use("/api/approvals", approvalRoutes);
 
 // Health Check Route

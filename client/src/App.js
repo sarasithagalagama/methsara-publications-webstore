@@ -22,7 +22,7 @@ import CustomerLayout from "./components/Layouts/CustomerLayout";
 import DashboardLayout from "./components/Layouts/DashboardLayout";
 
 // Auth Components
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./epics/E1_UserAndRoleManagement/components/ProtectedRoute";
 import Login from "./epics/E1_UserAndRoleManagement/pages/Login";
 import Register from "./epics/E1_UserAndRoleManagement/pages/Register";
 import ForgotPassword from "./epics/E1_UserAndRoleManagement/pages/ForgotPassword";
@@ -32,8 +32,9 @@ import Cart from "./epics/E3_OrderAndTransaction/pages/Cart";
 import ManageProducts from "./epics/E2_ProductCatalog/pages/ManageProducts";
 import OrderHistory from "./epics/E3_OrderAndTransaction/pages/OrderHistory";
 import ProductDetail from "./epics/E2_ProductCatalog/pages/ProductDetail";
+import Wishlist from "./epics/E2_ProductCatalog/pages/Wishlist";
 import Checkout from "./epics/E3_OrderAndTransaction/pages/Checkout";
-import ReviewModeration from "./epics/E2_ProductCatalog/pages/ReviewModeration";
+// ReviewModeration removed (feature deprecated)
 import LowStockAlerts from "./epics/E5_InventoryManagement/pages/LowStockAlerts";
 import OrderDetail from "./epics/E3_OrderAndTransaction/pages/OrderDetail";
 
@@ -44,22 +45,28 @@ import Contact from "./pages/Contact";
 import GiftVouchers from "./epics/E6_PromotionAndLoyalty/pages/GiftVouchers";
 
 // Dashboard Pages
-import CustomerDashboard from "./pages/dashboards/CustomerDashboard";
-import AdminDashboard from "./pages/dashboards/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminSettings from "./pages/admin/AdminSettings";
-import SupplierManagerDashboard from "./pages/dashboards/SupplierManagerDashboard";
+// E1 - User & Role Management Dashboards
+import CustomerDashboard from "./epics/E1_UserAndRoleManagement/pages/CustomerDashboard";
+import AdminDashboard from "./epics/E1_UserAndRoleManagement/pages/AdminDashboard";
+import AdminUsers from "./epics/E1_UserAndRoleManagement/pages/AdminUsers";
+import AdminOrders from "./epics/E1_UserAndRoleManagement/pages/AdminOrders";
+import AdminSettings from "./epics/E1_UserAndRoleManagement/pages/AdminSettings";
+// E2 - Product Catalog
+import ProductManagerDashboard from "./epics/E2_ProductCatalog/pages/ProductManagerDashboard";
+import CategoryManager from "./epics/E2_ProductCatalog/pages/CategoryManager";
+// E3 - Order & Transaction
+import FinanceManagerDashboard from "./epics/E3_OrderAndTransaction/pages/FinanceManagerDashboard";
+// E4 - Supplier Management
+import SupplierManagerDashboard from "./epics/E4_SupplierManagement/pages/SupplierManagerDashboard";
 import CreatePurchaseOrder from "./epics/E4_SupplierManagement/pages/supplier/CreatePurchaseOrder";
 import PurchaseOrderList from "./epics/E4_SupplierManagement/pages/supplier/PurchaseOrderList";
 import SupplierPerformance from "./epics/E4_SupplierManagement/pages/supplier/SupplierPerformance";
 import DeliverySchedule from "./epics/E4_SupplierManagement/pages/supplier/DeliverySchedule";
 import SupplierList from "./epics/E4_SupplierManagement/components/Suppliers/SupplierList";
-import InventoryManagerDashboard from "./pages/dashboards/InventoryManagerDashboard";
-import FinanceManagerDashboard from "./pages/dashboards/FinanceManagerDashboard";
-import ProductManagerDashboard from "./pages/dashboards/ProductManagerDashboard";
-import CategoryManager from "./pages/product-manager/CategoryManager";
-import MarketingManagerDashboard from "./pages/dashboards/MarketingManagerDashboard";
+// E5 - Inventory Management
+import InventoryManagerDashboard from "./epics/E5_InventoryManagement/pages/InventoryManagerDashboard";
+// E6 - Promotion & Loyalty
+import MarketingManagerDashboard from "./epics/E6_PromotionAndLoyalty/pages/MarketingManagerDashboard";
 
 import "./App.css";
 
@@ -111,6 +118,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["customer"]}>
                   <Cart />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute allowedRoles={["customer"]}>
+                  <Wishlist />
                 </ProtectedRoute>
               }
             />

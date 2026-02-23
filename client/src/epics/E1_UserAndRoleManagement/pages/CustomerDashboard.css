@@ -367,97 +367,151 @@
 }
 
 /* Orders Tab Styles */
-.customer-orders-tab-content {
+.orders-tab-content {
     background: white;
-    padding: 2rem;
+    padding: 2.5rem;
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
 }
 
-.customer-tab-header {
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--border-light);
-    padding-bottom: 1rem;
+.tab-header {
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 1.5rem;
 }
 
-.customer-tab-header h2 {
-    font-family: 'Playfair Display', serif;
+.tab-header h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    font-family: 'Inter', sans-serif !important;
     margin: 0 0 0.5rem 0;
-    color: var(--text-dark);
 }
 
-.customer-tab-header p {
+.tab-header p {
+    color: #64748b;
+    font-size: 1rem;
     margin: 0;
-    color: var(--text-grey);
 }
 
 .customer-order-card-full {
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.2s ease;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .customer-order-card-full:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--gold-accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
 }
 
 .customer-order-full-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
 .customer-order-full-header h4 {
-    margin: 0;
-    font-size: 1.1rem;
-    color: var(--text-dark);
+    margin: 0 0 0.25rem 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.01em;
 }
 
 .order-full-date {
-    font-size: 0.85rem;
-    color: var(--text-grey);
+    font-size: 0.875rem;
+    color: #94a3b8;
+    font-weight: 500;
 }
 
 .status-badge-lg {
-    padding: 0.35rem 1rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.813rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
+
+/* Status variants */
+.status-badge-lg.status-pending { background: #fefce8; color: #a16207; }
+.status-badge-lg.status-processing { background: #eff6ff; color: #1d4ed8; }
+.status-badge-lg.status-shipped { background: #f5f3ff; color: #7c3aed; }
+.status-badge-lg.status-delivered { background: #f0fdf4; color: #15803d; }
+.status-badge-lg.status-cancelled { background: #fef2f2; color: #dc2626; }
 
 .customer-order-full-body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1rem;
-    border-top: 1px dashed var(--border-light);
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
 }
 
 .order-summary {
     display: flex;
-    gap: 2rem;
-    color: var(--text-grey);
-    font-size: 0.95rem;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.order-summary span:first-child {
+    font-size: 0.875rem;
+    color: #64748b;
+    background: #f8fafc;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
 .total-amount {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.customer-receipt-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.customer-receipt-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
 }
 
 .view-details-btn {
-    color: var(--gold-accent);
+    color: #5D4037;
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
+    font-weight: 600;
+    font-size: 0.938rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    background: #f5f0ee;
+    transition: all 0.2s;
 }
 
 .view-details-btn:hover {
-    text-decoration: underline;
+    background: #5D4037;
+    color: white;
+    text-decoration: none;
+    transform: scale(1.02);
 }
 
 /* Responsive */

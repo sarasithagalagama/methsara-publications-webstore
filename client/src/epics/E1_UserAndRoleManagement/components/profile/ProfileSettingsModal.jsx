@@ -1,3 +1,9 @@
+﻿// ============================================
+// ProfileSettingsModal
+// Epic: E1 - User & Role Management
+// Owner: IT24100548 (Galagama S.T)
+// Purpose: ProfileSettingsModal UI component
+// ============================================
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "../../../../components/common/Modal";
@@ -17,6 +23,9 @@ import "./ProfileSettingsModal.css";
 
 const ProfileSettingsModal = ({ isOpen, onClose }) => {
   const { user, updateProfile } = useAuth();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -29,6 +38,9 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
   const [sessions, setSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     if (user) {
       setFormData({
@@ -45,6 +57,9 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
     }
   }, [activeTab, isOpen]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchSessions = async () => {
     setLoadingSessions(true);
     try {
@@ -126,6 +141,9 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
     setLoading(false);
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Account Settings" size="lg">
       <div className="settings-tabs">
@@ -133,13 +151,13 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
           className={`settings-tab ${activeTab === "profile" ? "active" : ""}`}
           onClick={() => setActiveTab("profile")}
         >
-          <UserIcon size={16} /> Profile Details
+          <UserIcon size={18} /> <span>Profile Details</span>
         </button>
         <button
           className={`settings-tab ${activeTab === "security" ? "active" : ""}`}
           onClick={() => setActiveTab("security")}
         >
-          <Shield size={16} /> Security & Sessions
+          <Shield size={18} /> <span>Security & Sessions</span>
         </button>
       </div>
 
@@ -153,7 +171,8 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
 
           <div className="settings-section">
             <h3>
-              <UserIcon size={18} /> Personal Information
+              <UserIcon size={20} className="text-primary-color" /> Personal
+              Information
             </h3>
             <div className="form-group">
               <label>Full Name</label>
@@ -180,7 +199,8 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
           <div className="settings-section">
             <div className="section-header">
               <h3>
-                <MapPin size={18} /> Delivery Addresses
+                <MapPin size={20} className="text-primary-color" /> Delivery
+                Addresses
               </h3>
               <button type="button" className="btn-text" onClick={addAddress}>
                 <Plus size={16} /> Add Address
@@ -298,7 +318,8 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
         <div className="security-settings-section">
           <div className="settings-section">
             <h3>
-              <Shield size={18} /> Active Sessions
+              <Shield size={20} className="text-primary-color" /> Active
+              Sessions
             </h3>
             <p className="section-desc">
               These are the devices that have logged into your account. Revoke

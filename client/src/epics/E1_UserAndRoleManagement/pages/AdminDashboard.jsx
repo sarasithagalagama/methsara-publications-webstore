@@ -1,3 +1,9 @@
+﻿// ============================================
+// AdminDashboard
+// Epic: E1 - User & Role Management
+// Owner: IT24100548 (Galagama S.T)
+// Purpose: AdminDashboard page component
+// ============================================
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -12,21 +18,24 @@ import {
   XCircle,
   FileSignature,
 } from "lucide-react";
-import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import toast from "react-hot-toast";
-import StatCard from "../../components/dashboard/StatCard";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import RevenueChart from "../../components/dashboard/charts/RevenueChart";
-import SalesChart from "../../components/dashboard/charts/SalesChart";
-import DashboardSection from "../../components/dashboard/DashboardSection";
-import DashboardTable from "../../components/dashboard/DashboardTable";
-import Modal from "../../components/common/Modal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import "../../components/dashboard/dashboard.css";
+import StatCard from "../../../components/dashboard/StatCard";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import RevenueChart from "../../../components/dashboard/charts/RevenueChart";
+import SalesChart from "../../../components/dashboard/charts/SalesChart";
+import DashboardSection from "../../../components/dashboard/DashboardSection";
+import DashboardTable from "../../../components/dashboard/DashboardTable";
+import Modal from "../../../components/common/Modal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import "../../../components/dashboard/dashboard.css";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const { logout } = useAuth();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalOrders: 0,
@@ -47,10 +56,16 @@ const AdminDashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [approvalRemarks, setApprovalRemarks] = useState("");
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -231,6 +246,9 @@ const AdminDashboard = () => {
   ];
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

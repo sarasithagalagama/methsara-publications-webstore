@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Login Component
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
@@ -12,6 +12,9 @@ import "./Auth.css";
 
 function Login({ setUser }) {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,7 +22,10 @@ function Login({ setUser }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // DEMO: Handle input changes
+  // Handle input changes
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -27,7 +33,7 @@ function Login({ setUser }) {
     });
   };
 
-  // DEMO: Handle form submission
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -59,6 +65,9 @@ function Login({ setUser }) {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="auth-container">
       <div className="auth-card card">
@@ -70,7 +79,7 @@ function Login({ setUser }) {
         {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* DEMO: Email Input - EASY TO MODIFY */}
+          {/* DEMO: Email Input -  */}
           <div className="form-group">
             <label className="form-label">Email Address</label>
             <input
@@ -84,7 +93,7 @@ function Login({ setUser }) {
             />
           </div>
 
-          {/* DEMO: Password Input - EASY TO MODIFY */}
+          {/* DEMO: Password Input -  */}
           <div className="form-group">
             <label className="form-label">Password</label>
             <input
@@ -98,7 +107,7 @@ function Login({ setUser }) {
             />
           </div>
 
-          {/* DEMO: Submit Button - EASY TO MODIFY COLOR */}
+          {/* DEMO: Submit Button -  COLOR */}
           <button
             type="submit"
             className="btn btn-primary btn-block"

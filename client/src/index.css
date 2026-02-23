@@ -1,11 +1,11 @@
-/* ============================================
-   Global Styles - Modern Premium Theme
+﻿/* ============================================
+   Global Styles - Application Styles
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Anek+Sinhala:wght@400;500;600&display=swap');
 
 :root {
-  /* PALETTE: Modern Luxury (Coffee/Gold/Cream) */
+  /* PALETTE: Modern Styled (Coffee/Gold/Cream) */
   --primary-color: #5D4037; /* Mocha */
   --primary-dark: #3E2723;  /* Espresso */
   --primary-light: #8D6E63; /* Latte */
@@ -20,7 +20,7 @@
   /* NEUTRALS */
   --bg-color: #F4F6F8;      /* Cooler Light Gray for better contrast */
   --card-bg: #FFFFFF;
-  --glass-bg: rgba(255, 255, 255, 0.85); /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.85); /* Glass effect: semi-transparent panel */
   
   --text-primary: #1F2937;  /* Softer Black */
   --text-secondary: #6B7280; /* Cool Gray */
@@ -107,7 +107,7 @@ code {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
+  color: white !important;
   box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
 }
 
@@ -117,13 +117,28 @@ code {
   filter: brightness(1.1);
 }
 
-.btn-secondary, .btn-gold {
+.btn-secondary {
+  background: var(--bg-color);
+  color: var(--primary-dark) !important;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+  background: white;
+  border-color: var(--secondary-color);
+  color: var(--secondary-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-gold {
   background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark));
-  color: white;
+  color: white !important;
   box-shadow: 0 4px 12px rgba(197, 160, 89, 0.2);
 }
 
-.btn-secondary:hover, .btn-gold:hover {
+.btn-gold:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(197, 160, 89, 0.3);
   filter: brightness(1.1);
@@ -131,28 +146,28 @@ code {
 
 .btn-outline {
   background-color: transparent;
-  border: 2px solid var(--primary-color);
-  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color) !important;
 }
 
 .btn-outline:hover {
   background-color: var(--primary-color);
-  color: white;
+  color: white !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(93, 64, 55, 0.15);
 }
 
 .btn-danger {
   background-color: var(--error-bg);
-  color: var(--error-text);
-  border: 1px solid rgba(185, 28, 28, 0.2);
+  color: var(--error-text) !important;
+  border: 1px solid rgba(220, 38, 38, 0.1);
 }
 
 .btn-danger:hover {
   background-color: var(--error-text);
-  color: white;
+  color: white !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(185, 28, 28, 0.15);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.15);
 }
 
 /* Cards */

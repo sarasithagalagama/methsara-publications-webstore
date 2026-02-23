@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // API Configuration
 // All backend API calls go through here
 // ============================================
@@ -16,7 +16,7 @@ const api = axios.create({
   },
 });
 
-// DEMO: Add token to requests automatically
+// Add token to requests automatically
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -30,7 +30,7 @@ api.interceptors.request.use(
   },
 );
 
-// DEMO: Handle response errors
+// Handle response errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {

@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Session Model
+﻿// ============================================
+// Session Model
 // Epic: E1 - User & Role Management
 // Owner: IT24101266 (Perera M.U.E) / IT24100548 (Galagama S.T)
 // Purpose: Track active sessions, logins, and IP addresses

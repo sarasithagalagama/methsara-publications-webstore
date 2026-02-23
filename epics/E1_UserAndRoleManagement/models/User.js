@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: User Model
+﻿// ============================================
+// User Model
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
 // Purpose: Customer and Staff account management
@@ -158,7 +158,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// DEMO: Hash password before saving
+// Hash password before saving
 userSchema.pre("save", async function (next) {
   // Only hash if password is modified
   if (!this.isModified("password")) {
@@ -171,12 +171,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// DEMO: Method to compare passwords
+// Method to compare passwords
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// DEMO: Update timestamp on save
+// Update timestamp on save
 userSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();

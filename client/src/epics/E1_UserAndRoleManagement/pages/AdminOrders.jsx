@@ -1,19 +1,26 @@
-// Epic: E1 - Order Management
+﻿// ============================================
+// AdminOrders
+// Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
+// Purpose: AdminOrders page component
+// ============================================
 // Purpose: Full Admin Order Management Page
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Eye } from "lucide-react";
-import Modal from "../../components/common/Modal";
-import StatusModal from "../../components/common/StatusModal";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import DashboardSection from "../../components/dashboard/DashboardSection";
-import DashboardTable from "../../components/dashboard/DashboardTable";
-import "../../components/dashboard/dashboard.css";
-import "../dashboards/AdminDashboard.css";
+import Modal from "../../../components/common/Modal";
+import StatusModal from "../../../components/common/StatusModal";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import DashboardSection from "../../../components/dashboard/DashboardSection";
+import DashboardTable from "../../../components/dashboard/DashboardTable";
+import "../../../components/dashboard/dashboard.css";
+import "./AdminDashboard.css";
 
 const AdminOrders = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -26,10 +33,16 @@ const AdminOrders = () => {
     message: "",
   });
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchOrders();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -117,6 +130,9 @@ const AdminOrders = () => {
   ];
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

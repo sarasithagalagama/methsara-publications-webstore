@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Approval Request Model
+﻿// ============================================
+// Approval Request Model
 // Purpose: Manage admin approvals for critical edits (Security Feature)
 // ============================================
 

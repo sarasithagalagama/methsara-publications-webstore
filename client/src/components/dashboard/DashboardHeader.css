@@ -1,5 +1,5 @@
-/* ============================================
-   DashboardHeader Styles - Modern Premium
+﻿/* ============================================
+   DashboardHeader Styles - Standard
    ============================================ */
 
 /* Styles are now handled in dashboard.css for consistency */
@@ -33,7 +33,7 @@
 } 
 */
 
-/* Premium Buttons are handled globally in dashboard.css, 
+/* Buttons are handled globally in dashboard.css, 
    but we can add header-specific action tweaks if needed */
 .header-actions {
   display: flex;

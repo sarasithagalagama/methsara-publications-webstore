@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Reset Password Page
 // Epic: E1 - User & Admin Management
 // Owner: IT24100548 (Galagama S.T)
@@ -11,6 +11,9 @@ import axios from "axios";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     token: "",
     newPassword: "",
@@ -20,7 +23,10 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // DEMO: Handle input changes
+  // Handle input changes
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -28,7 +34,7 @@ const ResetPassword = () => {
     });
   };
 
-  // DEMO: Handle password reset submission
+  // Handle password reset submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,6 +76,9 @@ const ResetPassword = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="reset-password-page">
       <div className="reset-password-container">

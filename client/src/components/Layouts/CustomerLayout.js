@@ -19,7 +19,11 @@ import {
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 import "./CustomerLayout.css";
-import { LoginModal, RegisterModal, LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
+import {
+  LoginModal,
+  RegisterModal,
+  LogoutModal,
+} from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
 
 const CustomerLayout = () => {
   const { user, logout: handleLogout, cartCount, wishlistCount } = useAuth();
@@ -142,12 +146,16 @@ const CustomerLayout = () => {
               <button className="icon-btn nav-search-btn">
                 <Search size={22} strokeWidth={1.8} />
               </button>
-              <button className="icon-btn heart-icon" title="Wishlist">
+              <Link
+                to="/wishlist"
+                className="icon-btn heart-icon"
+                title="Wishlist"
+              >
                 <Heart size={22} strokeWidth={1.8} />
                 {wishlistCount > 0 && (
                   <span className="badge">{wishlistCount}</span>
                 )}
-              </button>
+              </Link>
               <Link to="/cart" className="icon-btn cart-icon" title="View Cart">
                 <ShoppingCart size={22} strokeWidth={1.8} />
                 {cartCount > 0 && <span className="badge">{cartCount}</span>}

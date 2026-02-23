@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Auth Controller
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
@@ -355,7 +355,7 @@ exports.forgotPassword = async (req, res) => {
     await user.save();
 
     // TODO: Send email with reset token
-    // For demo purposes, return the token in response
+    // Note: return the token in response
     // In production, this should be sent via email
     res.status(200).json({
       success: true,
@@ -582,7 +582,7 @@ exports.updateUser = async (req, res) => {
 };
 
 // ============================================
-// DEMO: Session Management (E1.11, E1.13)
+// Session Management (E1.11, E1.13)
 // ============================================
 
 // Get Active Sessions for Current User
@@ -677,7 +677,7 @@ exports.getSecurityLogs = async (req, res) => {
     const logs = await Session.find()
       .populate("user", "name email role userType")
       .sort({ loginTime: -1 })
-      .limit(100); // Limit to last 100 for performance in demo
+      .limit(100); // Limit to last 100 for performance
 
     res.status(200).json({
       success: true,

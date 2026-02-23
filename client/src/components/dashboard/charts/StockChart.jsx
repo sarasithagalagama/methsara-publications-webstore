@@ -12,16 +12,31 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const StockChart = ({ data }) => {
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "right",
+        position: "bottom",
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 13,
+            family: "'Inter', sans-serif",
+          },
+        },
       },
       title: {
         display: true,
         text: "Stock Distribution",
+        font: {
+          size: 16,
+          family: "'Inter', sans-serif",
+          weight: "600",
+        },
+        padding: { bottom: 20 },
       },
     },
-    cutout: "70%",
+    cutout: "75%",
   };
 
   const chartData = {
@@ -51,7 +66,11 @@ const StockChart = ({ data }) => {
     ],
   };
 
-  return <Doughnut options={options} data={chartData} />;
+  return (
+    <div style={{ height: "320px", width: "100%", position: "relative" }}>
+      <Doughnut options={options} data={chartData} />
+    </div>
+  );
 };
 
 export default StockChart;

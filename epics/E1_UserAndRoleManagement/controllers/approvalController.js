@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Approval Controller
+﻿// ============================================
+// Approval Controller
 // Purpose: Handle Admin Approval Workflow
 // ============================================
 
