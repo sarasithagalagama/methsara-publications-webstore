@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
@@ -25,10 +26,37 @@ import "./dashboard.css";
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [alertCount, setAlertCount] = useState(0);
 
   const isActive = (path) => location.pathname.startsWith(path);
 
   const role = user?.role;
+
+  useEffect(() => {
+    // Only fetch alerts if the user is admin or an inventory manager
+    if (
+      role === "admin" ||
+      role === "master_inventory_manager" ||
+      role === "location_inventory_manager"
+    ) {
+      const fetchAlertsCount = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await axios.get("/api/inventory/alerts", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setAlertCount(res.data.alerts?.length || 0);
+        } catch (error) {
+          console.error("Error fetching alert count for sidebar:", error);
+        }
+      };
+
+      fetchAlertsCount();
+      // Optional: Polling every 60 seconds to keep it updated, but single fetch is often enough
+      // const intervalId = setInterval(fetchAlertsCount, 60000);
+      // return () => clearInterval(intervalId);
+    }
+  }, [role]);
 
   // Define menu items based on role
   const getMenuItems = () => {
@@ -54,7 +82,21 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           {
             path: "/inventory-manager/alerts",
             icon: <Bell size={20} />,
-            label: "Stock Alerts",
+            label: (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <span>Stock Alerts</span>
+                {alertCount > 0 && (
+                  <span className="sidebar-badge danger">{alertCount}</span>
+                )}
+              </div>
+            ),
           },
           {
             path: "/admin/settings",
@@ -96,7 +138,21 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           {
             path: "/inventory-manager/alerts",
             icon: <Bell size={20} />,
-            label: "Alerts",
+            label: (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <span>Alerts</span>
+                {alertCount > 0 && (
+                  <span className="sidebar-badge danger">{alertCount}</span>
+                )}
+              </div>
+            ),
           },
         ];
       case "supplier_manager":
@@ -194,7 +250,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               onClick={() => window.innerWidth < 1024 && toggleSidebar()}
             >
               <span className="nav-icon">{item.icon}</span>
-              <span className="nav-text">{item.label}</span>
+              <span className="nav-text" style={{ flex: 1 }}>
+                {item.label}
+              </span>
             </Link>
           ))}
         </nav>

@@ -32,7 +32,8 @@ const LowStockAlerts = () => {
 
   // Basic security check: only authorized personnel should manage inventory
   const canEdit =
-    user?.role === "admin" || user?.role === "master_inventory_manager";
+    user?.role === "master_inventory_manager" ||
+    user?.role === "location_inventory_manager";
 
   /**
    * We load all available locations (Warehouses, Physical Shops)

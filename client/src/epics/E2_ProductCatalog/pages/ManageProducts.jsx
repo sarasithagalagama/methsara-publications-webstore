@@ -14,11 +14,19 @@ import DashboardTable from "../../../components/dashboard/DashboardTable";
 import Modal from "../../../components/common/Modal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
 import StatusModal from "../../../components/common/StatusModal";
-import { Input, Select, Button, TextArea } from "../../../components/common/Forms";
+import {
+  Input,
+  Select,
+  Button,
+  TextArea,
+} from "../../../components/common/Forms";
 import "../../../components/dashboard/dashboard.css";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 // import "./ManageProducts.css"; // Removing custom CSS in favor of standard
 
 const ManageProducts = ({ isTab = false }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   // ─────────────────────────────────
   // State Variables
   // ─────────────────────────────────
@@ -329,18 +337,22 @@ const ManageProducts = ({ isTab = false }) => {
         <DashboardHeader
           title="Manage Products"
           subtitle="Maintain and update the methsara publications product catalog"
-          actions={[
-            {
-              label: "Add New Book",
-              icon: <Plus size={18} />,
-              onClick: () => {
-                setShowForm(true);
-                setEditingProduct(null);
-                resetForm();
-              },
-              variant: "primary",
-            },
-          ]}
+          actions={
+            !isAdmin
+              ? [
+                  {
+                    label: "Add New Book",
+                    icon: <Plus size={18} />,
+                    onClick: () => {
+                      setShowForm(true);
+                      setEditingProduct(null);
+                      resetForm();
+                    },
+                    variant: "primary",
+                  },
+                ]
+              : []
+          }
         />
       )}
 
@@ -361,20 +373,24 @@ const ManageProducts = ({ isTab = false }) => {
           rowsPerPage={10}
           actions={(product) => (
             <div className="table-actions">
-              <button
-                className="btn-icon"
-                onClick={() => handleEdit(product)}
-                title="Edit"
-              >
-                <Edit size={16} />
-              </button>
-              <button
-                className="btn-icon danger"
-                onClick={() => handleDelete(product._id)}
-                title="Delete"
-              >
-                <Trash2 size={16} />
-              </button>
+              {!isAdmin && (
+                <>
+                  <button
+                    className="btn-icon"
+                    onClick={() => handleEdit(product)}
+                    title="Edit"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    className="btn-icon danger"
+                    onClick={() => handleDelete(product._id)}
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </>
+              )}
             </div>
           )}
         />

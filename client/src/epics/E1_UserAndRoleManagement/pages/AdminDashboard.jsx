@@ -17,6 +17,7 @@ import {
   CheckCircle,
   XCircle,
   FileSignature,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import toast from "react-hot-toast";
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [statsData, setStatsData] = useState({
     revenue: [],
@@ -77,10 +79,17 @@ const AdminDashboard = () => {
         axios.get("/api/products", config),
         axios.get("/api/orders/stats", config),
         axios.get("/api/approvals", config),
+        axios.get("/api/inventory/alerts", config),
       ]);
 
-      const [usersRes, ordersRes, productsRes, statsRes, approvalsRes] =
-        results;
+      const [
+        usersRes,
+        ordersRes,
+        productsRes,
+        statsRes,
+        approvalsRes,
+        alertsRes,
+      ] = results;
 
       const allUsers =
         usersRes.status === "fulfilled" ? usersRes.value.data.users || [] : [];
@@ -94,6 +103,10 @@ const AdminDashboard = () => {
 
       if (approvalsRes.status === "fulfilled") {
         setPendingApprovals(approvalsRes.value.data.requests || []);
+      }
+
+      if (alertsRes.status === "fulfilled") {
+        setLowStockCount(alertsRes.value.data.alerts?.length || 0);
       }
 
       const totalOrders = allOrders.length;
@@ -178,8 +191,8 @@ const AdminDashboard = () => {
     },
     {
       header: "Customer",
-      accessor: "user",
-      render: (order) => order.user?.name || order.guestName || "Guest",
+      accessor: "customer",
+      render: (order) => order.customer?.name || order.guestName || "Guest",
     },
     {
       header: "Total",
@@ -309,6 +322,15 @@ const AdminDashboard = () => {
           change="+15%"
           trend="up"
           variant="primary"
+          className="stat-card-compact"
+        />
+        <StatCard
+          icon={<Bell size={24} />}
+          label="Low Stock Alerts"
+          value={lowStockCount}
+          change={lowStockCount > 0 ? "Action Required" : "All Clear"}
+          trend={lowStockCount > 0 ? "down" : "neutral"}
+          variant={lowStockCount > 0 ? "danger" : "primary"}
           className="stat-card-compact"
         />
       </div>

@@ -91,8 +91,8 @@ const AdminOrders = () => {
     },
     {
       header: "Customer",
-      accessor: "user",
-      render: (order) => order.user?.name || order.guestName || "Guest",
+      accessor: "customer",
+      render: (order) => order.customer?.name || order.guestName || "Guest",
     },
     {
       header: "Date",
@@ -118,14 +118,16 @@ const AdminOrders = () => {
     },
     {
       header: "Payment",
-      accessor: "isPaid",
-      render: (order) => (
-        <span
-          className={`status-badge ${order.isPaid ? "active" : "inactive"}`}
-        >
-          {order.isPaid ? "Paid" : "Unpaid"}
-        </span>
-      ),
+      accessor: "paymentStatus",
+      render: (order) => {
+        const isPaid =
+          order.paymentStatus === "Paid" || order.paymentStatus === "Completed";
+        return (
+          <span className={`status-badge ${isPaid ? "active" : "inactive"}`}>
+            {order.paymentStatus || "Unpaid"}
+          </span>
+        );
+      },
     },
   ];
 
@@ -180,25 +182,6 @@ const AdminOrders = () => {
               >
                 <Eye size={16} />
               </button>
-              <select
-                defaultValue={order.orderStatus}
-                onChange={(e) =>
-                  handleUpdateOrderStatus(order._id, e.target.value)
-                }
-                style={{
-                  padding: "4px 8px",
-                  borderRadius: "4px",
-                  fontSize: "0.85rem",
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-color)",
-                }}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
             </div>
           )}
         />
