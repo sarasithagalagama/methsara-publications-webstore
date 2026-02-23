@@ -284,10 +284,18 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
           </div>
 
           <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
               {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
@@ -356,10 +364,16 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
                   )}
                 </div>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: "1rem",
+                }}
+              >
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="btn btn-primary"
                   disabled={passwordLoading}
                 >
                   {passwordLoading ? "Updating..." : "Update Password"}
