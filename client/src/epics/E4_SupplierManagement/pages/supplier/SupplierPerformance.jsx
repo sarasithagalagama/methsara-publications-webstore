@@ -1,3 +1,9 @@
+﻿// ============================================
+// SupplierPerformance
+// Epic: E4 - Supplier Management
+// Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: SupplierPerformance page component
+// ============================================
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Clock, CheckCircle, XCircle } from "lucide-react";
@@ -9,6 +15,9 @@ import "../../../../components/dashboard/dashboard.css";
 
 const SupplierPerformance = () => {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     onTimeDelivery: 0,
@@ -18,10 +27,16 @@ const SupplierPerformance = () => {
   });
   const [performance, setPerformance] = useState([]);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchPerformance();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchPerformance = async () => {
     try {
       const data = await supplierService.getAnalytics();
@@ -45,6 +60,9 @@ const SupplierPerformance = () => {
   };
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

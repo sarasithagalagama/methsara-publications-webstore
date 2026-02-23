@@ -1,11 +1,15 @@
+﻿// ============================================
+// SupplierManagerDashboard
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: SupplierManagerDashboard page component
+// ============================================
 // Purpose: Supplier and purchase order management
 
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Building,
   ClipboardList,
@@ -29,12 +33,12 @@ import {
   Printer,
   Trash2,
 } from "lucide-react";
-import StatCard from "../../components/dashboard/StatCard";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import Modal from "../../components/common/Modal";
-import ConfirmModal from "../../components/common/ConfirmModal";
+import StatCard from "../../../components/dashboard/StatCard";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import Modal from "../../../components/common/Modal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 import toast from "react-hot-toast";
-import SupplierFormModal from "../../epics/E4_SupplierManagement/components/Suppliers/SupplierFormModal";
+import SupplierFormModal from "../../../epics/E4_SupplierManagement/components/Suppliers/SupplierFormModal";
 
 const SupplierManagerDashboard = () => {
   const navigate = useNavigate();
@@ -77,10 +81,16 @@ const SupplierManagerDashboard = () => {
 
   const closeConfirm = () =>
     setConfirmState((prev) => ({ ...prev, isOpen: false }));
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -335,6 +345,9 @@ const SupplierManagerDashboard = () => {
   });
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

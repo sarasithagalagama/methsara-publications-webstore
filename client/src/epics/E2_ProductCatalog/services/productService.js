@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Product Service
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -7,7 +7,7 @@
 import api from "../../../api/config";
 
 const productService = {
-  // DEMO: Get all products with filters
+  // Get all products with filters
   getProducts: async (filters = {}) => {
     const params = new URLSearchParams();
     if (filters.search) params.append("search", filters.search);
@@ -21,31 +21,31 @@ const productService = {
     return response.data;
   },
 
-  // DEMO: Get single product
+  // Get single product
   getProduct: async (id) => {
     const response = await api.get(`/products/${id}`);
     return response.data;
   },
 
-  // DEMO: Create product (admin)
+  // Create product (admin)
   createProduct: async (productData) => {
     const response = await api.post("/products", productData);
     return response.data;
   },
 
-  // DEMO: Update product (admin)
+  // Update product (admin)
   updateProduct: async (id, productData) => {
     const response = await api.put(`/products/${id}`, productData);
     return response.data;
   },
 
-  // DEMO: Delete product (admin)
+  // Delete product (admin)
   deleteProduct: async (id) => {
     const response = await api.delete(`/products/${id}`);
     return response.data;
   },
 
-  // DEMO: Add review
+  // Add review
   addReview: async (productId, reviewData) => {
     const response = await api.post(
       `/products/${productId}/reviews`,

@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Supplier Controller
+﻿// ============================================
+// Supplier Controller
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
 // Purpose: Supplier and PO management (E4.1-E4.7)
@@ -7,7 +7,7 @@
 
 const Supplier = require('../models/Supplier');
 
-// DEMO: Get all suppliers (E4.1)
+// Get all suppliers (E4.1)
 exports.getAllSuppliers = async (req, res) => {
   try {
     const suppliers = await Supplier.find({ isActive: true });
@@ -27,7 +27,7 @@ exports.getAllSuppliers = async (req, res) => {
   }
 };
 
-// DEMO: Create supplier (E4.1)
+// Create supplier (E4.1)
 exports.createSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.create(req.body);
@@ -47,7 +47,7 @@ exports.createSupplier = async (req, res) => {
   }
 };
 
-// DEMO: Update supplier (E4.1)
+// Update supplier (E4.1)
 exports.updateSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(req.params.id);
@@ -103,7 +103,7 @@ exports.updateSupplier = async (req, res) => {
   }
 };
 
-// DEMO: Delete supplier (E4.1)
+// Delete supplier (E4.1)
 exports.deleteSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findByIdAndUpdate(
@@ -133,7 +133,7 @@ exports.deleteSupplier = async (req, res) => {
   }
 };
 
-// DEMO: Get Supplier Analytics (E4.6)
+// Get Supplier Analytics (E4.6)
 exports.getSupplierAnalytics = async (req, res) => {
   try {
     const [suppliers, purchaseOrders] = await Promise.all([
@@ -168,7 +168,7 @@ exports.getSupplierAnalytics = async (req, res) => {
         totalOrders: totalReceived,
         onTimeRate: totalReceived > 0 ? (onTime / totalReceived) * 100 : 100,
         rating: supplier.rating || 0,
-        defectRate: (Math.random() * 2).toFixed(1), // Demo mock for defect rate
+        defectRate: supplier.defectRate || 0, // Placeholder for defect rate
       };
     });
 

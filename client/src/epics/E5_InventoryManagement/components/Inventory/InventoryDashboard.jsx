@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Inventory Dashboard Component
+﻿// ============================================
+// Inventory Dashboard Component
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
 // Features: Multi-location stock tracking
@@ -10,14 +10,23 @@ import { AlertTriangle } from "lucide-react";
 import inventoryService from "../../services/inventoryService";
 
 function InventoryDashboard() {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [inventory, setInventory] = useState([]);
   const [location, setLocation] = useState("Main");
   const [loading, setLoading] = useState(true);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     loadInventory();
   }, [location]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const loadInventory = async () => {
     try {
       setLoading(true);
@@ -31,6 +40,9 @@ function InventoryDashboard() {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -44,7 +56,7 @@ function InventoryDashboard() {
         <p>Track stock levels across all locations</p>
       </div>
 
-      {/* DEMO: Location Selector - EASY TO MODIFY */}
+      {/* DEMO: Location Selector -  */}
       <div className="card" style={{ marginBottom: "2rem" }}>
         <label style={{ marginRight: "1rem", fontWeight: "600" }}>
           Select Location:

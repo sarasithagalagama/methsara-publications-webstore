@@ -1,3 +1,9 @@
+﻿// ============================================
+// DeliverySchedule
+// Epic: E4 - Supplier Management
+// Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: DeliverySchedule page component
+// ============================================
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,13 +13,22 @@ import "../../../../components/dashboard/dashboard.css";
 
 const DeliverySchedule = () => {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchSchedule();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchSchedule = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -38,6 +53,9 @@ const DeliverySchedule = () => {
   };
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

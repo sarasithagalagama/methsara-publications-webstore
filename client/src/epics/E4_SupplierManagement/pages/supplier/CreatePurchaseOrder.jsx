@@ -1,3 +1,9 @@
+﻿// ============================================
+// CreatePurchaseOrder
+// Epic: E4 - Supplier Management
+// Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: CreatePurchaseOrder page component
+// ============================================
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +14,9 @@ import "../../../../components/dashboard/dashboard.css";
 const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +29,9 @@ const CreatePurchaseOrder = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchData();
   }, []);
@@ -45,6 +57,9 @@ const CreatePurchaseOrder = () => {
     }
   }, [loading, products, location.state]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -174,6 +189,9 @@ const CreatePurchaseOrder = () => {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading-spinner">
         <div className="spinner"></div>

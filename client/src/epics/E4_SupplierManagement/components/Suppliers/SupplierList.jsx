@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Supplier List Component
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -24,6 +24,9 @@ import "../../../../components/dashboard/dashboard.css";
 import "./SupplierList.css";
 
 function SupplierList() {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [suppliers, setSuppliers] = useState([]);
   const [filteredSuppliers, setFilteredSuppliers] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
@@ -38,6 +41,9 @@ function SupplierList() {
 
   const closeConfirm = () => setConfirmModal({ isOpen: false, id: null });
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     loadSuppliers();
   }, []);
@@ -46,6 +52,9 @@ function SupplierList() {
     filterSuppliers(activeTab);
   }, [suppliers, activeTab, supplierSearch]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const loadSuppliers = async () => {
     try {
       const response = await supplierService.getSuppliers();
@@ -125,6 +134,9 @@ function SupplierList() {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>

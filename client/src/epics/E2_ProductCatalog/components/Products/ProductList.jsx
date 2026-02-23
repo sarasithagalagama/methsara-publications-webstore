@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Product List Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -12,11 +12,14 @@ import ProductCard from "./ProductCard";
 import "./Products.css";
 
 function ProductList() {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // DEMO: Filter states - EASY TO MODIFY
+  // Filter states - 
   const [filters, setFilters] = useState({
     search: "",
     grade: "",
@@ -24,11 +27,17 @@ function ProductList() {
     sort: "title",
   });
 
-  // DEMO: Load products
+  // Load products
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     loadProducts();
   }, [filters]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const loadProducts = async () => {
     try {
       setLoading(true);
@@ -41,7 +50,7 @@ function ProductList() {
     }
   };
 
-  // DEMO: Handle filter changes
+  // Handle filter changes
   const handleFilterChange = (e) => {
     setFilters({
       ...filters,
@@ -49,6 +58,9 @@ function ProductList() {
     });
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="container">
       <div className="products-header">
@@ -56,7 +68,7 @@ function ProductList() {
         <p>Browse our collection of quality educational books</p>
       </div>
 
-      {/* DEMO: Search and Filters - EASY TO MODIFY */}
+      {/* DEMO: Search and Filters -  */}
       <div className="products-filters card">
         <div className="filter-row">
           <input

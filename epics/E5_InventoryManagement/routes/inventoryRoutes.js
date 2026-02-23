@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Inventory Routes
+﻿// ============================================
+// Inventory Routes
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
 // Purpose: Stock management across locations
@@ -18,7 +18,7 @@ const {
 } = require('../controllers/inventoryController');
 const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
 
-// DEMO: All routes require inventory manager or admin role
+// All routes require inventory manager or admin role
 router.use(protect);
 router.use(
   authorize("master_inventory_manager", "location_inventory_manager", "admin"),

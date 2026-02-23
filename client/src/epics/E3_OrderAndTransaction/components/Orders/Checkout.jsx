@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Checkout Component
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
@@ -15,6 +15,9 @@ import "./Orders.css";
 function Checkout() {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [cartItems] = useState(
     JSON.parse(localStorage.getItem("cart") || "[]"),
   );
@@ -33,6 +36,9 @@ function Checkout() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -40,7 +46,7 @@ function Checkout() {
     });
   };
 
-  // DEMO: Validate coupon
+  // Validate coupon
   const validateCoupon = async () => {
     if (!formData.couponCode) return;
 
@@ -71,7 +77,7 @@ function Checkout() {
     return subtotal + deliveryFee - couponDiscount;
   };
 
-  // DEMO: Place order
+  // Place order
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -112,6 +118,9 @@ function Checkout() {
   };
 
   if (cartItems.length === 0) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="container">
         <div className="alert alert-warning">

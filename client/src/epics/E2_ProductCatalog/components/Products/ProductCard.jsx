@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Product Card Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import "./Products.css";
 
 function ProductCard({ product }) {
-  // DEMO: Add to cart function
+  // Add to cart function
   const addToCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingItem = cart.find((item) => item.product._id === product._id);
@@ -27,6 +27,9 @@ function ProductCard({ product }) {
     toast.success(`${product.title} added to cart!`);
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="product-card card">
       {/* Product Image */}

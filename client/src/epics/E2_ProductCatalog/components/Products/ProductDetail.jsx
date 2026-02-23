@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Product Detail Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -20,15 +20,24 @@ import "./Products.css";
 
 function ProductDetail() {
   const { id } = useParams();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     loadProduct();
   }, [id]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const loadProduct = async () => {
     try {
       setLoading(true);
@@ -56,6 +65,9 @@ function ProductDetail() {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -125,7 +137,7 @@ function ProductDetail() {
             <span>
               By <strong>{product.author}</strong>
             </span>
-            <span className="dot-separator">•</span>
+            <span className="dot-separator">â€¢</span>
             <span>
               Published by <strong>{product.publisher}</strong>
             </span>
@@ -206,7 +218,7 @@ function ProductDetail() {
             </div>
 
             <button onClick={addToCart} className="btn-add-to-cart">
-              🛒 Add to Cart
+              ðŸ›’ Add to Cart
             </button>
           </div>
 

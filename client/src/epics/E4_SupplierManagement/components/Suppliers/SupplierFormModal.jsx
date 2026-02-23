@@ -1,9 +1,18 @@
+﻿// ============================================
+// SupplierFormModal
+// Epic: E4 - Supplier Management
+// Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: SupplierFormModal UI component
+// ============================================
 import React, { useState, useEffect } from "react";
 import Modal from "../../../../components/common/Modal";
 import { Building, MapPin, Phone, FileText, Briefcase } from "lucide-react";
 import "./SupplierFormModal.css";
 
 const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     name: "",
     category: "Material Supplier",
@@ -80,6 +89,9 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     return error;
   };
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -119,6 +131,9 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     }
   }, [initialData, isOpen]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleChange = (e) => {
     let { name, value } = e.target;
 
@@ -204,6 +219,9 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     onClose();
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <Modal
       isOpen={isOpen}

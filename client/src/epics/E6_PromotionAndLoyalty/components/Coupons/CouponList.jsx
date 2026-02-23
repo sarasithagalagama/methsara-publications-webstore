@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Coupon List Component
 // Epic: E6 - Promotions & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
@@ -10,6 +10,9 @@ import couponService from "../../services/couponService";
 import ConfirmModal from "../../../../components/common/ConfirmModal";
 
 function CouponList() {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({
@@ -19,10 +22,16 @@ function CouponList() {
 
   const closeConfirm = () => setConfirmModal({ isOpen: false, id: null });
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     loadCoupons();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const loadCoupons = async () => {
     try {
       const response = await couponService.getCoupons();
@@ -50,6 +59,9 @@ function CouponList() {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -96,7 +108,7 @@ function CouponList() {
               </p>
               <p>
                 <strong>Used:</strong> {coupon.usedCount} /{" "}
-                {coupon.maxUsageCount || "∞"}
+                {coupon.maxUsageCount || "âˆž"}
               </p>
               <p>
                 <strong>Valid Until:</strong>{" "}

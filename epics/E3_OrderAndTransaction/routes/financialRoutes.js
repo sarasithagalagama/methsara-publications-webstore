@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Financial Routes
+﻿// ============================================
+// Financial Routes
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Financial management endpoints
@@ -21,7 +21,7 @@ const {
 } = require('../controllers/financialController');
 const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
 
-// DEMO: All routes require finance_manager or admin role
+// All routes require finance_manager or admin role
 router.use(protect);
 router.use(authorize("finance_manager", "admin"));
 

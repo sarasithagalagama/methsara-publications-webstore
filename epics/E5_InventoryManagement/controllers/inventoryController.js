@@ -1,14 +1,14 @@
-// ============================================
-// DEMO MARKER: Inventory Controller
+﻿// ============================================
+// Inventory Controller
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
 // Purpose: Stock management (E5.1-E5.10)
 // ============================================
 
-const Inventory = require('../models/Inventory');
-const Product = require('../../E2_ProductCatalog/models/Product');
+const Inventory = require("../models/Inventory");
+const Product = require("../../E2_ProductCatalog/models/Product");
 
-// DEMO: Get stock by location (E5.1, E5.2)
+// Get stock by location (E5.1, E5.2)
 exports.getStockByLocation = async (req, res) => {
   try {
     const { search } = req.query;
@@ -117,8 +117,8 @@ exports.getStockByLocation = async (req, res) => {
   }
 };
 
-// DEMO: Adjust stock (E5.3)
-// DEMO: Adjust stock (E5.3)
+// Adjust stock (E5.3)
+// Adjust stock (E5.3)
 exports.adjustStock = async (req, res) => {
   try {
     // Restrict editing to Admin and Master Inventory Manager (E5.3)
@@ -248,14 +248,14 @@ exports.adjustStock = async (req, res) => {
   }
 };
 
-// DEMO: Get low stock alerts (E5.9)
+// Get low stock alerts (E5.9)
 exports.getLowStockAlerts = async (req, res) => {
   try {
     let query = {
       $expr: {
         $lte: [
-          "$quantity",
-          { $ifNull: ["$reorderPoint", "$lowStockThreshold"] },
+          { $ifNull: ["$availableQuantity", "$quantity", 0] },
+          { $ifNull: ["$reorderPoint", "$lowStockThreshold", 10] },
         ],
       },
     };
@@ -325,7 +325,7 @@ exports.syncAllStock = async (req, res) => {
   }
 };
 
-// DEMO: Get all stock movements (adjustments) (E5.10)
+// Get all stock movements (adjustments) (E5.10)
 exports.getStockMovements = async (req, res) => {
   try {
     const { limit = 100 } = req.query;
@@ -450,7 +450,7 @@ exports.getInventoryStats = async (req, res) => {
       category: { $ne: "Gift Voucher" },
     });
 
-    const totalLocations = await require('../models/Location').countDocuments();
+    const totalLocations = await require("../models/Location").countDocuments();
 
     // 3. Count total adjustments (E5.10)
     const adjustmentCount = physicalInventory.reduce(
@@ -463,8 +463,13 @@ exports.getInventoryStats = async (req, res) => {
       "productData.category": { $ne: "Gift Voucher" },
       "productData.isActive": true,
     };
-    if (filterLocation) {
-      distributionMatch.location = filterLocation;
+
+    // Restrict chart only if the user is a location manager
+    if (
+      req.user.role === "location_inventory_manager" &&
+      req.user.assignedLocation
+    ) {
+      distributionMatch.location = req.user.assignedLocation;
     }
 
     const itemsWithStockCount = physicalInventory.filter(
@@ -477,7 +482,7 @@ exports.getInventoryStats = async (req, res) => {
         (item) =>
           item.product &&
           item.availableQuantity > 0 &&
-          item.availableQuantity <
+          item.availableQuantity <=
             (item.reorderPoint || item.lowStockThreshold),
       ).length,
       outOfStock: filterLocation
@@ -485,7 +490,7 @@ exports.getInventoryStats = async (req, res) => {
         : physicalInventory.filter(
             (item) => item.product && item.availableQuantity === 0,
           ).length,
-      locations: filterLocation ? 1 : totalLocations,
+      locations: totalLocations,
       adjustments: adjustmentCount,
     };
 
@@ -506,7 +511,7 @@ exports.getInventoryStats = async (req, res) => {
       {
         $group: {
           _id: "$location",
-          totalQuantity: { $sum: "$quantity" },
+          totalQuantity: { $sum: "$availableQuantity" },
         },
       },
       { $sort: { totalQuantity: -1 } },

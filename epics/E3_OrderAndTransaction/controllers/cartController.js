@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Cart Controller
+﻿// ============================================
+// Cart Controller
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Shopping cart operations (E3.1, E3.2)
@@ -9,7 +9,7 @@ const Cart = require('../models/Cart');
 const Product = require('../../E2_ProductCatalog/models/Product');
 const Campaign = require('../../E6_PromotionAndLoyalty/models/Campaign');
 
-// DEMO: Get user's cart (E3.1)
+// Get user's cart (E3.1)
 exports.getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user.id }).populate(
@@ -42,7 +42,7 @@ exports.getCart = async (req, res) => {
   }
 };
 
-// DEMO: Add item to cart (E3.1)
+// Add item to cart (E3.1)
 exports.addToCart = async (req, res) => {
   try {
     const { productId, quantity = 1 } = req.body;
@@ -105,7 +105,7 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-// DEMO: Update cart item quantity (E3.2)
+// Update cart item quantity (E3.2)
 exports.updateCartItem = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
@@ -159,7 +159,7 @@ exports.updateCartItem = async (req, res) => {
   }
 };
 
-// DEMO: Remove item from cart (E3.2)
+// Remove item from cart (E3.2)
 exports.removeFromCart = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -194,7 +194,7 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
-// DEMO: Clear cart
+// Clear cart
 exports.clearCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user.id });

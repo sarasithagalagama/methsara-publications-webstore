@@ -1,3 +1,9 @@
+﻿// ============================================
+// GiftVoucherManagement
+// Epic: E6 - Promotion & Loyalty
+// Owner: IT24101266 (Perera M.U.E)
+// Purpose: GiftVoucherManagement page component
+// ============================================
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -17,6 +23,9 @@ import ConfirmModal from "../../../../components/common/ConfirmModal";
 import { Input, Select, Button, TextArea } from "../../../../components/common/Forms";
 
 const GiftVoucherManagement = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [activeTab, setActiveTab] = useState("products");
   const [voucherProducts, setVoucherProducts] = useState([]);
   const [issuedVouchers, setIssuedVouchers] = useState([]);
@@ -60,6 +69,9 @@ const GiftVoucherManagement = () => {
   const [issuedVoucherErrors, setIssuedVoucherErrors] = useState({});
   const [productErrors, setProductErrors] = useState({});
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchVoucherProducts();
     if (activeTab === "issued") {
@@ -67,6 +79,9 @@ const GiftVoucherManagement = () => {
     }
   }, [activeTab]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchVoucherProducts = async () => {
     setLoading(true);
     try {
@@ -410,6 +425,9 @@ const GiftVoucherManagement = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="gift-voucher-management">
       <div className="dashboard-tabs" style={{ marginBottom: "2rem" }}>

@@ -1,8 +1,8 @@
-// ============================================
-// ProductDetail Component
+﻿// ============================================
+// ProductDetail Component (Premium Redesign)
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
-// Purpose: View product details and reviews (E2.6, E2.8)
+// Purpose: View product details and reviews (E2.6, E2.8) - Editorial Layout
 // ============================================
 
 import React, { useState, useEffect } from "react";
@@ -13,12 +13,9 @@ import {
   Star,
   ShoppingCart,
   ChevronLeft,
-  ChevronRight,
-  Book,
   ShieldCheck,
   Truck,
   RefreshCw,
-  Info,
   ThumbsUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -28,6 +25,10 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { refreshCounts } = useAuth();
+
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -35,39 +36,35 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState("main"); // "main" or "back"
+
   const [reviewForm, setReviewForm] = useState({
     rating: 5,
     comment: "",
   });
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchProductDetails();
     fetchRelatedProducts();
     // Re-fetch recently viewed whenever id changes
     const viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
     setRecentlyViewed(viewed.filter((item) => item._id !== id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const addToRecentlyViewed = (productData) => {
     try {
       let viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
-
-      // Remove if already exists to move it to top
       viewed = viewed.filter((item) => item._id !== productData._id);
-
-      // Add to beginning
       viewed.unshift({
         _id: productData._id,
         title: productData.title,
         image: productData.image,
         price: productData.price,
       });
-
-      // Keep only last 6
-      if (viewed.length > 6) {
-        viewed.pop();
-      }
-
+      if (viewed.length > 4) viewed.pop();
       localStorage.setItem("recentlyViewed", JSON.stringify(viewed));
       setRecentlyViewed(viewed.filter((item) => item._id !== id));
     } catch (e) {
@@ -75,12 +72,19 @@ const ProductDetail = () => {
     }
   };
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchProductDetails = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`/api/products/${id}`);
       setProduct(res.data.product);
       setReviews(res.data.reviews || []);
       addToRecentlyViewed(res.data.product);
+      setActiveImage("main"); // Reset image state
+      setQuantity(1); // Reset quantity
+      window.scrollTo(0, 0); // Scroll to top on load
     } catch (error) {
       console.error("Error fetching product:", error);
     } finally {
@@ -118,7 +122,7 @@ const ProductDetail = () => {
               title: product.title,
               image: product.image,
               grade: product.grade,
-              author: product.author, // needed for cart display
+              author: product.author,
             },
             quantity,
             price: product.price,
@@ -170,7 +174,7 @@ const ProductDetail = () => {
     } catch (error) {
       console.error("Error submitting review:", error);
       toast.error(
-        "Error submitting review: " +
+        "Error submitting to review: " +
           (error.response?.data?.message || error.message),
       );
     }
@@ -191,7 +195,6 @@ const ProductDetail = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      // Update local state to reflect the change immediately
       setReviews(
         reviews.map((review) => {
           if (review._id === reviewId) {
@@ -205,7 +208,6 @@ const ProductDetail = () => {
                 (userId) => userId !== currentUserId,
               );
             }
-
             return { ...review, helpfulVotes: newHelpfulVotes };
           }
           return review;
@@ -220,25 +222,54 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading book...</div>;
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
+    return (
+      <div className="product-loading-screen">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   if (!product) {
-    return <div className="error">Book not found</div>;
+    return (
+      <div className="error-screen">
+        <h2>Book not found</h2>
+        <button onClick={() => navigate("/books")} className="btn-primary">
+          Return to Catalog
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="product-detail-page">
-      <div className="container">
-        {/* Breadcrumbs / Back button */}
-        <button className="back-link" onClick={() => navigate(-1)}>
-          <ChevronLeft size={18} /> Back to Catalog
-        </button>
+    <div className="editorial-product-page">
+      {/* Top Navigation Bar */}
+      <nav className="product-nav-bar">
+        <div className="nav-container">
+          <button className="nav-back-btn" onClick={() => navigate("/books")}>
+            <ChevronLeft size={20} />
+            <span>Catalog</span>
+          </button>
+          <div className="nav-breadcrumbs">
+            <span>Books</span>
+            <span className="separator">/</span>
+            <span>{product.grade}</span>
+            <span className="separator">/</span>
+            <span className="current">{product.title}</span>
+          </div>
+        </div>
+      </nav>
 
-        <div className="product-main-layout">
-          {/* Left: Image Gallery */}
-          <div className="product-gallery-section">
-            <div className="main-image-viewport">
+      <main className="product-showcase">
+        {/* Left: Sticky Image Gallery */}
+        <section className="product-gallery-view">
+          <div className="image-presentation">
+            {product.isFlashSale && (
+              <span className="flash-badge">Flash Sale</span>
+            )}
+            <div className="main-image-wrapper">
               <img
                 src={
                   activeImage === "main"
@@ -246,62 +277,45 @@ const ProductDetail = () => {
                     : product.backCoverImage || product.image
                 }
                 alt={product.title}
-                className={`display-image ${activeImage === "back" ? "is-back" : ""}`}
+                className="showcase-img"
               />
-              {product.isFlashSale && (
-                <div className="detail-flash-badge">FLASH SALE</div>
-              )}
             </div>
-
             {product.backCoverImage && (
-              <div className="gallery-thumbnails">
+              <div className="image-toggles">
                 <button
-                  className={`thumb-btn ${activeImage === "main" ? "active" : ""}`}
+                  className={`toggle-dot ${activeImage === "main" ? "active" : ""}`}
                   onClick={() => setActiveImage("main")}
-                >
-                  <img src={product.image} alt="Front View" />
-                  <span>Front</span>
-                </button>
+                  aria-label="View front cover"
+                />
                 <button
-                  className={`thumb-btn ${activeImage === "back" ? "active" : ""}`}
+                  className={`toggle-dot ${activeImage === "back" ? "active" : ""}`}
                   onClick={() => setActiveImage("back")}
-                >
-                  <img src={product.backCoverImage} alt="Back View" />
-                  <span>Back</span>
-                </button>
+                  aria-label="View back cover"
+                />
               </div>
             )}
-
-            <div className="trust-badges">
-              <div className="trust-item">
-                <ShieldCheck size={18} /> <span>Authentic Book</span>
-              </div>
-              <div className="trust-item">
-                <Truck size={18} /> <span>Islandwide Delivery</span>
-              </div>
-              <div className="trust-item">
-                <RefreshCw size={18} /> <span>Easy Returns</span>
-              </div>
-            </div>
           </div>
+        </section>
 
-          {/* Right: Info Section */}
-          <div className="product-info-section">
-            <div className="info-header">
-              <span className="info-category">
-                {product.grade} • {product.subject}
-              </span>
-              <h1 className="info-title">{product.title}</h1>
-              {product.titleSinhala && (
-                <h2 className="info-title-sinhala">{product.titleSinhala}</h2>
-              )}
+        {/* Right: Editorial Content */}
+        <section className="product-editorial-content">
+          <header className="content-header">
+            <h1 className="book-title">{product.title}</h1>
+            {product.titleSinhala && (
+              <h2 className="book-title-sinhala">{product.titleSinhala}</h2>
+            )}
 
-              <div className="info-rating">
-                <div className="stars">
+            <div className="book-meta">
+              <div className="author-meta">
+                <span className="label">By</span>
+                <span className="value">{product.author}</span>
+              </div>
+              <div className="rating-meta">
+                <div className="star-display">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      size={18}
+                      size={16}
                       fill={
                         i < Math.floor(product.averageRating || 0)
                           ? "var(--gold-medium)"
@@ -310,280 +324,320 @@ const ProductDetail = () => {
                       stroke={
                         i < Math.floor(product.averageRating || 0)
                           ? "var(--gold-medium)"
-                          : "#ddd"
+                          : "#ccc"
                       }
                     />
                   ))}
                 </div>
-                <span className="rating-num">
+                <span className="rating-score">
                   {Number(product.averageRating || 0).toFixed(1)}
                 </span>
-                <span className="review-link">
-                  ({product.totalReviews || 0} Customer Reviews)
+                <a href="#reviews" className="review-jump">
+                  ({product.totalReviews || 0} reviews)
+                </a>
+              </div>
+            </div>
+          </header>
+
+          <div className="pricing-block">
+            <div className="price-display">
+              {product.hasDiscount && (
+                <span className="original-price">
+                  Rs. {Number(product.originalPrice).toLocaleString()}
+                </span>
+              )}
+              <div className="current-price">
+                <span className="currency">Rs.</span>
+                <span className="value">
+                  {Number(product.price).toLocaleString()}
                 </span>
               </div>
             </div>
 
-            <div className="info-price-area">
-              <div className="price-tag-container">
-                {product.hasDiscount && (
-                  <span className="old-price">
-                    Rs. {Number(product.originalPrice).toLocaleString()}
-                  </span>
-                )}
-                <div className="price-tag">
-                  <span className="currency">Rs.</span>
-                  <span className="amount">
-                    {Number(product.price).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-              <div
-                className={`stock-status ${product.stock > 0 ? "in-stock" : "out-of-stock"}`}
-              >
-                <div className="status-dot"></div>
-                {product.stock > 0
-                  ? `In Stock (${product.stock} copies)`
-                  : "Currently Unavailable"}
-              </div>
+            <div
+              className={`availability-status ${product.stock > 0 ? "in-stock" : "out-of-stock"}`}
+            >
+              {product.stock > 0 ? (
+                <>
+                  <span className="status-indicator" />
+                  Available to dispatch ({product.stock} left)
+                </>
+              ) : (
+                "Currently out of print"
+              )}
             </div>
+          </div>
 
-            <div className="info-actions">
-              <div className="quantity-control">
-                <button
-                  className="q-btn"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={product.stock === 0}
-                >
-                  {" "}
-                  -{" "}
-                </button>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) =>
-                    setQuantity(
-                      Math.min(
-                        product.stock,
-                        Math.max(1, parseInt(e.target.value) || 1),
-                      ),
-                    )
-                  }
-                  readOnly
-                />
-                <button
-                  className="q-btn"
-                  onClick={() =>
-                    setQuantity(Math.min(product.stock, quantity + 1))
-                  }
-                  disabled={product.stock === 0 || quantity >= product.stock}
-                >
-                  {" "}
-                  +{" "}
-                </button>
-              </div>
+          <div className="action-block">
+            <div className="qty-selector">
               <button
-                className="cart-primary-btn"
-                onClick={handleAddToCart}
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 disabled={product.stock === 0}
               >
-                <ShoppingCart size={20} />
-                {product.stock === 0 ? "Notify Me" : "Add to Shopping Cart"}
+                -
               </button>
-            </div>
-
-            <div className="info-specs">
-              <h3>
-                <Info size={16} /> Book Specifications
-              </h3>
-              <div className="specs-grid">
-                <div className="spec-item">
-                  <label>ISBN</label>
-                  <span>{product.isbn}</span>
-                </div>
-                <div className="spec-item">
-                  <label>Author</label>
-                  <span>{product.author}</span>
-                </div>
-                {product.pageCount > 0 && (
-                  <div className="spec-item">
-                    <label>Page Count</label>
-                    <span>{product.pageCount} Pages</span>
-                  </div>
-                )}
-                <div className="spec-item">
-                  <label>Exam Type</label>
-                  <span>{product.examType || "General"}</span>
-                </div>
-                <div className="spec-item">
-                  <label>Language</label>
-                  <span>Sinhala / English</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="info-summary">
-              <h3>
-                <Book size={16} /> Short Summary
-              </h3>
-              <p>{product.description}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Reviews Section */}
-        <div className="reviews-section">
-          <h2>Customer Reviews</h2>
-
-          {/* Submit Review Form */}
-          <div className="submit-review">
-            <h3>Write a Review</h3>
-            <form onSubmit={handleSubmitReview}>
-              <div className="rating-input">
-                <label>Rating:</label>
-                <select
-                  value={reviewForm.rating}
-                  onChange={(e) =>
-                    setReviewForm({
-                      ...reviewForm,
-                      rating: parseInt(e.target.value),
-                    })
-                  }
-                >
-                  <option value="5">5 Stars</option>
-                  <option value="4">4 Stars</option>
-                  <option value="3">3 Stars</option>
-                  <option value="2">2 Stars</option>
-                  <option value="1">1 Star</option>
-                </select>
-              </div>
-              <textarea
-                value={reviewForm.comment}
-                onChange={(e) =>
-                  setReviewForm({ ...reviewForm, comment: e.target.value })
+              <input type="number" value={quantity} readOnly />
+              <button
+                onClick={() =>
+                  setQuantity(Math.min(product.stock, quantity + 1))
                 }
-                placeholder="Share your experience with this book..."
-                rows="4"
-                required
-              />
-              <button type="submit" className="submit-review-btn">
-                Submit Review
+                disabled={product.stock === 0 || quantity >= product.stock}
+              >
+                +
               </button>
-            </form>
+            </div>
+
+            <button
+              className="editorial-add-btn"
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+            >
+              <ShoppingCart size={20} />
+              {product.stock === 0 ? "Notify When Available" : "Add to Cart"}
+            </button>
           </div>
 
-          {/* Display Reviews */}
-          <div className="reviews-list">
-            {reviews.length === 0 ? (
-              <p className="no-reviews">
-                No reviews yet. Be the first to review!
-              </p>
-            ) : (
-              reviews.map((review) => (
-                <div key={review._id} className="review-card">
-                  <div className="review-header">
-                    <span className="reviewer-name">
-                      {review.user?.name || "Anonymous"}
-                    </span>
-                    <span className="review-rating">
+          <div className="trust-indicators">
+            <div className="indicator">
+              <ShieldCheck size={20} />
+              <span>Authentic Publication</span>
+            </div>
+            <div className="indicator">
+              <Truck size={20} />
+              <span>Islandwide Delivery</span>
+            </div>
+            <div className="indicator">
+              <RefreshCw size={20} />
+              <span>Easy Returns</span>
+            </div>
+          </div>
+
+          <article className="book-synopsis">
+            <h3>Synopsis</h3>
+            <p>{product.description}</p>
+          </article>
+
+          <aside className="book-specifications">
+            <h3>Details</h3>
+            <ul className="spec-list">
+              <li>
+                <span className="spec-key">ISBN</span>
+                <span className="spec-val">{product.isbn}</span>
+              </li>
+              <li>
+                <span className="spec-key">Category</span>
+                <span className="spec-val">
+                  {product.grade} / {product.subject}
+                </span>
+              </li>
+              {product.examType && (
+                <li>
+                  <span className="spec-key">Exam</span>
+                  <span className="spec-val">{product.examType}</span>
+                </li>
+              )}
+              {product.pageCount > 0 && (
+                <li>
+                  <span className="spec-key">Pages</span>
+                  <span className="spec-val">{product.pageCount}</span>
+                </li>
+              )}
+              <li>
+                <span className="spec-key">Language</span>
+                <span className="spec-val">Sinhala / English</span>
+              </li>
+            </ul>
+          </aside>
+        </section>
+      </main>
+
+      {/* Reviews Section */}
+      <section id="reviews" className="editorial-reviews">
+        <div className="reviews-container">
+          <div className="reviews-header-block">
+            <h2>Reader Perspectives</h2>
+            <p className="reviews-subtitle">
+              Insights from those who have read this publication.
+            </p>
+          </div>
+
+          <div className="reviews-layout">
+            <div className="review-composition">
+              <h3>Share Your Thoughts</h3>
+              <form
+                className="elegant-review-form"
+                onSubmit={handleSubmitReview}
+              >
+                <div className="form-group">
+                  <label>Rating</label>
+                  <div className="rating-select-wrapper">
+                    <select
+                      value={reviewForm.rating}
+                      onChange={(e) =>
+                        setReviewForm({
+                          ...reviewForm,
+                          rating: parseInt(e.target.value),
+                        })
+                      }
+                    >
+                      <option value="5">5 - Masterpiece</option>
+                      <option value="4">4 - Excellent</option>
+                      <option value="3">3 - Good</option>
+                      <option value="2">2 - Fair</option>
+                      <option value="1">1 - Poor</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Your Review</label>
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, comment: e.target.value })
+                    }
+                    placeholder="Describe your experience with this book..."
+                    required
+                  />
+                </div>
+                <button type="submit" className="submit-elegance-btn">
+                  Publish Review
+                </button>
+              </form>
+            </div>
+
+            <div className="reviews-feed">
+              {reviews.length === 0 ? (
+                <div className="empty-reviews">
+                  <p>Be the first to share your perspective on this book.</p>
+                </div>
+              ) : (
+                reviews.map((review) => (
+                  <div key={review._id} className="editorial-review-item">
+                    <div className="review-meta-top">
+                      <div className="reviewer">
+                        <span className="name">
+                          {review.user?.name || "Anonymous Reader"}
+                        </span>
+                        <span className="verified-badge">Verified</span>
+                      </div>
+                      <span className="date">
+                        {new Date(review.createdAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          },
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="review-stars-display">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
                           size={14}
-                          fill={i < review.rating ? "gold" : "none"}
-                          stroke={i < review.rating ? "gold" : "#ccc"}
+                          fill={
+                            i < review.rating ? "var(--gold-medium)" : "none"
+                          }
+                          stroke={
+                            i < review.rating ? "var(--gold-medium)" : "#eaeaea"
+                          }
                         />
                       ))}
-                    </span>
+                    </div>
+
+                    <p className="review-text">{review.comment}</p>
+
+                    <div className="review-actions">
+                      <button
+                        className={`vote-helpful ${
+                          review.helpfulVotes &&
+                          localStorage.getItem("token") &&
+                          review.helpfulVotes.includes(
+                            JSON.parse(
+                              atob(localStorage.getItem("token").split(".")[1]),
+                            ).id,
+                          )
+                            ? "voted"
+                            : ""
+                        }`}
+                        onClick={() => handleToggleHelpful(review._id)}
+                      >
+                        <ThumbsUp size={14} />
+                        Found Helpful ({review.helpfulVotes?.length || 0})
+                      </button>
+                    </div>
                   </div>
-                  <p className="review-comment">{review.comment}</p>
-                  <div className="review-footer">
-                    <span className="review-date">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </span>
-                    <button
-                      className={`helpful-btn ${
-                        review.helpfulVotes &&
-                        localStorage.getItem("token") &&
-                        review.helpfulVotes.includes(
-                          JSON.parse(
-                            atob(localStorage.getItem("token").split(".")[1]),
-                          ).id,
-                        )
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => handleToggleHelpful(review._id)}
-                    >
-                      <ThumbsUp size={14} />
-                      Helpful ({review.helpfulVotes?.length || 0})
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="related-products">
-            <h2>Related Books</h2>
-            <div className="related-grid">
-              {relatedProducts.map((relProduct) => (
-                <div
-                  key={relProduct._id}
-                  className="related-card"
-                  onClick={() => navigate(`/books/${relProduct._id}`)}
-                >
-                  <img
-                    src={
-                      relProduct.image ||
-                      "https://via.placeholder.com/200?text=Book"
-                    }
-                    alt={relProduct.title}
-                  />
-                  <h4>{relProduct.title}</h4>
-                  <p className="related-price">
-                    Rs. {Number(relProduct.price).toFixed(2)}
-                  </p>
+      {/* Discovery Section */}
+      {(relatedProducts.length > 0 || recentlyViewed.length > 0) && (
+        <section className="product-discovery">
+          <div className="discovery-container">
+            {relatedProducts.length > 0 && (
+              <div className="discovery-section">
+                <h2>Curated For You</h2>
+                <div className="discovery-grid">
+                  {relatedProducts.slice(0, 4).map((item) => (
+                    <div
+                      key={item._id}
+                      className="discovery-card"
+                      onClick={() => navigate(`/books/${item._id}`)}
+                    >
+                      <div className="card-img-wrap">
+                        <img
+                          src={item.image || "https://via.placeholder.com/200"}
+                          alt={item.title}
+                        />
+                      </div>
+                      <div className="card-info">
+                        <h4>{item.title}</h4>
+                        <span className="card-price">
+                          Rs. {Number(item.price).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* Recently Viewed Products */}
-        {recentlyViewed.length > 0 && (
-          <div className="related-products">
-            <h2>Recently Viewed</h2>
-            <div className="related-grid">
-              {recentlyViewed.map((viewedProduct) => (
-                <div
-                  key={viewedProduct._id}
-                  className="related-card"
-                  onClick={() => {
-                    navigate(`/books/${viewedProduct._id}`);
-                    window.scrollTo(0, 0);
-                  }}
-                >
-                  <img
-                    src={
-                      viewedProduct.image ||
-                      "https://via.placeholder.com/200?text=Book"
-                    }
-                    alt={viewedProduct.title}
-                  />
-                  <h4>{viewedProduct.title}</h4>
-                  <p className="related-price">
-                    Rs. {Number(viewedProduct.price).toFixed(2)}
-                  </p>
+            {recentlyViewed.length > 0 && (
+              <div className="discovery-section">
+                <h2>Recently Contextualized</h2>
+                <div className="discovery-grid">
+                  {recentlyViewed.slice(0, 4).map((item) => (
+                    <div
+                      key={item._id}
+                      className="discovery-card"
+                      onClick={() => navigate(`/books/${item._id}`)}
+                    >
+                      <div className="card-img-wrap">
+                        <img
+                          src={item.image || "https://via.placeholder.com/200"}
+                          alt={item.title}
+                        />
+                      </div>
+                      <div className="card-info">
+                        <h4>{item.title}</h4>
+                        <span className="card-price">
+                          Rs. {Number(item.price).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </section>
+      )}
     </div>
   );
 };

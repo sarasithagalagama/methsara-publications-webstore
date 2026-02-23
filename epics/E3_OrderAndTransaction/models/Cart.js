@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Cart Model
+﻿// ============================================
+// Cart Model
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Shopping cart management (E3.1, E3.2)
@@ -52,7 +52,7 @@ const cartSchema = new mongoose.Schema(
   },
 );
 
-// DEMO: Calculate total before saving
+// Calculate total before saving
 cartSchema.pre("save", function (next) {
   this.totalAmount =
     this.items.reduce((sum, item) => sum + item.price * item.quantity, 0) -

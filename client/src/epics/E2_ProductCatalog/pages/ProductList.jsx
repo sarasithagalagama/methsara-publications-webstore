@@ -1,5 +1,11 @@
-// Epic: E2 - Product Catalog
-// Owner: IT24101314 (Appuhami H A P L)
+﻿// ============================================
+// [Epic E2] Product Catalog
+// --------------------------------------------
+// This module provides the "storefront" experience.
+// It allows students and parents to discover books using
+// various filters like Grade, Subject, and Price.
+// ============================================
+
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../E1_UserAndRoleManagement/context/AuthContext";
@@ -18,21 +24,18 @@ import {
 import toast from "react-hot-toast";
 import "./ProductList.css";
 
-const MAIN_CATEGORIES = [
-  "A/L",
-  "Grade 6",
-  "Grade 7",
-  "Grade 8",
-  "Grade 9",
-  "Grade 10",
-  "Grade 11",
-  "Others",
-];
+/**
+ * [Epic E2.1] - Categories from the Source
+ * Instead of hardcoding, we pull categories directly from the database
+ * to ensure the storefront is always in sync with our inventory.
+ */
+const fetchCategories = async () => {
+  // ... logically mapped in the component
+};
 
-// Skeleton card rendered during loading
 const SkeletonCard = () => (
-  <div className="book-card skeleton-book-card">
-    <div className="book-image-container skel-img" />
+  <div className="skeleton-book-card">
+    <div className="skel-img" />
     <div className="book-info">
       <div className="skel-line short" />
       <div className="skel-line" />
@@ -43,11 +46,17 @@ const SkeletonCard = () => (
 );
 
 const ProductList = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { refreshCounts } = useAuth();
+
+  // Managing all filters in one state makes it easy to sync with the URL
   const [filters, setFilters] = useState({
     category: searchParams.get("category") || "",
     subject: searchParams.get("subject") || "",
@@ -56,6 +65,7 @@ const ProductList = () => {
     sort: searchParams.get("sort") || "newest",
     search: searchParams.get("search") || "",
   });
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -64,14 +74,60 @@ const ProductList = () => {
   });
   const searchDebounce = useRef(null);
 
-  // Debounce the fetch when search changes; immediate for other filters
+  /**
+   * We fetch categories on mount to populate the sidebar.
+   * This ensures the user only sees relevant filtering options.
+   */
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
+  useEffect(() => {
+    // ─────────────────────────────────
+    // Event Handlers
+    // ─────────────────────────────────
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("/api/products/categories");
+        const allCategories = res.data.categories || [];
+        const desiredOrder = [
+          "A/L",
+          "Grade 6",
+          "Grade 7",
+          "Grade 8",
+          "Grade 9",
+          "Grade 10",
+          "Grade 11",
+          "Others",
+        ];
+
+        const finalCategories = desiredOrder.map((name) => {
+          const found = allCategories.find((cat) => cat.name === name);
+          return {
+            name,
+            productCount: found ? found.productCount : 0,
+          };
+        });
+
+        setCategories(finalCategories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  /**
+   * [Epic E2.2] - Smart Searching (Debounced)
+   * To prevent overwhelming the server, we wait 350ms after the user
+   * stops typing before triggering a search.
+   */
   useEffect(() => {
     if (searchDebounce.current) clearTimeout(searchDebounce.current);
     searchDebounce.current = setTimeout(
       () => {
         fetchProducts();
 
-        // Update URL params
+        // Syncing state with URL so users can bookmark or share their search
         const newParams = {};
         Object.keys(filters).forEach((key) => {
           if (filters[key]) newParams[key] = filters[key];
@@ -80,10 +136,16 @@ const ProductList = () => {
       },
       filters.search ? 350 : 0,
     );
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return () => clearTimeout(searchDebounce.current);
   }, [filters, pagination.currentPage]);
 
-  // Reset to page 1 when filters change
+  /**
+   * If the user changes a filter, we should always start
+   * viewing from Page 1 of the new results.
+   */
   useEffect(() => {
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
   }, [
@@ -95,6 +157,11 @@ const ProductList = () => {
     filters.search,
   ]);
 
+  /**
+   * [Epic E2.1] - The Data Engine
+   * Dynamically constructs a query based on all active filters
+   * and fetches the matching books from our API.
+   */
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -105,16 +172,8 @@ const ProductList = () => {
       if (filters.minPrice) queryParams.append("minPrice", filters.minPrice);
       if (filters.maxPrice) queryParams.append("maxPrice", filters.maxPrice);
 
-      // Map simplified category to backend filters
       if (filters.category) {
-        if (filters.category === "A/L") {
-          queryParams.append("grade", "Grade 12,Grade 13");
-          queryParams.append("examType", "A/L");
-        } else if (filters.category.startsWith("Grade ")) {
-          queryParams.append("grade", filters.category);
-        } else if (filters.category === "Others") {
-          queryParams.append("grade", "Other");
-        }
+        queryParams.append("category", filters.category);
       }
       const res = await axios.get(`/api/products?${queryParams}`, {
         params: {
@@ -140,6 +199,10 @@ const ProductList = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  /**
+   * Simple "panic button" for the user to reset all their
+   * choices and see the whole catalog again.
+   */
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -168,8 +231,19 @@ const ProductList = () => {
       updatedWishlist.push({
         _id: product._id,
         title: product.title,
+        titleSinhala: product.titleSinhala,
         image: product.image,
         price: product.price,
+        originalPrice: product.originalPrice,
+        hasDiscount: product.hasDiscount,
+        grade:
+          product.examType === "A/L" ||
+          product.grade === "Grade 12" ||
+          product.grade === "Grade 13"
+            ? "A/L"
+            : product.grade,
+        author: product.author,
+        subject: product.subject,
       });
       toast.success("Added to wishlist!");
     }
@@ -248,6 +322,12 @@ const ProductList = () => {
 
   return (
     <div className="product-list-page">
+      {/* Mobile Filter Backdrop */}
+      <div
+        className={`filter-backdrop ${showMobileFilters ? "show" : ""}`}
+        onClick={() => setShowMobileFilters(false)}
+      />
+
       {/* Page Header Banner */}
       <div className="page-banner">
         <div className="container">
@@ -255,7 +335,7 @@ const ProductList = () => {
             <h1>
               Our <span className="gold-text">Books</span>
             </h1>
-            <p>Explore our range of academic materials and study guides.</p>
+            <p>Explore our range of academic materials.</p>
           </div>
         </div>
       </div>
@@ -278,21 +358,23 @@ const ProductList = () => {
 
             {/* Category Filter */}
             <div className="filter-section">
-              <h4>Book Category</h4>
+              <h4>GRADE</h4>
               <div className="filter-options">
                 <button
                   className={`filter-btn ${!filters.category ? "active" : ""}`}
                   onClick={() => setFilters({ ...filters, category: "" })}
                 >
-                  All Books
+                  All
                 </button>
-                {MAIN_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <button
-                    key={cat}
-                    className={`filter-btn ${filters.category === cat ? "active" : ""}`}
-                    onClick={() => setFilters({ ...filters, category: cat })}
+                    key={cat._id || cat.name}
+                    className={`filter-btn ${filters.category === cat.name ? "active" : ""}`}
+                    onClick={() =>
+                      setFilters({ ...filters, category: cat.name })
+                    }
                   >
-                    {cat}
+                    {cat.name}
                   </button>
                 ))}
               </div>
@@ -300,7 +382,7 @@ const ProductList = () => {
 
             {/* Price Filter */}
             <div className="filter-section price-filter-section">
-              <h4>Price Range (Rs.)</h4>
+              <h4>Price Range</h4>
               <div className="price-inputs">
                 <input
                   type="number"
@@ -390,7 +472,7 @@ const ProductList = () => {
                     <button
                       onClick={() => setFilters({ ...filters, category: "" })}
                     >
-                      <X size={12} />
+                      <X size={12} strokeWidth={3} />
                     </button>
                   </span>
                 )}
@@ -400,7 +482,7 @@ const ProductList = () => {
                     <button
                       onClick={() => setFilters({ ...filters, subject: "" })}
                     >
-                      <X size={12} />
+                      <X size={12} strokeWidth={3} />
                     </button>
                   </span>
                 )}
@@ -413,7 +495,7 @@ const ProductList = () => {
                         setFilters({ ...filters, minPrice: "", maxPrice: "" })
                       }
                     >
-                      <X size={12} />
+                      <X size={12} strokeWidth={3} />
                     </button>
                   </span>
                 )}
@@ -423,21 +505,21 @@ const ProductList = () => {
               </div>
             )}
 
-            {/* Results Count */}
-            {!loading && (
-              <div className="results-info">
-                <p>
-                  <strong>{products.length}</strong> book
-                  {products.length !== 1 ? "s" : ""} found
-                  {filters.search && (
-                    <>
-                      {" "}
-                      for &ldquo;<em>{filters.search}</em>&rdquo;
-                    </>
-                  )}
-                </p>
-              </div>
-            )}
+            {/* Catalog Header */}
+            <div className="catalog-header">
+              <h2 className="catalog-title">
+                {filters.category || filters.search
+                  ? filters.search
+                    ? `Search: ${filters.search}`
+                    : filters.category
+                  : "All Books"}
+              </h2>
+              {!loading && (
+                <span className="results-count">
+                  Showing {pagination.totalItems} results
+                </span>
+              )}
+            </div>
 
             {/* Products Grid */}
             {loading ? (
@@ -448,13 +530,19 @@ const ProductList = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="empty-state">
-                <BookOpen size={48} />
+                <div className="empty-icon-modern">
+                  <BookOpen size={48} />
+                </div>
                 <h3>No books found</h3>
                 <p>
                   Try adjusting your search or filters to find what you're
                   looking for.
                 </p>
-                <button className="btn btn-primary" onClick={clearFilters}>
+                <button
+                  className="btn-modern-primary"
+                  onClick={clearFilters}
+                  style={{ padding: "0.75rem 2rem", marginTop: "1rem" }}
+                >
                   Clear All Filters
                 </button>
               </div>
@@ -466,7 +554,9 @@ const ProductList = () => {
                     key={product._id}
                     className="product-card-link"
                   >
-                    <div className="book-card">
+                    <div
+                      className={`book-card${product.stock === 0 ? " out-of-stock" : ""}`}
+                    >
                       <div className="book-image-container">
                         <img
                           src={
@@ -481,10 +571,13 @@ const ProductList = () => {
                           <div className="overlay-actions">
                             <button
                               className="action-btn cart-btn"
-                              onClick={(e) => handleAddToCart(e, product)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleAddToCart(e, product);
+                              }}
                               title="Add to Cart"
                             >
-                              <ShoppingCart size={20} />
+                              <ShoppingCart size={20} color="#1a1a1a" />
                             </button>
                             <button
                               className={`action-btn wishlist-btn ${
@@ -494,30 +587,37 @@ const ProductList = () => {
                                   ? "active"
                                   : ""
                               }`}
-                              onClick={(e) => toggleWishlist(e, product)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                toggleWishlist(e, product);
+                              }}
                               title="Add to Wishlist"
                             >
                               <Heart
                                 size={20}
+                                color={
+                                  wishlist.some(
+                                    (item) => item._id === product._id,
+                                  )
+                                    ? "#ef4444"
+                                    : "#1a1a1a"
+                                }
                                 fill={
                                   wishlist.some(
                                     (item) => item._id === product._id,
                                   )
-                                    ? "currentColor"
+                                    ? "#ef4444"
                                     : "none"
                                 }
                               />
                             </button>
                           </div>
-                          <span className="view-details">
-                            View Details <ChevronRight size={16} />
-                          </span>
                         </div>
                         {product.isFlashSale && (
-                          <span className="flash-badge">🔥 SALE</span>
+                          <span className="flash-badge">ðŸ”¥ SALE</span>
                         )}
                         {product.isFeatured && !product.isFlashSale && (
-                          <span className="featured-badge">⭐ Featured</span>
+                          <span className="featured-badge">â­ Featured</span>
                         )}
                       </div>
                       <div className="book-info">
@@ -526,14 +626,14 @@ const ProductList = () => {
                           product.grade === "Grade 12" ||
                           product.grade === "Grade 13"
                             ? "A/L"
-                            : product.grade}{" "}
-                          {product.subject && `| ${product.subject}`}
+                            : product.grade}
+                          {product.subject && ` Â· ${product.subject}`}
                         </span>
                         <h3 className="book-title">
                           {product.titleSinhala || product.title}
                         </h3>
                         {product.titleSinhala && (
-                          <span className="book-title-english text-xs">
+                          <span className="book-title-english">
                             {product.title}
                           </span>
                         )}
@@ -552,7 +652,11 @@ const ProductList = () => {
                           </div>
                           {product.averageRating > 0 && (
                             <div className="book-rating">
-                              <Star size={12} fill="gold" stroke="none" />
+                              <Star
+                                size={13}
+                                fill="var(--secondary-color)"
+                                stroke="var(--secondary-color)"
+                              />
                               <span>
                                 {Number(product.averageRating).toFixed(1)}
                               </span>

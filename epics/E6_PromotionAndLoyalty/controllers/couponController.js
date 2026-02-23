@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Coupon Controller
+﻿// ============================================
+// Coupon Controller
 // Epic: E6 - Promotion & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
 // Purpose: Marketing and promotions (E6.1-E6.7)
@@ -10,7 +10,7 @@ const GiftVoucher = require('../models/GiftVoucher');
 const Campaign = require('../models/Campaign');
 const Order = require('../../E3_OrderAndTransaction/models/Order');
 
-// DEMO: Create coupon (E6.1)
+// Create coupon (E6.1)
 exports.createCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.create(req.body);
@@ -30,7 +30,7 @@ exports.createCoupon = async (req, res) => {
   }
 };
 
-// DEMO: Get all coupons
+// Get all coupons
 exports.getAllCoupons = async (req, res) => {
   try {
     const coupons = await Coupon.find().sort({ createdAt: -1 });
@@ -50,7 +50,7 @@ exports.getAllCoupons = async (req, res) => {
   }
 };
 
-// DEMO: Validate coupon (E6.6)
+// Validate coupon (E6.6)
 exports.validateCoupon = async (req, res) => {
   try {
     const { code } = req.params;
@@ -94,7 +94,7 @@ exports.validateCoupon = async (req, res) => {
   }
 };
 
-// DEMO: Apply coupon (E6.6)
+// Apply coupon (E6.6)
 exports.applyCoupon = async (req, res) => {
   try {
     const { code, orderAmount } = req.body;
@@ -152,7 +152,7 @@ exports.applyCoupon = async (req, res) => {
   }
 };
 
-// DEMO: Update Coupon
+// Update Coupon
 exports.updateCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
@@ -182,10 +182,10 @@ exports.updateCoupon = async (req, res) => {
 };
 
 // ============================================
-// DEMO: Gift Voucher Functions (E6.4)
+// Gift Voucher Functions (E6.4)
 // ============================================
 
-// DEMO: Create Gift Voucher (E6.4)
+// Create Gift Voucher (E6.4)
 exports.createGiftVoucher = async (req, res) => {
   try {
     const { value, recipientEmail, recipientName, message, expiryDate } =
@@ -215,7 +215,7 @@ exports.createGiftVoucher = async (req, res) => {
   }
 };
 
-// DEMO: Validate Gift Voucher
+// Validate Gift Voucher
 exports.validateGiftVoucher = async (req, res) => {
   try {
     const { code } = req.body;
@@ -249,10 +249,10 @@ exports.validateGiftVoucher = async (req, res) => {
 };
 
 // ============================================
-// DEMO: Campaign Functions (E6.5)
+// Campaign Functions (E6.5)
 // ============================================
 
-// DEMO: Create Campaign (E6.5)
+// Create Campaign (E6.5)
 exports.createCampaign = async (req, res) => {
   try {
     const campaign = await Campaign.create({
@@ -273,7 +273,7 @@ exports.createCampaign = async (req, res) => {
   }
 };
 
-// DEMO: Get Active Campaigns (Public for Homepage)
+// Get Active Campaigns (Public for Homepage)
 exports.getActivePublicCampaigns = async (req, res) => {
   try {
     const now = new Date();
@@ -296,8 +296,8 @@ exports.getActivePublicCampaigns = async (req, res) => {
   }
 };
 
-// DEMO: Get All Campaigns (Admin Dashboard)
-//... existing code ...
+// Get All Campaigns (Admin Dashboard)
+
 exports.getActiveCampaigns = async (req, res) => {
   try {
     const campaigns = await Campaign.find().sort({ createdAt: -1 });
@@ -315,7 +315,7 @@ exports.getActiveCampaigns = async (req, res) => {
   }
 };
 
-// DEMO: Update Campaign
+// Update Campaign
 exports.updateCampaign = async (req, res) => {
   try {
     const campaign = await Campaign.findByIdAndUpdate(req.params.id, req.body, {
@@ -344,7 +344,7 @@ exports.updateCampaign = async (req, res) => {
   }
 };
 
-// DEMO: Delete Coupon
+// Delete Coupon
 exports.deleteCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findById(req.params.id);
@@ -371,7 +371,7 @@ exports.deleteCoupon = async (req, res) => {
   }
 };
 
-// DEMO: Delete Campaign
+// Delete Campaign
 exports.deleteCampaign = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.id);
@@ -398,7 +398,7 @@ exports.deleteCampaign = async (req, res) => {
   }
 };
 
-// DEMO: Get Marketing Analytics
+// Get Marketing Analytics
 exports.getMarketingAnalytics = async (req, res) => {
   try {
     const [

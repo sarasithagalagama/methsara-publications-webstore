@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Location Controller
+﻿// ============================================
+// Location Controller
 // Epic: E5 - Inventory Management
 // Purpose: Manage dynamic locations/branches (E5.7)
 // ============================================

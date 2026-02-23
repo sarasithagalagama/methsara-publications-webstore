@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Supplier Routes
+﻿// ============================================
+// Supplier Routes
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
 // Purpose: Supplier management API endpoints
@@ -16,7 +16,7 @@ const {
 } = require('../controllers/supplierController');
 const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
 
-// DEMO: All routes require supplier_manager or admin role
+// All routes require supplier_manager or admin role
 router.use(protect);
 router.use(authorize("supplier_manager", "admin", "finance_manager"));
 

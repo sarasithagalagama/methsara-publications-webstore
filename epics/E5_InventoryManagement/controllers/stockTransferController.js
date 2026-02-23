@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Stock Transfer Controller
+﻿// ============================================
+// Stock Transfer Controller
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
 // Purpose: Request and approve transfers (E5.4, E5.5)
@@ -9,7 +9,7 @@
 const StockTransfer = require('../models/StockTransfer');
 const Inventory = require('../models/Inventory');
 
-// DEMO: Request Stock Transfer (E5.4)
+// Request Stock Transfer (E5.4)
 exports.requestTransfer = async (req, res) => {
   try {
     const { product, fromLocation, toLocation, quantity, reason } = req.body;
@@ -58,7 +58,7 @@ exports.requestTransfer = async (req, res) => {
   }
 };
 
-// DEMO: Approve/Reject Transfer (E5.5)
+// Approve/Reject Transfer (E5.5)
 exports.approveTransfer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,7 +165,7 @@ exports.approveTransfer = async (req, res) => {
   }
 };
 
-// DEMO: Get All Transfers
+// Get All Transfers
 exports.getAllTransfers = async (req, res) => {
   try {
     const { status, location } = req.query;

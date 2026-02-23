@@ -1,19 +1,19 @@
-// ============================================
-// DEMO MARKER: Order Controller
+﻿// ============================================
+// Order Controller
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Features: Cart, Checkout, Order Tracking
 // ============================================
 
-const Order = require('../models/Order');
-const Product = require('../../E2_ProductCatalog/models/Product');
-const Inventory = require('../../E5_InventoryManagement/models/Inventory');
-const Coupon = require('../../E6_PromotionAndLoyalty/models/Coupon');
-const GiftVoucher = require('../../E6_PromotionAndLoyalty/models/GiftVoucher');
-const Campaign = require('../../E6_PromotionAndLoyalty/models/Campaign');
-const Location = require('../../E5_InventoryManagement/models/Location');
+const Order = require("../models/Order");
+const Product = require("../../E2_ProductCatalog/models/Product");
+const Inventory = require("../../E5_InventoryManagement/models/Inventory");
+const Coupon = require("../../E6_PromotionAndLoyalty/models/Coupon");
+const GiftVoucher = require("../../E6_PromotionAndLoyalty/models/GiftVoucher");
+const Campaign = require("../../E6_PromotionAndLoyalty/models/Campaign");
+const Location = require("../../E5_InventoryManagement/models/Location");
 
-// DEMO: Create Order / Checkout (E3.3, E3.4)
+// Create Order / Checkout (E3.3, E3.4)
 exports.createOrder = async (req, res) => {
   try {
     const {
@@ -47,15 +47,20 @@ exports.createOrder = async (req, res) => {
 
       // Check inventory (SKIP for Gift Vouchers)
       if (product.category !== "Gift Voucher") {
-        const inventory = await Inventory.findOne({
-          product: item.product,
-          location: finalLocation,
-        });
+        const inventories = await Inventory.find({ product: item.product });
+        let totalAvailable = 0;
 
-        if (!inventory || inventory.availableQuantity < item.quantity) {
+        if (inventories && inventories.length > 0) {
+          totalAvailable = inventories.reduce(
+            (sum, inv) => sum + (inv.availableQuantity || 0),
+            0,
+          );
+        }
+
+        if (totalAvailable < item.quantity) {
           return res.status(400).json({
             success: false,
-            message: `Insufficient stock for ${product.title}`,
+            message: `Insufficient stock for ${product.title} (Available: ${totalAvailable})`,
           });
         }
       }
@@ -119,14 +124,22 @@ exports.createOrder = async (req, res) => {
       const product = await Product.findById(item.product);
 
       if (product && product.category !== "Gift Voucher") {
-        const inventory = await Inventory.findOne({
+        let remainingToDeduct = item.quantity;
+        const inventories = await Inventory.find({
           product: item.product,
-          location: fulfillmentLocation || "Main",
-        });
+          availableQuantity: { $gt: 0 },
+        }).sort({ availableQuantity: -1 }); // Deduct from highest stock first
 
-        if (inventory) {
-          inventory.deductStock(item.quantity, "Sale");
+        for (const inventory of inventories) {
+          if (remainingToDeduct <= 0) break;
+
+          const deductionAmount = Math.min(
+            inventory.availableQuantity,
+            remainingToDeduct,
+          );
+          inventory.deductStock(deductionAmount, "Sale");
           await inventory.save();
+          remainingToDeduct -= deductionAmount;
         }
       }
 
@@ -161,13 +174,13 @@ exports.createOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create order",
+      message: error.message || "Failed to create order",
       error: error.message,
     });
   }
 };
 
-// DEMO: Get User Orders (E3.6, E3.7)
+// Get User Orders (E3.6, E3.7)
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ customer: req.user.id })
@@ -189,7 +202,7 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
-// DEMO: Get Single Order
+// Get Single Order
 exports.getOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -216,7 +229,7 @@ exports.getOrder = async (req, res) => {
   }
 };
 
-// DEMO: Update Order Status (E3.8) - Admin/Inventory Manager
+// Update Order Status (E3.8) - Admin/Inventory Manager
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus, note } = req.body;
@@ -298,7 +311,7 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// DEMO: Update Payment Status - Finance Manager/Admin
+// Update Payment Status - Finance Manager/Admin
 exports.updatePaymentStatus = async (req, res) => {
   try {
     const { paymentStatus, note } = req.body;
@@ -335,7 +348,7 @@ exports.updatePaymentStatus = async (req, res) => {
   }
 };
 
-// DEMO: Get All Orders (Admin only)
+// Get All Orders (Admin only)
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
@@ -357,7 +370,7 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// DEMO: Get Dashboard Stats (Admin only)
+// Get Dashboard Stats (Admin only)
 exports.getDashboardStats = async (req, res) => {
   try {
     // 1. Revenue Stats (Last 7 days) - Mon-Sun

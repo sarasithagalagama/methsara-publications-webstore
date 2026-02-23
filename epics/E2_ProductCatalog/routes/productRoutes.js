@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Product Routes
+﻿// ============================================
+// Product Routes
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
 // Purpose: Product catalog API endpoints
@@ -22,10 +22,13 @@ const {
   deleteCategory,
   toggleReviewHelpful,
   getProductAnalytics,
-} = require('../controllers/productController');
-const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
+} = require("../controllers/productController");
+const {
+  protect,
+  authorize,
+} = require("../../E1_UserAndRoleManagement/middleware/auth");
 
-// DEMO: Public routes
+// Public routes
 router.get("/", getProducts); // E2.1, E2.4, E2.5, E2.7 - Browse with search/filter/sort
 router.get("/categories", getCategories); // E2 - List all categories with product count
 router.post(
@@ -37,11 +40,11 @@ router.post(
 router.get("/:id/related", getRelatedProducts); // E2.10 - Related products
 router.get("/:id", getProduct); // E2.2, E2.6 - View product details
 
-// DEMO: Customer routes (protected)
+// Customer routes (protected)
 router.post("/:id/reviews", protect, authorize("customer"), addReview); // E2.8 - Submit review
 router.put("/:id/reviews/:reviewId/helpful", protect, toggleReviewHelpful); // E2.12 - Mark review helpful
 
-// DEMO: Product Manager routes
+// Product Manager routes
 router.post(
   "/",
   protect,

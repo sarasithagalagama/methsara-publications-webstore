@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // ManageProducts Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -19,6 +19,9 @@ import "../../../components/dashboard/dashboard.css";
 // import "./ManageProducts.css"; // Removing custom CSS in favor of standard
 
 const ManageProducts = ({ isTab = false }) => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -51,10 +54,16 @@ const ManageProducts = ({ isTab = false }) => {
 
   const closeConfirm = () => setConfirmModal({ isOpen: false, id: null });
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -311,6 +320,9 @@ const ManageProducts = ({ isTab = false }) => {
     },
   ];
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className={isTab ? "" : "dashboard-container"}>
       {!isTab && (

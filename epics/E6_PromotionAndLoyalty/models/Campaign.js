@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Campaign Model
+﻿// ============================================
+// Campaign Model
 // Epic: E6 - Promotion & Loyalty
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Seasonal campaigns (E6.5)

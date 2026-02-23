@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Product Model
+﻿// ============================================
+// Product Model
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
 // Purpose: Educational product management
@@ -134,17 +134,6 @@ const productSchema = new mongoose.Schema({
       },
       comment: String,
       isVerifiedPurchase: Boolean,
-      status: {
-        type: String,
-        enum: ["pending", "approved", "rejected"],
-        default: "pending",
-      },
-      helpfulVotes: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-      ],
       createdAt: {
         type: Date,
         default: Date.now,
@@ -186,16 +175,10 @@ productSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
 
   if (this.reviews && this.reviews.length > 0) {
-    const approvedReviews = this.reviews.filter((r) => r.status === "approved");
-    if (approvedReviews.length > 0) {
-      const sum = approvedReviews.reduce(
-        (acc, review) => acc + review.rating,
-        0,
-      );
-      this.averageRating = (sum / approvedReviews.length).toFixed(1);
-      this.rating = this.averageRating;
-      this.totalReviews = approvedReviews.length;
-    }
+    const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0);
+    this.averageRating = (sum / this.reviews.length).toFixed(1);
+    this.rating = this.averageRating;
+    this.totalReviews = this.reviews.length;
   }
 
   next();

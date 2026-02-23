@@ -1,25 +1,33 @@
+﻿// ============================================
+// [Epic E3] Order and Transaction
+// --------------------------------------------
+// This is the final and most critical step of the customer journey.
+// It handles everything from shipping details to payment verification.
+// Owner: IT24100548 (Galagama S.T)
+// ============================================
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  CheckCircle,
   Truck,
-  CreditCard,
-  Info,
   ChevronLeft,
   Package,
-  X,
   Check,
   Banknote,
   ShieldCheck,
+  User,
 } from "lucide-react";
 import StatusModal from "../../../components/common/StatusModal";
 import "./Checkout.css";
 
-const CHECKOUT_STEPS = ["Browse", "Cart", "Checkout", "Done"];
+const CHECKOUT_STEPS = ["Browse", "Cart", "Checkout", "Success"];
 
 const Checkout = () => {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState("");
@@ -51,11 +59,26 @@ const Checkout = () => {
 
   const [isGuest, setIsGuest] = useState(false);
 
+  /**
+   * On mount, we identify if the user is a registered customer or a guest.
+   * This determines how we fetch their cart and validate their data.
+   */
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchCart();
     setIsGuest(!localStorage.getItem("token"));
   }, []);
 
+  /**
+   * [Epic E3.1] - Synchronizing the Cart
+   * We pull the latest items to ensure the user is paying the correct amount
+   * and that items are still in stock.
+   */
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -84,6 +107,11 @@ const Checkout = () => {
     }
   };
 
+  /**
+   * [Epic E3.4] - Coupon Validation
+   * Users can apply promo codes to get discounts.
+   * We validate these codes on the server to prevent fraud.
+   */
   const handleApplyCoupon = async () => {
     if (!couponCode) return;
     try {
@@ -100,12 +128,15 @@ const Checkout = () => {
         isOpen: true,
         type: "error",
         title: "Coupon Error",
-        message:
-          error.response?.data?.message || "Invalid or expired coupon code",
+        message: error.response?.data?.message || "Invalid or expired coupon",
       });
     }
   };
 
+  /**
+   * For Bank Transfers, we allow users to upload a high-res image
+   * of their deposit slip as proof of payment.
+   */
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -117,42 +148,58 @@ const Checkout = () => {
     }
   };
 
+  /**
+   * Deep validation to ensure we have a valid shipping address
+   * and phone number before accepting the order.
+   */
   const validateForm = () => {
     const errors = {};
     const phoneRegex = /^0\d{9}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (isGuest) {
-      if (!formData.guestName.trim())
-        errors.guestName = "Name is required for guests";
+      if (!formData.guestName.trim()) errors.guestName = "Required";
       if (!formData.guestEmail.trim()) {
-        errors.guestEmail = "Email is required for guests";
+        errors.guestEmail = "Required";
       } else if (!emailRegex.test(formData.guestEmail)) {
-        errors.guestEmail = "Please enter a valid email address";
+        errors.guestEmail = "Invalid email";
       }
     }
 
-    if (!formData.deliveryAddress.street.trim())
-      errors.street = "Street address is required";
-    if (!formData.deliveryAddress.city.trim())
-      errors.city = "City / Town is required";
-    if (!formData.deliveryAddress.phone.trim())
-      errors.phone = "Contact phone is required";
+    const postalRegex = /^\d{5}$/;
+
+    if (!formData.deliveryAddress.street.trim()) errors.street = "Required";
+    if (!formData.deliveryAddress.city.trim()) errors.city = "Required";
+
+    if (!formData.deliveryAddress.postalCode?.trim())
+      errors.postalCode = "Required";
+    else if (!postalRegex.test(formData.deliveryAddress.postalCode))
+      errors.postalCode = "Must be 5 digits";
+
+    if (!formData.deliveryAddress.phone.trim()) errors.phone = "Required";
     else if (
       !phoneRegex.test(formData.deliveryAddress.phone.replace(/\s/g, ""))
     )
-      errors.phone = "Enter a valid 10-digit phone (e.g. 0771234567)";
+      errors.phone = "Invalid format (07XXXXXXXX)";
 
     if (formData.paymentMethod === "Bank Transfer" && !formData.bankSlip)
-      errors.bankSlip = "Please upload a bank slip for Bank Transfer payment";
+      errors.bankSlip = "Please upload payment proof";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  /**
+   * [Epic E3.2] - Placing the Order
+   * This is where the magic happens. We package up all cart items,
+   * shipping info, and payment details into a single transaction.
+   */
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
@@ -164,7 +211,7 @@ const Checkout = () => {
         })),
         deliveryAddress: formData.deliveryAddress,
         paymentMethod: formData.paymentMethod,
-        bankSlip: formData.bankSlip,
+        bankSlipUrl: formData.bankSlip,
         couponCode: appliedCoupon?.code,
       };
 
@@ -173,28 +220,21 @@ const Checkout = () => {
         orderData.guestEmail = formData.guestEmail;
       }
 
-      const headers = {};
-      if (token) {
-        headers.Authorization = "Bearer " + token;
-      }
-
+      const headers = token ? { Authorization: "Bearer " + token } : {};
       const res = await axios.post("/api/orders", orderData, { headers });
 
-      if (isGuest) {
-        localStorage.removeItem("guestCart");
-      }
+      if (isGuest) localStorage.removeItem("guestCart");
 
-      setOrderRef(res.data.order?._id?.slice(-8).toUpperCase() || "ORD-OK");
+      setOrderRef(res.data.order?._id?.slice(-8).toUpperCase() || "ORD-DONE");
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error placing order:", error);
+      console.log("FULL ERROR RESPONSE:", error.response?.data);
       setStatusModal({
         isOpen: true,
         type: "error",
-        title: "Order Failed",
-        message:
-          error.response?.data?.message ||
-          "Error placing order. Please try again.",
+        title: "Order Error",
+        message: error.response?.data?.message || "Failed to place order",
       });
     } finally {
       setIsSubmitting(false);
@@ -202,31 +242,38 @@ const Checkout = () => {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
-      <div className="loading">
-        <div className="spinner"></div>
+      <div className="loading-modern">
+        <div className="spinner-modern"></div>
       </div>
     );
 
   const deliveryFee = 350;
-  const subtotal = cart.totalAmount;
+  const subtotal = cart?.totalAmount || 0;
   const total = subtotal - discount + deliveryFee;
 
   return (
-    <div className="checkout-page-wrapper">
-      {/* Progress Bar */}
-      <div className="checkout-progress-bar">
+    <div className="checkout-modern-page">
+      {/* â”€â”€ Progress Bar â”€â”€ */}
+      <div className="checkout-progress-modern">
         <div className="container">
-          <div className="progress-steps">
+          <div className="progress-steps-modern">
             {CHECKOUT_STEPS.map((step, i) => (
               <div
                 key={step}
-                className={`progress-step ${i === 2 ? "active" : i < 2 ? "done" : ""}`}
+                className={`progress-step-modern ${i === 2 ? "active" : i < 2 ? "done" : ""}`}
               >
-                <div className="step-circle">{i < 2 ? "✓" : i + 1}</div>
-                <span className="step-label">{step}</span>
+                <div className="step-circle-modern">
+                  {i < 2 ? <Check size={18} /> : i + 1}
+                </div>
+                <span className="step-label-modern">{step}</span>
                 {i < CHECKOUT_STEPS.length - 1 && (
-                  <div className={`step-connector ${i < 2 ? "filled" : ""}`} />
+                  <div
+                    className={`step-connector-modern ${i < 2 ? "filled" : ""}`}
+                  />
                 )}
               </div>
             ))}
@@ -235,33 +282,31 @@ const Checkout = () => {
       </div>
 
       <div className="container">
-        <button className="btn-back" onClick={() => navigate("/cart")}>
-          <ChevronLeft size={18} /> Back to Bag
+        <button className="btn-back-modern" onClick={() => navigate("/cart")}>
+          <ChevronLeft size={18} /> Return to Cart
         </button>
-        <h1 className="checkout-title">
-          Complete Your{" "}
+        <h1 className="checkout-title-modern">
+          Checkout{" "}
           <span style={{ color: "var(--secondary-color)" }}>Order</span>
         </h1>
 
-        <div className="checkout-grid">
-          <main className="checkout-main">
-            <form
-              onSubmit={handlePlaceOrder}
-              className="checkout-form"
-              noValidate
-            >
+        <div className="checkout-grid-modern">
+          <main className="checkout-main-modern">
+            <form onSubmit={handlePlaceOrder} noValidate>
               {isGuest && (
-                <div className="checkout-card">
-                  <div className="form-header">
-                    <span className="step-num">!</span>
-                    <h2>Guest Information</h2>
+                <div className="checkout-card-modern">
+                  <div className="form-header-modern">
+                    <span className="step-num-modern">
+                      <User size={18} />
+                    </span>
+                    <h2>Contact Information</h2>
                   </div>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Full Name *</label>
+                  <div className="form-row-modern">
+                    <div className="form-group-modern">
+                      <label>Full Name *</label>
                       <input
                         type="text"
-                        className={`form-input ${formErrors.guestName ? "input-error" : ""}`}
+                        className={formErrors.guestName ? "input-error" : ""}
                         value={formData.guestName}
                         onChange={(e) =>
                           setFormData({
@@ -271,14 +316,16 @@ const Checkout = () => {
                         }
                       />
                       {formErrors.guestName && (
-                        <p className="field-error">{formErrors.guestName}</p>
+                        <p className="field-error-modern">
+                          {formErrors.guestName}
+                        </p>
                       )}
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Email Address *</label>
+                    <div className="form-group-modern">
+                      <label>Email Address *</label>
                       <input
                         type="email"
-                        className={`form-input ${formErrors.guestEmail ? "input-error" : ""}`}
+                        className={formErrors.guestEmail ? "input-error" : ""}
                         value={formData.guestEmail}
                         onChange={(e) =>
                           setFormData({
@@ -288,25 +335,26 @@ const Checkout = () => {
                         }
                       />
                       {formErrors.guestEmail && (
-                        <p className="field-error">{formErrors.guestEmail}</p>
+                        <p className="field-error-modern">
+                          {formErrors.guestEmail}
+                        </p>
                       )}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Delivery Section */}
-              <div className="checkout-card">
-                <div className="form-header">
-                  <span className="step-num">1</span>
-                  <h2>Shipping Information</h2>
+              <div className="checkout-card-modern">
+                <div className="form-header-modern">
+                  <span className="step-num-modern">1</span>
+                  <h2>Shipping Destination</h2>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Street Address *</label>
+                <div className="form-group-modern">
+                  <label>Street Address *</label>
                   <input
                     type="text"
-                    className={`form-input ${formErrors.street ? "input-error" : ""}`}
+                    className={formErrors.street ? "input-error" : ""}
                     placeholder="House number and street name"
                     value={formData.deliveryAddress.street}
                     onChange={(e) =>
@@ -320,16 +368,15 @@ const Checkout = () => {
                     }
                   />
                   {formErrors.street && (
-                    <p className="field-error">{formErrors.street}</p>
+                    <p className="field-error-modern">{formErrors.street}</p>
                   )}
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">City / Town *</label>
-                    <input
-                      type="text"
-                      className={`form-input ${formErrors.city ? "input-error" : ""}`}
+                <div className="form-row-modern">
+                  <div className="form-group-modern">
+                    <label>District *</label>
+                    <select
+                      className={`modern-select ${formErrors.city ? "input-error" : ""}`}
                       value={formData.deliveryAddress.city}
                       onChange={(e) =>
                         setFormData({
@@ -340,35 +387,81 @@ const Checkout = () => {
                           },
                         })
                       }
-                    />
+                      style={{
+                        width: "100%",
+                        padding: "0.875rem 1rem",
+                        borderRadius: "10px",
+                        border: "1px solid var(--border-color)",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "0.95rem",
+                        backgroundColor: "var(--bg-color)",
+                        color: "var(--text-color)",
+                      }}
+                    >
+                      <option value="">Select District</option>
+                      <option value="Ampara">Ampara</option>
+                      <option value="Anuradhapura">Anuradhapura</option>
+                      <option value="Badulla">Badulla</option>
+                      <option value="Batticaloa">Batticaloa</option>
+                      <option value="Colombo">Colombo</option>
+                      <option value="Galle">Galle</option>
+                      <option value="Gampaha">Gampaha</option>
+                      <option value="Hambantota">Hambantota</option>
+                      <option value="Jaffna">Jaffna</option>
+                      <option value="Kalutara">Kalutara</option>
+                      <option value="Kandy">Kandy</option>
+                      <option value="Kegalle">Kegalle</option>
+                      <option value="Kilinochchi">Kilinochchi</option>
+                      <option value="Kurunegala">Kurunegala</option>
+                      <option value="Mannar">Mannar</option>
+                      <option value="Matale">Matale</option>
+                      <option value="Matara">Matara</option>
+                      <option value="Moneragala">Moneragala</option>
+                      <option value="Mullaitivu">Mullaitivu</option>
+                      <option value="Nuwara Eliya">Nuwara Eliya</option>
+                      <option value="Polonnaruwa">Polonnaruwa</option>
+                      <option value="Puttalam">Puttalam</option>
+                      <option value="Ratnapura">Ratnapura</option>
+                      <option value="Trincomalee">Trincomalee</option>
+                      <option value="Vavuniya">Vavuniya</option>
+                    </select>
                     {formErrors.city && (
-                      <p className="field-error">{formErrors.city}</p>
+                      <p className="field-error-modern">{formErrors.city}</p>
                     )}
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Postal Code</label>
+                  <div className="form-group-modern">
+                    <label>Postal Code *</label>
                     <input
                       type="text"
-                      className="form-input"
+                      className={formErrors.postalCode ? "input-error" : ""}
+                      placeholder="e.g. 00300"
                       value={formData.deliveryAddress.postalCode}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
                           deliveryAddress: {
                             ...formData.deliveryAddress,
-                            postalCode: e.target.value,
+                            postalCode: e.target.value
+                              .replace(/[^0-9]/g, "")
+                              .slice(0, 5),
                           },
                         })
                       }
+                      maxLength={5}
                     />
+                    {formErrors.postalCode && (
+                      <p className="field-error-modern">
+                        {formErrors.postalCode}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Contact Phone *</label>
+                <div className="form-group-modern">
+                  <label>Contact Phone *</label>
                   <input
                     type="tel"
-                    className={`form-input ${formErrors.phone ? "input-error" : ""}`}
+                    className={formErrors.phone ? "input-error" : ""}
                     placeholder="07XXXXXXXX"
                     value={formData.deliveryAddress.phone}
                     onChange={(e) =>
@@ -384,46 +477,45 @@ const Checkout = () => {
                     }
                   />
                   {formErrors.phone && (
-                    <p className="field-error">{formErrors.phone}</p>
+                    <p className="field-error-modern">{formErrors.phone}</p>
                   )}
                 </div>
 
-                {/* Delivery estimate note based on payment method */}
-                <div className="delivery-estimate-note">
-                  <Package size={16} />
-                  {formData.paymentMethod === "COD"
-                    ? "Estimated delivery: 3–5 business days after order confirmation."
-                    : "Estimated delivery: 1–2 business days after payment verification."}
+                <div className="delivery-estimate-modern">
+                  <Package size={20} />
+                  <span>
+                    Colombo & Suburbs: 1-2 Days | Island-wide deliveries: 3-5
+                    Days via local courier.
+                  </span>
                 </div>
               </div>
 
-              {/* Payment Section */}
-              <div className="checkout-card">
-                <div className="form-header">
-                  <span className="step-num">2</span>
-                  <h2>Payment Method</h2>
+              <div className="checkout-card-modern">
+                <div className="form-header-modern">
+                  <span className="step-num-modern">2</span>
+                  <h2>Payment Selection</h2>
                 </div>
 
-                <div className="payment-methods-grid">
+                <div className="payment-grid-modern">
                   <div
-                    className={`payment-method-card ${formData.paymentMethod === "COD" ? "selected" : ""}`}
+                    className={`payment-method-modern ${formData.paymentMethod === "COD" ? "selected" : ""}`}
                     onClick={() =>
                       setFormData({ ...formData, paymentMethod: "COD" })
                     }
                   >
-                    <div className="method-icon">
+                    <div className="method-icon-modern">
                       <Truck size={24} />
                     </div>
                     <span>Cash on Delivery</span>
                     {formData.paymentMethod === "COD" && (
-                      <div className="method-selected-badge">
+                      <div className="method-check-modern">
                         <Check size={14} />
                       </div>
                     )}
                   </div>
 
                   <div
-                    className={`payment-method-card ${formData.paymentMethod === "Bank Transfer" ? "selected" : ""}`}
+                    className={`payment-method-modern ${formData.paymentMethod === "Bank Transfer" ? "selected" : ""}`}
                     onClick={() =>
                       setFormData({
                         ...formData,
@@ -431,12 +523,12 @@ const Checkout = () => {
                       })
                     }
                   >
-                    <div className="method-icon">
+                    <div className="method-icon-modern">
                       <Banknote size={24} />
                     </div>
                     <span>Bank Transfer</span>
                     {formData.paymentMethod === "Bank Transfer" && (
-                      <div className="method-selected-badge">
+                      <div className="method-check-modern">
                         <Check size={14} />
                       </div>
                     )}
@@ -444,51 +536,39 @@ const Checkout = () => {
                 </div>
 
                 {formData.paymentMethod === "Bank Transfer" && (
-                  <div className="bank-info-box">
-                    <p>
+                  <div className="bank-info-modern">
+                    <div className="bank-details-row">
                       <span>Bank:</span> <strong>Commercial Bank</strong>
-                    </p>
-                    <p>
+                    </div>
+                    <div className="bank-details-row">
                       <span>Account Name:</span>{" "}
                       <strong>Methsara Publications</strong>
-                    </p>
-                    <p>
+                    </div>
+                    <div className="bank-details-row">
                       <span>Account No:</span> <strong>1234 5678 9012</strong>
+                    </div>
+                    <p className="bank-note-modern">
+                      * Upload your bank deposit slip or screenshot below for
+                      verification.
                     </p>
-                    <p
-                      style={{
-                        marginTop: "1rem",
-                        fontStyle: "italic",
-                        fontSize: "0.85rem",
-                        color: "var(--text-light)",
-                      }}
+                    <div
+                      className="form-group-modern"
+                      style={{ marginTop: "1.5rem" }}
                     >
-                      * Please upload the bank slip below or send to our
-                      WhatsApp after payment.
-                    </p>
-                    <div className="form-group mt-3">
-                      <label className="form-label">
-                        Upload Bank Slip (Image/PDF) *
-                      </label>
                       <input
                         type="file"
-                        id="bank-slip-upload"
-                        className={`form-input ${formErrors.bankSlip ? "input-error" : ""}`}
+                        className={formErrors.bankSlip ? "input-error" : ""}
                         accept="image/*,.pdf"
                         onChange={handleFileChange}
                       />
                       {formErrors.bankSlip && (
-                        <p className="field-error">{formErrors.bankSlip}</p>
+                        <p className="field-error-modern">
+                          {formErrors.bankSlip}
+                        </p>
                       )}
                       {formData.bankSlip && (
-                        <p
-                          className="mt-2 text-success"
-                          style={{
-                            fontSize: "0.8rem",
-                            color: "var(--success-color)",
-                          }}
-                        >
-                          ✓ File selected successfully
+                        <p className="file-success-modern">
+                          âœ“ Document attached successfully
                         </p>
                       )}
                     </div>
@@ -496,107 +576,83 @@ const Checkout = () => {
                 )}
               </div>
 
-              <div
-                className="checkout-info-banner"
-                style={{
-                  display: "flex",
-                  gap: "1rem",
-                  background: "#f8f9fa",
-                  padding: "1.5rem",
-                  borderRadius: "12px",
-                  border: "1px dashed #ddd",
-                }}
-              >
-                <ShieldCheck color="var(--primary-color)" />
-                <p style={{ fontSize: "0.9rem", color: "#666" }}>
-                  Your personal data will be used to process your order, support
-                  your experience throughout this website, and for other
-                  purposes described in our privacy policy.
+              <div className="checkout-privacy-banner-modern">
+                <ShieldCheck size={24} color="var(--primary-dark)" />
+                <p>
+                  Your security is our priority. We use encrypted processing to
+                  ensure your order information is handled safely and according
+                  to privacy standards.
                 </p>
               </div>
 
               <button
                 type="submit"
-                className="btn btn-primary place-order-action"
+                className="place-order-btn-modern"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Placing Order..." : "Confirm & Place Order"}
+                {isSubmitting ? "Processing..." : "Confirm My Order"}
               </button>
             </form>
           </main>
 
-          <aside className="checkout-summary-panel">
-            <h2>Order Summary</h2>
+          <aside className="checkout-summary-modern">
+            <h2>Order Details</h2>
 
-            <div className="summary-items-list">
-              {cart.items.map((item) => (
-                <div key={item._id} className="summary-item-row">
-                  <span>
+            <div className="summary-items-modern">
+              {cart?.items.map((item) => (
+                <div key={item._id} className="summary-item-row-modern">
+                  <div className="summary-item-title-modern">
                     {item.product?.title}{" "}
-                    <span className="item-qty">× {item.quantity}</span>
-                  </span>
-                  <span>
+                    <span className="qty-muted">Ã— {item.quantity}</span>
+                  </div>
+                  <div className="summary-item-price-modern">
                     Rs. {(item.price * item.quantity).toLocaleString()}
-                  </span>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="coupon-area">
-              <label className="form-label" style={{ fontSize: "0.85rem" }}>
-                Have a coupon?
-              </label>
-              <div className="coupon-control">
+            <div className="coupon-box-modern">
+              <label>Promo Code</label>
+              <div className="coupon-flex-modern">
                 <input
                   type="text"
-                  className="form-input"
-                  placeholder="CODE"
+                  placeholder="Enter code"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 />
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="coupon-btn-modern"
                   onClick={handleApplyCoupon}
-                  style={{ whiteSpace: "nowrap" }}
                 >
                   Apply
                 </button>
               </div>
               {appliedCoupon && (
-                <p
-                  style={{
-                    color: "var(--success-text)",
-                    fontSize: "0.85rem",
-                    marginTop: "-1rem",
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  <Check size={14} /> Coupon "{appliedCoupon.code}" applied!
-                </p>
+                <div className="coupon-success-msg-modern">
+                  <Check size={14} strokeWidth={3} /> Coupon "
+                  {appliedCoupon.code}" active
+                </div>
               )}
             </div>
 
-            <div className="total-stack">
-              <div className="total-row">
-                <span>Subtotal</span>
+            <div className="checkout-totals-modern">
+              <div className="totals-row-modern">
+                <span>Items Subtotal</span>
                 <span>Rs. {subtotal.toLocaleString()}</span>
               </div>
-              <div className="total-row">
-                <span>Delivery Fee</span>
+              <div className="totals-row-modern">
+                <span>Shipping Fee</span>
                 <span>Rs. {deliveryFee.toLocaleString()}</span>
               </div>
               {discount > 0 && (
-                <div
-                  className="total-row"
-                  style={{ color: "var(--success-text)" }}
-                >
-                  <span>Discount</span>
+                <div className="totals-row-modern discount-row-modern">
+                  <span>Loyalty Discount</span>
                   <span>- Rs. {discount.toLocaleString()}</span>
                 </div>
               )}
-              <div className="total-row grand">
-                <span>Total</span>
+              <div className="grand-total-modern">
                 <span>Rs. {total.toLocaleString()}</span>
               </div>
             </div>
@@ -604,7 +660,6 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* Order Success Modal */}
       <StatusModal
         isOpen={showSuccessModal}
         onClose={() => {
@@ -612,47 +667,37 @@ const Checkout = () => {
           navigate("/customer/dashboard");
         }}
         type="success"
-        title="Order Placed!"
-        message={`Thank you for your order. Reference: #${orderRef}. You will receive an email confirmation shortly.${formData.paymentMethod === "Bank Transfer" ? " Please complete your bank transfer to confirm your order." : ""}`}
+        title="Order Success!"
+        message={`Reference: #${orderRef}. ${formData.paymentMethod === "Bank Transfer" ? "Please ensure your bank transfer is completed today." : "Our team will contact you for confirmation shortly."}`}
         actions={
           <div
-            className="success-actions"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-              width: "100%",
-            }}
+            className="success-actions-modern"
+            style={{ width: "100%", marginTop: "1rem" }}
           >
             <button
               className="btn btn-primary"
               style={{
                 width: "100%",
-                padding: "1.125rem",
-                borderRadius: "16px",
-                fontWeight: 700,
+                justifyContent: "center",
+                padding: "1rem",
+                borderRadius: "12px",
               }}
-              onClick={() => {
-                setShowSuccessModal(false);
-                navigate("/customer/dashboard");
-              }}
+              onClick={() => navigate("/customer/dashboard")}
             >
-              Track My Order
+              Order History
             </button>
             <button
               className="btn btn-outline-dark"
               style={{
                 width: "100%",
-                padding: "1.125rem",
-                borderRadius: "16px",
-                fontWeight: 700,
-                borderColor: "var(--primary-color)",
-                color: "var(--primary-color)",
+                justifyContent: "center",
+                color: "var(--primary-dark)",
+                borderColor: "var(--primary-dark)",
+                marginTop: "0.5rem",
+                padding: "1rem",
+                borderRadius: "12px",
               }}
-              onClick={() => {
-                setShowSuccessModal(false);
-                navigate("/books");
-              }}
+              onClick={() => navigate("/books")}
             >
               Continue Shopping
             </button>

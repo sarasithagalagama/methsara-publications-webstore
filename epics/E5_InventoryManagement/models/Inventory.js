@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Inventory Model
+﻿// ============================================
+// Inventory Model
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
 // Purpose: Multi-location stock tracking
@@ -105,7 +105,7 @@ const inventorySchema = new mongoose.Schema({
   },
 });
 
-// DEMO: Calculate available quantity
+// Calculate available quantity
 inventorySchema.pre("save", function (next) {
   this.availableQuantity = this.quantity - this.reservedQuantity;
   this.isOutOfStock = this.availableQuantity === 0;
@@ -116,7 +116,7 @@ inventorySchema.pre("save", function (next) {
   next();
 });
 
-// DEMO: Method to deduct stock
+// Method to deduct stock
 inventorySchema.methods.deductStock = function (quantity, reason = "Sale") {
   if (this.availableQuantity < quantity) {
     throw new Error("Insufficient stock");
@@ -129,7 +129,7 @@ inventorySchema.methods.deductStock = function (quantity, reason = "Sale") {
   });
 };
 
-// DEMO: Method to add stock
+// Method to add stock
 inventorySchema.methods.addStock = function (quantity, reason = "Restock") {
   this.quantity += quantity;
   this.lastRestockDate = Date.now();

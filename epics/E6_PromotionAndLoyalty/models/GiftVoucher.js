@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Gift Voucher Model
+﻿// ============================================
+// Gift Voucher Model
 // Epic: E6 - Promotion & Loyalty
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Gift voucher system (E6.4)

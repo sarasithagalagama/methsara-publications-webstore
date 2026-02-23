@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Financial Controller
+﻿// ============================================
+// Financial Controller
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Financial dashboard and reporting (E3.9, E3.10, E3.11)
@@ -13,7 +13,7 @@ const PurchaseOrder = require('../../E4_SupplierManagement/models/PurchaseOrder'
 const PDFDocument = require("pdfkit");
 const { Parser } = require("json2csv");
 
-// DEMO: Financial Dashboard (E3.9)
+// Financial Dashboard (E3.9)
 const getFinancialDashboard = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -159,7 +159,7 @@ const getFinancialDashboard = async (req, res) => {
   }
 };
 
-// DEMO: Generate Invoice (E3.10)
+// Generate Invoice (E3.10)
 const generateInvoice = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -216,7 +216,7 @@ const generateInvoice = async (req, res) => {
   }
 };
 
-// DEMO: Process Refund (E3.11)
+// Process Refund (E3.11)
 const processRefund = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -390,7 +390,7 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
-// DEMO: Pay Purchase Order (E3.9 / E4.7)
+// Pay Purchase Order (E3.9 / E4.7)
 const payPurchaseOrder = async (req, res) => {
   try {
     const { id } = req.params;

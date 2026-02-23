@@ -1,4 +1,9 @@
-// Epic: E2 - Product Catalog Management
+﻿// ============================================
+// CategoryManager
+// Epic: E2 - Product Catalog
+// Owner: IT24101314 (Appuhami H A P L)
+// Purpose: CategoryManager page component
+// ============================================
 // Purpose: Category and classification management for products
 
 import React, { useState, useEffect } from "react";
@@ -11,18 +16,27 @@ import {
   FileText,
   BarChart2,
 } from "lucide-react";
-import StatCard from "../../components/dashboard/StatCard";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import "../../components/dashboard/dashboard.css";
+import StatCard from "../../../components/dashboard/StatCard";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import "../../../components/dashboard/dashboard.css";
 
 const CategoryManager = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchProducts = async () => {
     try {
       const res = await axios.get("/api/products");
@@ -75,6 +89,9 @@ const CategoryManager = () => {
   }, {});
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

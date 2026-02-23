@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Coupon Routes
+﻿// ============================================
+// Coupon Routes
 // Epic: E6 - Promotion & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
 // Purpose: Coupon and promotion API endpoints
@@ -26,7 +26,7 @@ const { protect, authorize } = require('../../E1_UserAndRoleManagement/middlewar
 // Public routes MUST be defined before protect middleware
 router.get("/campaigns/active", getActivePublicCampaigns);
 
-// DEMO: Protect all routes
+// Protect all routes
 router.use(protect);
 
 // Coupon Routes

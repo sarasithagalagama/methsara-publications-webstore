@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // Shopping Cart Component
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
@@ -11,18 +11,27 @@ import "./Orders.css";
 
 function Cart() {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [cartItems, setCartItems] = useState([]);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     loadCart();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCartItems(cart);
   };
 
-  // DEMO: Update quantity
+  // Update quantity
   const updateQuantity = (index, newQuantity) => {
     if (newQuantity < 1) return;
     const updatedCart = [...cartItems];
@@ -31,14 +40,14 @@ function Cart() {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // DEMO: Remove item
+  // Remove item
   const removeItem = (index) => {
     const updatedCart = cartItems.filter((_, i) => i !== index);
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // DEMO: Calculate total
+  // Calculate total
   const calculateTotal = () => {
     return cartItems.reduce(
       (total, item) => total + item.product.price * item.quantity,
@@ -54,6 +63,9 @@ function Cart() {
     navigate("/checkout");
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="container">
       <h1>Shopping Cart</h1>

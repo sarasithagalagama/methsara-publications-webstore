@@ -1,8 +1,9 @@
-// ============================================
-// LowStockAlerts Component
-// Epic: E5 - Inventory Management
-// Owner: IT24100264 (Bandara N W C D)
-// Purpose: Display low stock alerts (E5.9)
+﻿// ============================================
+// [Epic E5] Inventory Management
+// --------------------------------------------
+// This is the "lookout" for our warehouse.
+// It automatically flags any book that is running low,
+// so the manager can reorder before we lose sales.
 // ============================================
 
 import React, { useState, useEffect } from "react";
@@ -21,18 +22,32 @@ import "./LowStockAlerts.css";
 
 const LowStockAlerts = () => {
   const { user } = useAuth();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState("");
   const [availableLocations, setAvailableLocations] = useState([]);
 
+  // Basic security check: only authorized personnel should manage inventory
   const canEdit =
     user?.role === "admin" || user?.role === "master_inventory_manager";
 
+  /**
+   * We load all available locations (Warehouses, Physical Shops)
+   * so the manager can filter alerts by a specific site.
+   */
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchLocations();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchLocations = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -45,10 +60,19 @@ const LowStockAlerts = () => {
     }
   };
 
+  /**
+   * Every time the selected location changes, we re-run our
+   * stock check to show the most relevant warnings.
+   */
   useEffect(() => {
     fetchAlerts();
   }, [location]);
 
+  /**
+   * [Epic E5.9] - Automated Stock Monitoring
+   * Our backend compares 'Current Quantity' against the 'Reorder Level'
+   * for every product at every location.
+   */
   const fetchAlerts = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -67,12 +91,17 @@ const LowStockAlerts = () => {
   };
 
   const getAlertLevel = (currentStock, reorderLevel) => {
-    const percentage = (currentStock / reorderLevel) * 100;
+    if (currentStock === 0) return "critical";
+    const safeReorder = Math.max(reorderLevel, 1);
+    const percentage = (currentStock / safeReorder) * 100;
     if (percentage <= 25) return "critical";
     if (percentage <= 50) return "warning";
     return "low";
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="dashboard-container">
       <DashboardHeader

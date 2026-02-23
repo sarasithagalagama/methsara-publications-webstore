@@ -1,17 +1,17 @@
-// ============================================
-// DEMO MARKER: Product Controller
+﻿// ============================================
+// Product Controller
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
 // Features: CRUD, Search, Filter
 // ============================================
 
-const Product = require('../models/Product');
-const Review = require('../models/Review');
-const Category = require('../models/Category');
-const Order = require('../../E3_OrderAndTransaction/models/Order');
-const Campaign = require('../../E6_PromotionAndLoyalty/models/Campaign');
+const Product = require("../models/Product");
+const Review = require("../models/Review");
+const Category = require("../models/Category");
+const Order = require("../../E3_OrderAndTransaction/models/Order");
+const Campaign = require("../../E6_PromotionAndLoyalty/models/Campaign");
 
-// DEMO: Get All Products with Search & Filter (E2.4, E2.5)
+// Get All Products with Search & Filter (E2.4, E2.5)
 exports.getProducts = async (req, res) => {
   try {
     const {
@@ -128,7 +128,7 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// DEMO: Get Single Product (E2.6)
+// Get Single Product (E2.6)
 exports.getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -154,9 +154,18 @@ exports.getProduct = async (req, res) => {
       discountAmount: pricing.discountAmount,
     };
 
+    // Fetch approved reviews from the Review collection
+    const approvedReviews = await Review.find({
+      product: product._id,
+      status: "approved",
+    })
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
+
     res.status(200).json({
       success: true,
       product: productWithDiscount,
+      reviews: approvedReviews,
     });
   } catch (error) {
     res.status(500).json({
@@ -167,7 +176,7 @@ exports.getProduct = async (req, res) => {
   }
 };
 
-// DEMO: Create Product (E2.1) - Admin only
+// Create Product (E2.1) - Admin only
 exports.createProduct = async (req, res) => {
   try {
     const { isbn } = req.body;
@@ -235,7 +244,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// DEMO: Update Product (E2.1) - Admin only
+// Update Product (E2.1) - Admin only
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -271,7 +280,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// DEMO: Delete Product (E2.1) - Admin only
+// Delete Product (E2.1) - Admin only
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
@@ -300,10 +309,10 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// DEMO: Add Review (E2.8)
+// Add Review (E2.8)
 exports.addReview = async (req, res) => {
   try {
-    const { rating, comment } = req.body;
+    const { rating, comment, title } = req.body;
     const product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -313,31 +322,32 @@ exports.addReview = async (req, res) => {
       });
     }
 
-    // Add review
-    product.reviews.push({
+    // Add review as a proper document
+    const review = await Review.create({
+      product: product._id,
       user: req.user.id,
       rating,
       comment,
-      isVerifiedPurchase: true, // Simplified
+      title, // Optional
+      status: "pending",
     });
-
-    await product.save();
 
     res.status(201).json({
       success: true,
-      message: "Review added successfully",
-      product,
+      message:
+        "Review submitted successfully. It will be visible after moderation.",
+      review,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to add review",
+      message: "Failed to submit review",
       error: error.message,
     });
   }
 };
 
-// DEMO: Toggle Helpful Vote for Review (E2.12)
+// Toggle Helpful Vote for Review (E2.12)
 exports.toggleReviewHelpful = async (req, res) => {
   try {
     const { id, reviewId } = req.params;
@@ -395,7 +405,7 @@ exports.toggleReviewHelpful = async (req, res) => {
   }
 };
 
-// DEMO: Moderate Review - Product Manager only (E2.9)
+// Moderate Review - Product Manager only (E2.9)
 exports.moderateReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
@@ -433,7 +443,7 @@ exports.moderateReview = async (req, res) => {
   }
 };
 
-// DEMO: Get Related Products (E2.10)
+// Get Related Products (E2.10)
 exports.getRelatedProducts = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -468,7 +478,7 @@ exports.getRelatedProducts = async (req, res) => {
   }
 };
 
-// DEMO: Get Product Analytics - Product Manager only (E2.11)
+// Get Product Analytics - Product Manager only (E2.11)
 exports.getProductAnalytics = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

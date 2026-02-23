@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Location Model
+﻿// ============================================
+// Location Model
 // Epic: E5 - Inventory Management
 // Purpose: Manage dynamic branch/warehouse locations (E5.7)
 // ============================================

@@ -1,3 +1,11 @@
+﻿// ============================================
+// [Epic E4] Supplier Management
+// --------------------------------------------
+// This module manages the "B2B" side of the business.
+// It handles our relationship with authors and publishers,
+// tracking every purchase order from creation to delivery.
+// ============================================
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +16,9 @@ import "../../../../components/dashboard/dashboard.css";
 
 const PurchaseOrderList = () => {
   const navigate = useNavigate();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({
@@ -18,10 +29,25 @@ const PurchaseOrderList = () => {
   const [selectedPO, setSelectedPO] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
 
+  /**
+   * On mount, we load all purchase orders.
+   * This gives the Supplier Manager a bird's-eye view of all procurement.
+   */
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchPOs();
   }, []);
 
+  /**
+   * [Epic E4.1] - Secure Procurement Data
+   * We fetch the PO list from our protected API, ensuring
+   * only authorized managers can see our supplier costs.
+   */
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchPOs = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -35,6 +61,11 @@ const PurchaseOrderList = () => {
     }
   };
 
+  /**
+   * [Epic E4.3] - Managing Order Lifecycle
+   * This handles the status transitions. A PO can go from
+   * 'Pending' to 'Approved' or 'Received' as we process the shipment.
+   */
   const handleStatusUpdate = (id, status) => {
     setConfirmModal({ isOpen: true, poId: id, status });
   };
@@ -49,7 +80,6 @@ const PurchaseOrderList = () => {
         { status },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      alert(`PO marked as ${status}`);
       fetchPOs();
     } catch (error) {
       console.error("Error updating status:", error);
@@ -57,12 +87,18 @@ const PurchaseOrderList = () => {
     }
   };
 
+  /**
+   * Detailed drill-down into a specific order's items and costs.
+   */
   const handleViewPO = (po) => {
     setSelectedPO(po);
     setShowViewModal(true);
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading-spinner">
         <div className="spinner"></div>
@@ -260,7 +296,7 @@ const PurchaseOrderList = () => {
                 marginBottom: "1.5rem",
               }}
             >
-              <h3>Purchase Order Details — #{selectedPO?.poNumber}</h3>
+              <h3>Purchase Order Details â€” #{selectedPO?.poNumber}</h3>
               <button
                 onClick={() => setShowViewModal(false)}
                 className="btn-icon"

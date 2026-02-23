@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Purchase Order Controller
+﻿// ============================================
+// Purchase Order Controller
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
 // Purpose: PO CRUD and tracking (E4.2, E4.3, E4.7)
@@ -9,7 +9,7 @@ const PurchaseOrder = require('../models/PurchaseOrder');
 const Product = require('../../E2_ProductCatalog/models/Product');
 const Inventory = require('../../E5_InventoryManagement/models/Inventory');
 
-// DEMO: Create Purchase Order (E4.2)
+// Create Purchase Order (E4.2)
 exports.createPurchaseOrder = async (req, res) => {
   try {
     const { supplier, items, expectedDeliveryDate, location, notes } = req.body;
@@ -65,7 +65,7 @@ exports.createPurchaseOrder = async (req, res) => {
   }
 };
 
-// DEMO: Get All Purchase Orders (E4.3)
+// Get All Purchase Orders (E4.3)
 exports.getAllPurchaseOrders = async (req, res) => {
   try {
     const { status, location } = req.query;
@@ -91,7 +91,7 @@ exports.getAllPurchaseOrders = async (req, res) => {
   }
 };
 
-// DEMO: Update PO Status (E4.3)
+// Update PO Status (E4.3)
 exports.updatePOStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -159,7 +159,7 @@ exports.updatePOStatus = async (req, res) => {
   }
 };
 
-// DEMO: Get Single PO (E4.3)
+// Get Single PO (E4.3)
 exports.getPurchaseOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -186,7 +186,7 @@ exports.getPurchaseOrder = async (req, res) => {
   }
 };
 
-// DEMO: Request Payment for PO (E4.7)
+// Request Payment for PO (E4.7)
 exports.requestPayment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -224,7 +224,7 @@ exports.requestPayment = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-// DEMO: Email PO to supplier (E4.4)
+// Email PO to supplier (E4.4)
 exports.emailPurchaseOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -258,7 +258,7 @@ exports.emailPurchaseOrder = async (req, res) => {
   }
 };
 
-// DEMO: Verify delivery against PO (E4.7)
+// Verify delivery against PO (E4.7)
 exports.verifyDelivery = async (req, res) => {
   try {
     const { id } = req.params;

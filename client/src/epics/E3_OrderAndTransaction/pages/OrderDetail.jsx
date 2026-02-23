@@ -1,3 +1,9 @@
+﻿// ============================================
+// OrderDetail
+// Epic: E3 - Order & Transaction
+// Owner: IT24100191 (Jayasinghe D.B.P)
+// Purpose: OrderDetail page component
+// ============================================
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
@@ -16,13 +22,22 @@ import "./OrderDetail.css";
 
 const OrderDetail = () => {
   const { id } = useParams();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchOrderDetails();
   }, [id]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchOrderDetails = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -38,6 +53,9 @@ const OrderDetail = () => {
   };
 
   if (loading)
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -260,11 +278,11 @@ const OrderDetail = () => {
                   {order.isPaid ? "Paid" : "Pending Payment"}
                 </span>
               </div>
-              {order.paymentMethod === "Bank Transfer" && order.bankSlip && (
+              {order.paymentMethod === "Bank Transfer" && order.bankSlipUrl && (
                 <div className="info-group">
                   <label>Bank Slip</label>
                   <a
-                    href={order.bankSlip}
+                    href={order.bankSlipUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="btn-link"

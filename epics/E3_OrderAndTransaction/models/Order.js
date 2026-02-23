@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Order Model
+﻿// ============================================
+// Order Model
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Shopping cart and order management
@@ -146,7 +146,7 @@ const orderSchema = new mongoose.Schema({
   },
 });
 
-// DEMO: Calculate subtotals
+// Calculate subtotals
 orderSchema.pre("save", function (next) {
   // Calculate item subtotals
   this.items.forEach((item) => {

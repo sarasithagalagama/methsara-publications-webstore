@@ -1,6 +1,6 @@
-// Epic: E2 - Product Catalog (Home Page)
+﻿// Epic: E2 - Product Catalog (Home Page)
 // Owner: IT24100548 (Galagama S.T)
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -10,69 +10,93 @@ import {
   ChevronRight,
   Star,
   ShoppingCart,
-  Users,
+  TrendingUp,
   Award,
-  MapPin,
+  BookMarked,
   Tags,
+  ArrowRight,
+  Gift,
 } from "lucide-react";
 import "./Home.css";
 
+// â”€â”€â”€ DUMMY DATA FOR NEW DESIGN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TESTIMONIALS = [
   {
     name: "Nimesha Rathnayake",
-    grade: "A/L Science Student – Kandy",
+    grade: "A/L Science Student",
     initials: "NR",
     quote:
-      "The Biology and Chemistry revision guides from Methsara made my A/L preparation so much smoother. Clear diagrams and focused explanations – I scored an A for both!",
+      "The Biology revision guides made my A/L preparation so much smoother. Clear diagrams and focused explanations!",
+    bg: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
   },
   {
     name: "Kavindu Jayasooriya",
-    grade: "O/L Student – Colombo",
+    grade: "O/L Student",
     initials: "KJ",
     quote:
-      "I bought the Grade 11 Maths past paper book and it covered every key topic. The online order arrived in 2 days and the quality was excellent.",
+      "I bought the Grade 11 Maths past paper book and it covered every key topic perfectly.",
+    bg: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
   },
   {
-    name: "Tharushi Wickramasinghe",
-    grade: "Grade 9 Student – Galle",
-    initials: "TW",
+    name: "Tharushi Silva",
+    grade: "Grade 9 Student",
+    initials: "TS",
     quote:
-      "My daughter uses the Sinhala and Science guides from Methsara every day. Her marks improved by 30% within a term. Highly recommend to every parent!",
+      "My daughter uses the Sinhala guides every day. Her marks improved by 30% within a term!",
+    bg: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
   },
-];
-
-const STATS = [
-  { icon: <Users size={28} />, value: "10,000+", label: "Students Served" },
-  { icon: <BookOpen size={28} />, value: "150+", label: "Book Titles" },
-  { icon: <Award size={28} />, value: "14+", label: "Years of Excellence" },
-  { icon: <MapPin size={28} />, value: "3", label: "Branch Locations" },
 ];
 
 const MAIN_CATEGORIES = [
-  { name: "A/L", icon: <GraduationCap size={22} /> },
-  { name: "Grade 6", icon: <Tags size={22} /> },
-  { name: "Grade 7", icon: <Tags size={22} /> },
-  { name: "Grade 8", icon: <Tags size={22} /> },
-  { name: "Grade 9", icon: <Tags size={22} /> },
-  { name: "Grade 10", icon: <Tags size={22} /> },
-  { name: "Grade 11", icon: <Tags size={22} /> },
-  { name: "Others", icon: <BookOpen size={22} /> },
+  {
+    name: "A/L",
+    icon: <GraduationCap size={28} />,
+    desc: "Advanced Level Revisions",
+    color: "var(--primary-color)",
+  },
+  {
+    name: "O/L",
+    icon: <FileText size={28} />,
+    desc: "Ordinary Level Prep",
+    color: "var(--secondary-color)",
+  },
+  {
+    name: "Grade 6-9",
+    icon: <BookOpen size={28} />,
+    desc: "Junior Secondary",
+    color: "#4f46e5",
+  },
+  {
+    name: "Others",
+    icon: <Tags size={28} />,
+    desc: "General Readings",
+    color: "#059669",
+  },
 ];
 
 const Home = () => {
   const [bestSellers, setBestSellers] = useState([]);
-  const [activeCampaigns, setActiveCampaigns] = useState([]);
-  const [categories, setCategories] = useState([]);
+
   const [loadingBooks, setLoadingBooks] = useState(true);
-  const [loadingCats, setLoadingCats] = useState(true);
   const [addingToCart, setAddingToCart] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+
   const navigate = useNavigate();
+
+  // Scroll effect for dynamic nav/parallax if needed
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchBestSellers = async () => {
       try {
-        const res = await axios.get("/api/products?sort=popular&limit=4");
-        const books = (res.data.products || []).slice(0, 4);
+        const res = await axios.get("/api/products?sort=popular&limit=5");
+        const books = (res.data.products || []).slice(0, 5);
         setBestSellers(books);
       } catch {
         setBestSellers([]);
@@ -81,33 +105,12 @@ const Home = () => {
       }
     };
 
-    const fetchActiveCampaigns = async () => {
-      try {
-        const res = await axios.get("/api/coupons/campaigns/active");
-        setActiveCampaigns(res.data.campaigns || []);
-      } catch (error) {
-        console.error("Error fetching active campaigns", error);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get("/api/products/categories");
-        setCategories(res.data.categories || []);
-      } catch {
-        setCategories([]);
-      } finally {
-        setLoadingCats(false);
-      }
-    };
-
     fetchBestSellers();
-    fetchActiveCampaigns();
-    fetchCategories();
   }, []);
 
   const handleAddToCart = async (productId, e) => {
     e.preventDefault();
+    e.stopPropagation();
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
@@ -120,43 +123,46 @@ const Home = () => {
         { productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      // Optional: Show toast success
     } catch {
-      // silently fail – user can still click product
+      // silently fail
     } finally {
       setAddingToCart(null);
     }
   };
 
   return (
-    <main className="home-page" role="main">
-      {/* ── Hero Section ── */}
-      <section className="hero-section">
-        <div className="hero-bg-shapes">
-          <div className="hero-shape hero-shape-1" />
-          <div className="hero-shape hero-shape-2" />
+    <main className="home-modern" role="main">
+      {/* â”€â”€ HERO SECTION â”€â”€ */}
+      <section className="hero-modern">
+        <div className="hero-modern-overlay"></div>
+
+        {/* Abstract Floating Shapes for Feel */}
+        <div className="modern-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
         </div>
-        <div className="container">
-          <div className="hero-content">
-            <span className="hero-badge">
-              📚 Trusted by Sri Lankan Students
+
+        <div className="container hero-modern-content">
+          <div className="hero-modern-text">
+            <span className="premium-badge animate-fade-in-up">
+              <Award size={16} /> Sri Lanka's #1 Educational Publisher
             </span>
-            <h1 className="hero-title">
-              Explore your world <br />
-              <span className="highlight">through books</span>
+            <h1 className="animate-fade-in-up delay-1">
+              Unlock Your <br />
+              <span className="text-gradient">Academic Potential</span>
             </h1>
-            <p className="hero-subtitle">
-              Methsara Publications provides trusted exam-focused textbooks and
-              study guides for Grade 6 through Advanced Level.
+            <p className="hero-modern-desc animate-fade-in-up delay-2">
+              Discover expertly crafted textbooks, rich revision guides, and
+              comprehensive past papers designed to elevate your learning
+              journey.
             </p>
-            <div className="hero-buttons">
-              <Link to="/books" className="btn btn-primary">
-                Browse Collection
+            <div className="hero-modern-actions animate-fade-in-up delay-3">
+              <Link to="/books" className="btn-modern-primary">
+                Explore Collection <ArrowRight size={20} />
               </Link>
-              <Link
-                to="/about"
-                className="btn btn-outline"
-                style={{ borderColor: "white", color: "white" }}
-              >
+              <Link to="/about" className="btn-modern-outline">
                 Our Story
               </Link>
             </div>
@@ -164,307 +170,199 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ── Active Campaigns Banner ── */}
-      {activeCampaigns.length > 0 && (
-        <section className="campaign-banner-wrapper">
-          <div className="container">
-            {activeCampaigns.map((campaign, idx) => (
-              <div
-                key={campaign._id}
-                className="campaign-banner fade-in-up"
-                style={{ animationDelay: `${idx * 0.2}s` }}
-              >
-                <div className="campaign-banner-content">
-                  <span className="campaign-type-badge">
-                    {campaign.type} Offer
-                  </span>
-                  <h2 className="campaign-banner-title">{campaign.name}</h2>
-                  <p className="campaign-banner-desc">{campaign.description}</p>
-                </div>
-                <div className="campaign-banner-action">
-                  <div className="discount-circle">
-                    <strong>{campaign.discountValue}</strong>
-                    <span>
-                      {campaign.discountType === "Percentage"
-                        ? "% OFF"
-                        : "LKR OFF"}
-                    </span>
-                  </div>
-                  <Link to="/books" className="btn btn-campaign">
-                    Shop Now <ChevronRight size={16} />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── Shop by Category ── */}
-      <section className="section categories-section">
+      {/* â”€â”€ CATEGORIES EXPANDED â”€â”€ */}
+      <section className="section-modern bg-light">
         <div className="container">
-          <div className="section-header">
-            <h2>
-              Explore by <span className="highlight">Category</span>
-            </h2>
-            <Link to="/books" className="btn-chip">
-              View All
-            </Link>
-          </div>
-          <div className="category-flex-grid">
-            {MAIN_CATEGORIES.map((cat) => (
-              <Link
-                key={cat.name}
-                to={`/books?category=${encodeURIComponent(cat.name)}`}
-                className="cat-pill-card"
-              >
-                <div className="cat-card-icon-min">{cat.icon}</div>
-                <div className="cat-card-min-info">
-                  <strong>{cat.name}</strong>
-                  <span>Explore books</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Best Sellers ── */}
-      <section className="section best-sellers">
-        <div className="container">
-          <div className="section-header">
-            <h2>Best Sellers</h2>
-            <Link to="/books" className="btn-chip">
-              View All
-            </Link>
-          </div>
-          <div className="grid grid-4">
-            {loadingBooks
-              ? [1, 2, 3, 4].map((i) => (
-                  <div key={i} className="home-book-card skeleton-card">
-                    <div className="skeleton-img" />
-                    <div className="skeleton-line" />
-                    <div className="skeleton-line short" />
-                  </div>
-                ))
-              : bestSellers.length > 0
-                ? bestSellers.map((book) => (
-                    <Link
-                      key={book._id}
-                      to={`/books/${book._id}`}
-                      className="home-book-card"
-                    >
-                      <div className="book-image-container">
-                        <div className="book-shadow-overlay" />
-                        <img
-                          src={
-                            book.image ||
-                            `https://via.placeholder.com/300x400?text=${encodeURIComponent(book.title)}`
-                          }
-                          alt={book.title}
-                          loading="lazy"
-                          className="home-book-img"
-                        />
-                        <button
-                          className="quick-cart-btn"
-                          onClick={(e) => handleAddToCart(book._id, e)}
-                          disabled={addingToCart === book._id}
-                          title="Add to Cart"
-                          aria-label={`Add ${book.title} to cart`}
-                        >
-                          {addingToCart === book._id ? (
-                            "..."
-                          ) : (
-                            <ShoppingCart size={16} aria-hidden="true" />
-                          )}
-                        </button>
-                      </div>
-                      <div className="book-info-content">
-                        <h3>{book.title}</h3>
-                        <p className="author">
-                          {book.author || "Methsara Authors"}
-                        </p>
-                        {book.averageRating > 0 && (
-                          <div className="book-rating">
-                            <Star size={12} fill="currentColor" />
-                            <span>{book.averageRating}</span>
-                          </div>
-                        )}
-                        <p className="price">
-                          Rs. {book.price?.toLocaleString()}
-                        </p>
-                      </div>
-                    </Link>
-                  ))
-                : /* Fallback placeholders if DB empty */
-                  [
-                    { title: "Grade 11 Science", price: 650 },
-                    { title: "Grade 10 Maths", price: 580 },
-                    { title: "A/L Physics", price: 750 },
-                    { title: "Grade 9 Sinhala", price: 520 },
-                  ].map((book, i) => (
-                    <Link key={i} to="/books" className="home-book-card">
-                      <div className="book-image-container">
-                        <div className="book-shadow-overlay" />
-                        <img
-                          src={`https://via.placeholder.com/300x400/2563EB/FFFFFF?text=${encodeURIComponent(book.title)}`}
-                          alt={book.title}
-                          loading="lazy"
-                          className="home-book-img"
-                        />
-                      </div>
-                      <div className="book-info-content">
-                        <h3>{book.title}</h3>
-                        <p className="author">Methsara Authors</p>
-                        <p className="price">Rs. {book.price}</p>
-                      </div>
-                    </Link>
-                  ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Educational Books – Split Layout ── */}
-      <section className="section educational-section">
-        <div className="container">
-          <div className="educational-split">
-            <div className="split-image-box">
-              <img
-                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                alt="Students studying with Methsara books"
-                loading="lazy"
-              />
-              <div className="split-image-badge">
-                <Award size={18} />
-                <span>Award-Winning Publisher</span>
-              </div>
-            </div>
-
-            <div className="split-text">
-              <h2>Educational Books</h2>
-              <span className="sub-gold">Curated for Excellence</span>
-              <p
-                className="hero-subtitle"
-                style={{
-                  color: "var(--text-secondary)",
-                  margin: "0 0 3rem 0",
-                  textAlign: "left",
-                }}
-              >
-                Our collection includes carefully selected textbooks, past
-                papers, and revision guides designed to help students master
-                their subjects with confidence.
+          <div className="section-modern-header">
+            <div className="animate-fade-in-up">
+              <h2 className="title-modern">
+                Browse by <span className="text-gradient">Category</span>
+              </h2>
+              <p className="subtitle-modern">
+                Find exactly what you need for your syllabus.
               </p>
-
-              <div className="feature-list">
-                <div className="feature-item">
-                  <div className="icon-square">
-                    <BookOpen size={24} />
-                  </div>
-                  <div className="feature-info">
-                    <h4>Grade 6–11 Essentials</h4>
-                    <p
-                      style={{ color: "var(--text-light)", fontSize: "0.9rem" }}
-                    >
-                      Comprehensive guides for core national subjects.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="feature-item">
-                  <div className="icon-square">
-                    <GraduationCap size={24} />
-                  </div>
-                  <div className="feature-info">
-                    <h4>G.C.E O/L &amp; A/L</h4>
-                    <p
-                      style={{ color: "var(--text-light)", fontSize: "0.9rem" }}
-                    >
-                      Master guides with revision notes and papers.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="feature-item">
-                  <div className="icon-square">
-                    <FileText size={24} />
-                  </div>
-                  <div className="feature-info">
-                    <h4>Advanced Level</h4>
-                    <p
-                      style={{ color: "var(--text-light)", fontSize: "0.9rem" }}
-                    >
-                      Specialized revisions for Science and Commerce streams.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Link
-                to="/books"
-                className="btn btn-primary"
-                style={{ marginTop: "1rem" }}
-              >
-                Explore Collection <ChevronRight size={18} />
-              </Link>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── Journey Banner ── */}
-      <section className="container">
-        <div className="journey-banner">
-          <h2>
-            Start Your Journey to <br />{" "}
-            <span className="banner-gold">Academic Success</span>
-          </h2>
-          <p className="hero-subtitle">
-            Join thousands of students who trust Methsara Publications for their
-            exam preparation and academic journey.
-          </p>
-          <Link to="/books" className="btn btn-gold">
-            Order Your Books Now
-          </Link>
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section
-        className="section testimonials-section"
-        style={{ background: "#fcfcfc" }}
-      >
-        <div className="container">
-          <div
-            className="section-header"
-            style={{ justifyContent: "center", textAlign: "center" }}
-          >
-            <h2>What Students Say ⭐</h2>
-          </div>
-
-          <div className="grid grid-3">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="testimonial-card">
-                <div className="testimonial-avatar">{t.initials}</div>
-                <div className="user-meta">
-                  <h4>{t.name}</h4>
-                  <span>{t.grade}</span>
-                </div>
-                <div className="testimonial-stars">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} size={14} fill="currentColor" />
-                  ))}
-                </div>
-                <p
+          <div className="category-modern-grid">
+            {MAIN_CATEGORIES.map((cat, idx) => (
+              <Link
+                to={`/books?category=${encodeURIComponent(cat.name)}`}
+                key={idx}
+                className="category-modern-card"
+              >
+                <div
+                  className="cat-icon-wrapper"
                   style={{
-                    marginTop: "1rem",
-                    fontStyle: "italic",
-                    color: "var(--text-secondary)",
-                    lineHeight: 1.7,
+                    color: cat.color,
+                    backgroundColor: `${cat.color}15`,
                   }}
                 >
-                  &ldquo;{t.quote}&rdquo;
-                </p>
+                  {cat.icon}
+                </div>
+                <div className="cat-text">
+                  <h3>{cat.name}</h3>
+                  <p>{cat.desc}</p>
+                </div>
+                <div className="cat-arrow">
+                  <ChevronRight size={20} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* â”€â”€ TRENDING / BEST SELLERS (Horizontal Scrollable or Grid) â”€â”€ */}
+      <section className="section-modern">
+        <div className="container">
+          <div className="section-modern-header flex-between">
+            <div className="animate-fade-in-up">
+              <div className="badge-modern">
+                <TrendingUp size={16} /> Trending Now
+              </div>
+              <h2 className="title-modern">
+                Best <span className="text-gradient">Sellers</span>
+              </h2>
+            </div>
+            <Link
+              to="/books"
+              className="link-modern animate-fade-in-up delay-1"
+            >
+              View Entire Catalog <ArrowRight size={18} />
+            </Link>
+          </div>
+
+          <div className="book-modern-grid">
+            {loadingBooks ? (
+              [1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="book-modern-card skeleton">
+                  <div className="skeleton-img"></div>
+                  <div className="skeleton-text"></div>
+                  <div className="skeleton-text short"></div>
+                </div>
+              ))
+            ) : bestSellers.length > 0 ? (
+              bestSellers.map((book) => (
+                <div
+                  key={book._id}
+                  className="book-modern-card"
+                  onClick={() => navigate(`/books/${book._id}`)}
+                >
+                  <div className="book-modern-img-box">
+                    <img
+                      src={
+                        book.image ||
+                        `https://via.placeholder.com/400x550/fdfbf7/5D4037?text=${encodeURIComponent(book.title)}`
+                      }
+                      alt={book.title}
+                    />
+                    <div className="book-modern-actions-overlay">
+                      <button
+                        className="btn-modern-quick-add"
+                        onClick={(e) => handleAddToCart(book._id, e)}
+                        disabled={addingToCart === book._id}
+                      >
+                        {addingToCart === book._id ? (
+                          "Adding..."
+                        ) : (
+                          <>
+                            <ShoppingCart size={18} /> Quick Add
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="book-modern-info">
+                    <span className="book-modern-category">
+                      {book.category || "Education"}
+                    </span>
+                    <h3 className="book-modern-title">{book.title}</h3>
+                    <div className="book-modern-price-row">
+                      <span className="book-modern-price">
+                        LKR {book.price?.toLocaleString()}
+                      </span>
+                      {book.averageRating > 0 && (
+                        <div className="book-modern-rating">
+                          <Star size={14} fill="#fbbf24" color="#fbbf24" />
+                          <span>{book.averageRating}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p
+                style={{ color: "var(--text-secondary)", fontStyle: "italic" }}
+              >
+                Loading titles...
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* â”€â”€ IMMERSIVE PROMO SECTION â”€â”€ */}
+      <section className="section-modern promo-immersive">
+        <div className="promo-modern-bg"></div>
+        <div className="container">
+          <div className="promo-modern-content animate-fade-in-up">
+            <BookMarked
+              size={48}
+              color="var(--secondary-light)"
+              style={{ marginBottom: "1.5rem" }}
+            />
+            <h2>Elevate Your Learning Experience</h2>
+            <p>
+              Our books aren't just paper; they are meticulously crafted tools
+              designed by leading educators to ensure you grasp every concept.
+              Join our community of high achievers.
+            </p>
+            <div
+              className="hero-modern-actions"
+              style={{ justifyContent: "center", marginTop: "2rem" }}
+            >
+              <Link to="/about" className="btn-modern-secondary">
+                Learn Why Students Choose Us
+              </Link>
+              <Link
+                to="/gift-vouchers"
+                className="btn-modern-outline"
+                style={{ borderColor: "rgba(255,255,255,0.5)" }}
+              >
+                <Gift size={20} style={{ marginRight: "8px" }} /> Gift Vouchers
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* â”€â”€ TESTIMONIALS (Masonry style or elegant layout) â”€â”€ */}
+      <section className="section-modern bg-light">
+        <div className="container">
+          <div className="section-modern-header centered animate-fade-in-up">
+            <h2 className="title-modern">
+              Words from our <span className="text-gradient">Scholars</span>
+            </h2>
+          </div>
+
+          <div className="testimonials-modern-grid">
+            {TESTIMONIALS.map((t, i) => (
+              <div
+                key={i}
+                className="test-modern-card"
+                style={{ background: t.bg }}
+              >
+                <div className="test-quote-icon">"</div>
+                <p className="test-modern-text">{t.quote}</p>
+                <div className="test-modern-author">
+                  <div className="test-modern-avatar">{t.initials}</div>
+                  <div>
+                    <h4>{t.name}</h4>
+                    <span>{t.grade}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

@@ -1,25 +1,14 @@
 const express = require("express");
 const router = express.Router();
+const { getReviews } = require("../controllers/reviewController");
 const {
-  getReviews,
-  moderateReview,
-  updateReviewStatus,
-} = require('../controllers/reviewController');
-const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
+  protect,
+  authorize,
+} = require("../../E1_UserAndRoleManagement/middleware/auth");
 
 router.use(protect);
 
-// Product Manager and Admin only
+// Product Manager and Admin — read-only view
 router.get("/", authorize("product_manager", "admin"), getReviews);
-router.put(
-  "/:id/moderate",
-  authorize("product_manager", "admin"),
-  moderateReview,
-);
-router.put(
-  "/:id/:action",
-  authorize("product_manager", "admin"),
-  updateReviewStatus,
-);
 
 module.exports = router;

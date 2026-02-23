@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Supplier Model
+﻿// ============================================
+// Supplier Model
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
 // Purpose: Supplier and Purchase Order management
@@ -125,7 +125,7 @@ const supplierSchema = new mongoose.Schema({
   },
 });
 
-// DEMO: Update timestamp
+// Update timestamp
 supplierSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();

@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Coupon Model
+﻿// ============================================
+// Coupon Model
 // Epic: E6 - Promotions & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
 // Purpose: Discount coupons and promotions
@@ -131,7 +131,7 @@ const couponSchema = new mongoose.Schema({
   },
 });
 
-// DEMO: Validate coupon
+// Validate coupon
 couponSchema.methods.isValid = function () {
   const now = new Date();
 
@@ -156,7 +156,7 @@ couponSchema.methods.isValid = function () {
   return { valid: true, message: "Coupon is valid" };
 };
 
-// DEMO: Calculate discount
+// Calculate discount
 couponSchema.methods.calculateDiscount = function (orderTotal) {
   // Check minimum purchase
   if (orderTotal < this.minPurchaseAmount) {
@@ -177,7 +177,7 @@ couponSchema.methods.calculateDiscount = function (orderTotal) {
   return Math.min(discount, orderTotal); // Discount can't exceed order total
 };
 
-// DEMO: Update timestamp
+// Update timestamp
 couponSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();

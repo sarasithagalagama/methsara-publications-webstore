@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Finance Manager Dashboard
+﻿// ============================================
+// Finance Manager Dashboard
 // Epic: E3 - Orders & Transactions
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Financial overview and management
@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   DollarSign,
   ShoppingCart,
@@ -26,25 +26,29 @@ import {
   Truck as TruckIcon,
   ShieldCheck,
   AlertCircle,
+  XCircle,
   ClipboardList,
   FileSpreadsheet,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import StatCard from "../../components/dashboard/StatCard";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import RevenueChart from "../../components/dashboard/charts/RevenueChart";
-import SalesChart from "../../components/dashboard/charts/SalesChart";
-import "../../components/dashboard/dashboard.css";
+import StatCard from "../../../components/dashboard/StatCard";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import RevenueChart from "../../../components/dashboard/charts/RevenueChart";
+import SalesChart from "../../../components/dashboard/charts/SalesChart";
+import "../../../components/dashboard/dashboard.css";
 import "./FinanceManagerDashboard.css";
-import Invoice from "../../epics/E3_OrderAndTransaction/components/Order/Invoice";
-import Modal from "../../components/common/Modal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { Input, Select, TextArea, Button } from "../../components/common/Forms";
+import Invoice from "../../../epics/E3_OrderAndTransaction/components/Order/Invoice";
+import Modal from "../../../components/common/Modal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { Input, Select, TextArea, Button } from "../../../components/common/Forms";
 
 const FinanceManagerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalExpenses: 0,
@@ -77,6 +81,7 @@ const FinanceManagerDashboard = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [slipViewerUrl, setSlipViewerUrl] = useState(null); // Bank slip popup
 
   // Form States for Modals
   const [salaryInputs, setSalaryInputs] = useState({}); // { memberId: amount }
@@ -107,6 +112,9 @@ const FinanceManagerDashboard = () => {
   const closeConfirm = () =>
     setConfirmState((prev) => ({ ...prev, isOpen: false }));
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const handleSaveTax = () => {
     localStorage.setItem("taxRate", tempTaxRate);
     setTaxRate(tempTaxRate);
@@ -120,6 +128,9 @@ const FinanceManagerDashboard = () => {
     if (element) element.scrollIntoView({ behavior: "smooth" });
   };
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
 
@@ -293,6 +304,36 @@ const FinanceManagerDashboard = () => {
           closeConfirm();
         } catch (error) {
           toast.error("Failed to confirm payment");
+        }
+      },
+    });
+  };
+
+  const handleDeclinePayment = (orderId) => {
+    setConfirmState({
+      isOpen: true,
+      title: "Decline Payment",
+      message:
+        "Are you sure you want to decline this bank transfer payment proof?",
+      confirmText: "Decline Payment",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.put(
+            `/api/orders/${orderId}/payment`,
+            {
+              paymentStatus: "Failed",
+              note: "Rejected by Finance - Invalid proof",
+            },
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          toast.success("Payment declined");
+          fetchOrders();
+          fetchDashboardData();
+          closeConfirm();
+        } catch (error) {
+          toast.error("Failed to decline payment");
         }
       },
     });
@@ -600,7 +641,13 @@ const FinanceManagerDashboard = () => {
     }
   };
 
+  // Opens the bank slip in an in-page popup modal.
+  const handleViewSlip = (dataUrl) => setSlipViewerUrl(dataUrl);
+
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">
@@ -675,7 +722,7 @@ const FinanceManagerDashboard = () => {
               <Button
                 size="sm"
                 variant="outline"
-                icon={<RotateCcw size={16} />}
+                icon={RotateCcw}
                 onClick={fetchOrders}
                 loading={loadingOrders}
               >
@@ -723,14 +770,12 @@ const FinanceManagerDashboard = () => {
                       </td>
                       <td>
                         {order.bankSlipUrl ? (
-                          <a
-                            href={order.bankSlipUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
                             className="btn btn-outline btn-sm"
+                            onClick={() => handleViewSlip(order.bankSlipUrl)}
                           >
                             <Eye size={14} /> View Slip
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-secondary text-sm">
                             Not uploaded
@@ -743,12 +788,21 @@ const FinanceManagerDashboard = () => {
                         </span>
                       </td>
                       <td>
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={() => handleConfirmPayment(order._id)}
-                        >
-                          <ShieldCheck size={14} /> Confirm
-                        </button>
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleConfirmPayment(order._id)}
+                          >
+                            <ShieldCheck size={14} /> Confirm
+                          </button>
+                          <button
+                            className="btn btn-outline btn-sm text-danger"
+                            style={{ borderColor: "#ef4444" }}
+                            onClick={() => handleDeclinePayment(order._id)}
+                          >
+                            <XCircle size={14} /> Decline
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1690,6 +1744,100 @@ const FinanceManagerDashboard = () => {
         confirmText={confirmState.confirmText}
         variant={confirmState.variant}
       />
+
+      {/* ── Bank Slip Image Popup ── */}
+      {slipViewerUrl && (
+        <div
+          onClick={() => setSlipViewerUrl(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.82)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#1a1a2e",
+              borderRadius: "16px",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "16px 20px",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              <span
+                style={{ color: "#fff", fontWeight: 600, fontSize: "1rem" }}
+              >
+                🧾 Bank Deposit Slip
+              </span>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <a
+                  href={slipViewerUrl}
+                  download="bank-slip.jpg"
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "6px 14px",
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                    textDecoration: "none",
+                  }}
+                >
+                  ⬇ Download
+                </a>
+                <button
+                  onClick={() => setSlipViewerUrl(null)}
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "6px 14px",
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  ✕ Close
+                </button>
+              </div>
+            </div>
+            {/* Image */}
+            <div style={{ overflow: "auto", padding: "16px" }}>
+              <img
+                src={slipViewerUrl}
+                alt="Bank Slip"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "75vh",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                  display: "block",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

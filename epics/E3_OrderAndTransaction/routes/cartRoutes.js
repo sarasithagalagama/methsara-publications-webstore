@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Cart Routes
+﻿// ============================================
+// Cart Routes
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Shopping cart API endpoints
@@ -16,7 +16,7 @@ const {
 } = require('../controllers/cartController');
 const { protect } = require('../../E1_UserAndRoleManagement/middleware/auth');
 
-// DEMO: All cart routes require authentication
+// All cart routes require authentication
 router.use(protect);
 
 router.get("/", getCart); // E3.1 - Get cart

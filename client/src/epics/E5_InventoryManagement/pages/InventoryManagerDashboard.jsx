@@ -1,11 +1,15 @@
+﻿// ============================================
+// InventoryManagerDashboard
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
+// Purpose: InventoryManagerDashboard page component
+// ============================================
 // Purpose: Stock tracking and management
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Package,
   AlertTriangle,
@@ -24,21 +28,24 @@ import {
   Search,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import StatCard from "../../components/dashboard/StatCard";
-import Modal from "../../components/common/Modal";
-import StatusModal from "../../components/common/StatusModal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { Input, Select, Button, TextArea } from "../../components/common/Forms";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import StockChart from "../../components/dashboard/charts/StockChart";
-import StockAdjustmentModal from "../../epics/E5_InventoryManagement/components/Inventory/StockAdjustmentModal";
-import "../../components/dashboard/dashboard.css";
+import StatCard from "../../../components/dashboard/StatCard";
+import Modal from "../../../components/common/Modal";
+import StatusModal from "../../../components/common/StatusModal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { Input, Select, Button, TextArea } from "../../../components/common/Forms";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import StockChart from "../../../components/dashboard/charts/StockChart";
+import StockAdjustmentModal from "../../../epics/E5_InventoryManagement/components/Inventory/StockAdjustmentModal";
+import "../../../components/dashboard/dashboard.css";
 import "./InventoryManagerDashboard.css";
 
 const InventoryManagerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalItems: 0,
     lowStock: 0,
@@ -117,6 +124,9 @@ const InventoryManagerDashboard = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize data on mount
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     const init = async () => {
       await fetchLocations();
@@ -127,6 +137,9 @@ const InventoryManagerDashboard = () => {
     fetchOrders();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchLocations = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -217,6 +230,9 @@ const InventoryManagerDashboard = () => {
     const timer = setTimeout(() => {
       setDebouncedSearch(inventorySearch);
     }, 500);
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return () => clearTimeout(timer);
   }, [inventorySearch]);
 
@@ -271,6 +287,51 @@ const InventoryManagerDashboard = () => {
           closeConfirm();
         } catch (error) {
           toast.error("Failed to update order status");
+        }
+      },
+    });
+  };
+
+  const handleBulkUpdateStatus = async (fromStatus, toStatus) => {
+    const ordersToUpdate = orders.filter(
+      (o) =>
+        o.orderStatus === fromStatus &&
+        o.fulfillmentLocation === selectedLocation &&
+        o.orderStatus !== "Cancelled",
+    );
+
+    if (ordersToUpdate.length === 0) {
+      toast.error(`No ${fromStatus} orders found for ${selectedLocation}`);
+      return;
+    }
+
+    setConfirmModal({
+      isOpen: true,
+      title: `Bulk Update: ${toStatus}`,
+      message: `Are you sure you want to mark all ${ordersToUpdate.length} "${fromStatus}" orders at ${selectedLocation} as ${toStatus}?`,
+      confirmText: `Update ${ordersToUpdate.length} Orders`,
+      variant: toStatus === "Shipped" ? "success" : "primary",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const updatePromises = ordersToUpdate.map((order) =>
+            axios.put(
+              `/api/orders/${order._id}/status`,
+              { orderStatus: toStatus },
+              { headers: { Authorization: `Bearer ${token}` } },
+            ),
+          );
+
+          await Promise.all(updatePromises);
+          toast.success(
+            `Successfully updated ${ordersToUpdate.length} orders to ${toStatus}`,
+          );
+          fetchOrders();
+          closeConfirm();
+        } catch (error) {
+          console.error("Bulk update error:", error);
+          toast.error("Failed to update some orders. Please try again.");
+          fetchOrders();
         }
       },
     });
@@ -1524,10 +1585,31 @@ const InventoryManagerDashboard = () => {
       {activeTab === "dispatch" && (
         <div className="dashboard-card" style={{ marginTop: "20px" }}>
           <div className="dashboard-card-header">
-            <h2 className="card-title">Order Dispatch & Delivery</h2>
-            <p className="text-secondary text-sm">
-              Manage order fulfillment and tracking.
-            </p>
+            <div>
+              <h2 className="card-title">Order Dispatch & Delivery</h2>
+              <p className="text-secondary text-sm">
+                Manage order fulfillment and tracking for {selectedLocation}.
+              </p>
+            </div>
+            <div
+              className="bulk-actions"
+              style={{ display: "flex", gap: "10px" }}
+            >
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => handleBulkUpdateStatus("Pending", "Processing")}
+                title="Move all Pending orders to Processing"
+              >
+                <RefreshCw size={14} /> Process All Pending
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => handleBulkUpdateStatus("Processing", "Shipped")}
+                title="Dispatch all Processing orders"
+              >
+                <Package size={14} /> Dispatch All Processing
+              </button>
+            </div>
           </div>
 
           <div className="table-container">
@@ -1545,9 +1627,27 @@ const InventoryManagerDashboard = () => {
               </thead>
               <tbody>
                 {orders
-                  .filter((o) => o.orderStatus !== "Cancelled")
+                  .filter(
+                    (o) =>
+                      o.orderStatus !== "Cancelled" &&
+                      o.fulfillmentLocation === selectedLocation,
+                  )
                   .map((order) => (
-                    <tr key={order._id}>
+                    <tr
+                      key={order._id}
+                      style={{
+                        backgroundColor:
+                          order.orderStatus === "Pending" ||
+                          order.orderStatus === "Processing"
+                            ? "var(--bg-color-hover)"
+                            : "transparent",
+                        borderLeft:
+                          order.orderStatus === "Pending" ||
+                          order.orderStatus === "Processing"
+                            ? "4px solid var(--primary-color)"
+                            : "none",
+                      }}
+                    >
                       <td>
                         <strong>#{order._id.slice(-6).toUpperCase()}</strong>
                         <div style={{ fontSize: "0.75rem", color: "#888" }}>

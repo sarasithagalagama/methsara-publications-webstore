@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Product Manager Dashboard
+﻿// ============================================
+// Product Manager Dashboard
 // Epic: E2 - Product Catalog Management
 // Owner: IT24101314 (Appuhami H A P L)
 // Purpose: Product management and review moderation
@@ -8,46 +8,43 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Package,
   Star,
-  MessageSquare,
-  AlertCircle,
   Plus,
   Filter,
   Edit,
   Trash2,
-  CheckCircle,
-  XCircle,
   LogOut,
   Search,
   BarChart2,
   Upload,
   Tags,
-  Eye,
 } from "lucide-react";
-import StatCard from "../../components/dashboard/StatCard";
-import Modal from "../../components/common/Modal";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import SalesChart from "../../components/dashboard/charts/SalesChart";
-import "../../components/dashboard/dashboard.css";
+
+import StatCard from "../../../components/dashboard/StatCard";
+import Modal from "../../../components/common/Modal";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import SalesChart from "../../../components/dashboard/charts/SalesChart";
+import "../../../components/dashboard/dashboard.css";
 import "./ProductManagerDashboard.css";
-import StatusModal from "../../components/common/StatusModal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
+import StatusModal from "../../../components/common/StatusModal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { LogoutModal } from "../../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
 
 const ProductManagerDashboard = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalProducts: 0,
     avgRating: 0,
-    totalReviews: 0,
-    pendingReviews: 0,
   });
   const [products, setProducts] = useState([]);
-  const [reviews, setReviews] = useState([]);
+
   const [activeTab, setActiveTab] = useState("products");
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -64,8 +61,6 @@ const ProductManagerDashboard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [analyticsData, setAnalyticsData] = useState(null);
-  const [showReviewDetailModal, setShowReviewDetailModal] = useState(false);
-  const [selectedReview, setSelectedReview] = useState(null);
 
   // Delete Confirmation State
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -110,6 +105,9 @@ const ProductManagerDashboard = () => {
   const [uploadingBackCover, setUploadingBackCover] = useState(false);
   const [uploadingSamplePages, setUploadingSamplePages] = useState(false);
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
     fetchCategories();
@@ -118,6 +116,9 @@ const ProductManagerDashboard = () => {
 
   const [suppliers, setSuppliers] = useState([]);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchSuppliers = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -209,39 +210,24 @@ const ProductManagerDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
 
-      const [productsRes, reviewsRes] = await Promise.all([
-        axios.get("/api/products"),
-        axios.get("/api/reviews", config),
-      ]);
-
+      const productsRes = await axios.get("/api/products");
       const allProducts = productsRes.data.products || [];
-      const allReviews = reviewsRes.data.reviews || [];
 
-      // Calculate stats
-      const approvedReviews = allReviews.filter(
-        (r) => r.status === "approved" || r.status === "Approved",
-      );
-      const totalRating = approvedReviews.reduce(
-        (sum, r) => sum + (r.rating || 0),
-        0,
-      );
-      const avgRating = approvedReviews.length
-        ? (totalRating / approvedReviews.length).toFixed(1)
-        : 0;
+      const ratedProducts = allProducts.filter((p) => p.averageRating > 0);
 
       setStats({
         totalProducts: allProducts.length,
-        avgRating,
-        totalReviews: allReviews.length,
-        pendingReviews: allReviews.filter(
-          (r) => r.status === "pending" || r.status === "Pending",
-        ).length,
+        avgRating:
+          ratedProducts.length > 0
+            ? (
+                ratedProducts.reduce((s, p) => s + p.averageRating, 0) /
+                ratedProducts.length
+              ).toFixed(1)
+            : "0.0",
       });
 
       setProducts(allProducts);
-      setReviews(allReviews);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -573,6 +559,9 @@ const ProductManagerDashboard = () => {
   };
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">
@@ -598,7 +587,7 @@ const ProductManagerDashboard = () => {
       />
 
       {/* Stats Grid */}
-      <div className="dashboard-grid dashboard-grid-4">
+      <div className="dashboard-grid dashboard-grid-2">
         <StatCard
           icon={<Package size={24} />}
           label="Total Products"
@@ -611,18 +600,6 @@ const ProductManagerDashboard = () => {
           value={stats.avgRating}
           variant="warning"
         />
-        <StatCard
-          icon={<MessageSquare size={24} />}
-          label="Reviews"
-          value={stats.totalReviews}
-          variant="primary"
-        />
-        <StatCard
-          icon={<AlertCircle size={24} />}
-          label="Pending Reviews"
-          value={stats.pendingReviews}
-          variant="warning"
-        />
       </div>
 
       {/* Tabs */}
@@ -632,15 +609,6 @@ const ProductManagerDashboard = () => {
           onClick={() => setActiveTab("products")}
         >
           Catalog
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "reviews" ? "active" : ""}`}
-          onClick={() => setActiveTab("reviews")}
-        >
-          Customer Reviews
-          {stats.pendingReviews > 0 && (
-            <span className="badge-counter">{stats.pendingReviews}</span>
-          )}
         </button>
         <button
           className={`tab-btn ${activeTab === "categories" ? "active" : ""}`}
@@ -708,6 +676,10 @@ const ProductManagerDashboard = () => {
                           src={product.image || "/placeholder.png"}
                           alt={product.title}
                           className="product-thumb"
+                          onError={(e) => {
+                            e.target.src = "/placeholder.png";
+                            e.target.onerror = null;
+                          }}
                         />
                       </td>
                       <td>
@@ -771,88 +743,6 @@ const ProductManagerDashboard = () => {
                   No products found matching your criteria.
                 </div>
               )}
-            </div>
-          </>
-        )}
-
-        {activeTab === "reviews" && (
-          <>
-            <div className="dashboard-card-header">
-              <h2 className="card-title">Customer Reviews</h2>
-            </div>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>User</th>
-                    <th>Rating</th>
-                    <th>Status</th>
-                    <th>Comment</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reviews.map((review) => (
-                    <tr key={review._id}>
-                      <td>
-                        <strong>{review.product?.title}</strong>
-                        <div className="text-muted text-xs">
-                          ISBN: {review.product?.isbn}
-                        </div>
-                      </td>
-                      <td>{review.user?.name}</td>
-                      <td>
-                        <div className="rating-stars">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={14}
-                              fill={i < review.rating ? "gold" : "none"}
-                              stroke={i < review.rating ? "gold" : "#ccc"}
-                            />
-                          ))}
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          className={`status-badge ${review.status?.toLowerCase() || "pending"}`}
-                        >
-                          {review.status || "Pending"}
-                        </span>
-                      </td>
-                      <td className="comment-cell">
-                        <div className="comment-text">{review.comment}</div>
-                      </td>
-                      <td>
-                        <div className="table-actions">
-                          <button
-                            className="btn-icon"
-                            title="View Full Review"
-                            onClick={() => {
-                              setSelectedReview(review);
-                              setShowReviewDetailModal(true);
-                            }}
-                          >
-                            <Eye size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {reviews.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        style={{ textAlign: "center", padding: "2rem" }}
-                        className="text-muted"
-                      >
-                        No pending reviews to moderate.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
             </div>
           </>
         )}
@@ -1247,7 +1137,14 @@ const ProductManagerDashboard = () => {
                 >
                   {formData.image ? (
                     <div className="preview-container">
-                      <img src={formData.image} alt="Main Cover" />
+                      <img
+                        src={formData.image}
+                        alt="Main Cover"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.png";
+                          e.target.onerror = null;
+                        }}
+                      />
                       <div className="change-overlay">
                         <Upload size={18} /> Change Image
                       </div>
@@ -1293,7 +1190,14 @@ const ProductManagerDashboard = () => {
                 >
                   {formData.backCoverImage ? (
                     <div className="preview-container">
-                      <img src={formData.backCoverImage} alt="Back Cover" />
+                      <img
+                        src={formData.backCoverImage}
+                        alt="Back Cover"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.png";
+                          e.target.onerror = null;
+                        }}
+                      />
                       <div className="change-overlay">
                         <Upload size={18} /> Change Image
                       </div>
@@ -1603,77 +1507,6 @@ const ProductManagerDashboard = () => {
         title={statusModal.title}
         message={statusModal.message}
       />
-
-      <Modal
-        isOpen={showReviewDetailModal}
-        onClose={() => setShowReviewDetailModal(false)}
-        title="Review Details"
-        size="md"
-      >
-        {selectedReview && (
-          <div className="detail-view">
-            <div className="detail-row">
-              <label>Product</label>
-              <div className="detail-value">
-                {selectedReview.product?.title}
-              </div>
-            </div>
-            <div className="detail-row">
-              <label>Customer</label>
-              <div className="detail-value">{selectedReview.user?.name}</div>
-            </div>
-            <div className="detail-row">
-              <label>Rating</label>
-              <div className="detail-value">
-                <div className="rating-stars">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={18}
-                      fill={i < selectedReview.rating ? "gold" : "none"}
-                      stroke={i < selectedReview.rating ? "gold" : "#ccc"}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="detail-row">
-              <label>Status</label>
-              <div className="detail-value">
-                <span
-                  className={`status-badge ${selectedReview.status?.toLowerCase() || "pending"}`}
-                >
-                  {selectedReview.status || "Pending"}
-                </span>
-              </div>
-            </div>
-            <div className="detail-row">
-              <label>Comment</label>
-              <div
-                className="detail-value"
-                style={{
-                  background: "#f8fafc",
-                  padding: "1rem",
-                  borderRadius: "8px",
-                  lineHeight: "1.6",
-                  marginTop: "0.5rem",
-                }}
-              >
-                {selectedReview.comment}
-              </div>
-            </div>
-            <div className="dash-modal-actions" style={{ marginTop: "2rem" }}>
-              <button
-                className="btn btn-primary"
-                style={{ width: "100%" }}
-                onClick={() => setShowReviewDetailModal(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   );
 };

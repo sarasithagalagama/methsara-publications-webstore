@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Stock Transfer Model
+﻿// ============================================
+// Stock Transfer Model
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
 // Purpose: Inter-branch stock transfers (E5.4, E5.5)

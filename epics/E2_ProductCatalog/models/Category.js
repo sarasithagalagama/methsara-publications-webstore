@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Category Model
+﻿// ============================================
+// Category Model
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
 // Purpose: Hierarchical product categorization
@@ -75,7 +75,7 @@ const categorySchema = new mongoose.Schema(
   },
 );
 
-// DEMO: Generate slug from name
+// Generate slug from name
 categorySchema.pre("save", function (next) {
   if (this.isModified("name")) {
     this.slug = this.name
@@ -86,7 +86,7 @@ categorySchema.pre("save", function (next) {
   next();
 });
 
-// DEMO: Index for faster queries
+// Index for faster queries
 categorySchema.index({ type: 1, isActive: 1 });
 categorySchema.index({ parent: 1 });
 categorySchema.index({ slug: 1 });

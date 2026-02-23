@@ -1,3 +1,9 @@
+﻿// ============================================
+// Invoice
+// Epic: E3 - Order & Transaction
+// Owner: IT24100191 (Jayasinghe D.B.P)
+// Purpose: Invoice UI component
+// ============================================
 import React, { useRef } from "react";
 import { X, Printer } from "lucide-react";
 import "./Invoice.css";
@@ -11,6 +17,9 @@ const Invoice = ({ order, onClose }) => {
 
   if (!order) return null;
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="invoice-overlay">
       <div className="invoice-container">

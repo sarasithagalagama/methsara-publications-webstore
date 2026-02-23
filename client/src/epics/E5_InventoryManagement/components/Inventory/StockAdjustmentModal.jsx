@@ -1,3 +1,9 @@
+﻿// ============================================
+// StockAdjustmentModal
+// Epic: E5 - Inventory Management
+// Owner: IT24100264 (Bandara N W C D)
+// Purpose: StockAdjustmentModal UI component
+// ============================================
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "../../../../components/common/Modal";
@@ -10,6 +16,9 @@ const StockAdjustmentModal = ({
   item,
   location,
 }) => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [action, setAction] = useState("add"); // "add" or "remove"
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
@@ -18,6 +27,9 @@ const StockAdjustmentModal = ({
   const [loading, setLoading] = useState(false);
   const [reorderPoint, setReorderPoint] = useState("");
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchAllInventory = async () => {
     if (!location) return;
     setLoading(true);
@@ -34,6 +46,9 @@ const StockAdjustmentModal = ({
     }
   };
 
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     if (isOpen && !item) {
       fetchAllInventory();
@@ -93,6 +108,9 @@ const StockAdjustmentModal = ({
   const currentItem =
     item || allInventory.find((inv) => inv._id === selectedProductId);
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <Modal
       isOpen={isOpen}

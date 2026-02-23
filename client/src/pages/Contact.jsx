@@ -7,6 +7,7 @@ import {
   Facebook,
   Twitter,
   Instagram,
+  Clock,
 } from "lucide-react";
 import "./Contact.css";
 
@@ -18,153 +19,240 @@ const Contact = () => {
     message: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Message Sent Successfully!");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setIsSubmitting(true);
+    // Simulate API call
+    setTimeout(() => {
+      alert("Message Sent Successfully! We'll be in touch soon.");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      setIsSubmitting(false);
+    }, 1500);
   };
 
   return (
-    <div className="contact-page">
-      {/* Hero Section */}
-      <section className="contact-hero">
-        <div className="container">
-          <h1>Get in Touch</h1>
-          <p>
-            Have questions? Our team is ready to assist you on your educational
-            journey.
+    <div className="contact-modern-page">
+      {/* ── HERO SECTION ── */}
+      <section className="contact-modern-hero">
+        <div className="contact-hero-bg"></div>
+        <div className="container contact-hero-content">
+          <div className="badge-modern animate-fade-in-up">
+            We're Here for You
+          </div>
+          <h1 className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            Let's Start a <span className="text-gradient">Conversation</span>
+          </h1>
+          <p className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            Whether you're looking for book recommendations, bulk orders for
+            your school, or support with an existing order, our team is ready to
+            assist.
           </p>
         </div>
       </section>
 
-      <div className="container contact-main-container">
-        <div className="contact-grid">
-          {/* Info Sidebar */}
-          <aside className="info-sidebar">
-            <h2>Contact Us</h2>
-            <p className="info-intro">
-              We value your feedback and inquiries. Reach out to us through any
-              of these channels for a prompt response.
-            </p>
+      {/* ── MAIN CONTENT (SPLIT) ── */}
+      <section className="contact-modern-main container">
+        <div className="contact-split-modern">
+          {/* Left Side: Contact Info & Map */}
+          <div className="contact-info-side">
+            <div className="info-modern-card">
+              <h3>Get in Touch</h3>
+              <p className="info-modern-desc">
+                Reach out directly via phone or email, or drop by our showroom.
+              </p>
 
-            <div className="contact-methods">
-              <div className="contact-method-card">
-                <div className="method-icon">
-                  <Phone size={28} />
+              <div className="info-modern-list">
+                <div className="info-modern-item">
+                  <div className="icon-modern-box">
+                    <Phone size={24} />
+                  </div>
+                  <div>
+                    <h4>Call Us</h4>
+                    <p>+94 71 432 5383</p>
+                    <p>+94 71 448 5899</p>
+                  </div>
                 </div>
-                <div className="method-details">
-                  <h4>Quick Call</h4>
-                  <p>071 432 5383</p>
-                  <p>071 448 5899</p>
+
+                <div className="info-modern-item">
+                  <div className="icon-modern-box">
+                    <Mail size={24} />
+                  </div>
+                  <div>
+                    <h4>Email Us</h4>
+                    <p>methsarabooks@gmail.com</p>
+                    <p>support@methsara.lk</p>
+                  </div>
+                </div>
+
+                <div className="info-modern-item">
+                  <div className="icon-modern-box">
+                    <MapPin size={24} />
+                  </div>
+                  <div>
+                    <h4>Visit Us</h4>
+                    <p>No. 123, High Level Road,</p>
+                    <p>Kottawa, Sri Lanka.</p>
+                  </div>
+                </div>
+
+                <div className="info-modern-item">
+                  <div className="icon-modern-box">
+                    <Clock size={24} />
+                  </div>
+                  <div>
+                    <h4>Opening Hours</h4>
+                    <p>Mon - Sat: 9.00 AM - 6.00 PM</p>
+                    <p>Sunday: Closed</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="contact-method-card">
-                <div className="method-icon">
-                  <Mail size={28} />
-                </div>
-                <div className="method-details">
-                  <h4>Email Us</h4>
-                  <p>methsarabooks@gmail.com</p>
-                </div>
-              </div>
-
-              <div className="contact-method-card">
-                <div className="method-icon">
-                  <MapPin size={28} />
-                </div>
-                <div className="method-details">
-                  <h4>Visit Store</h4>
-                  <p>Kottawa, Sri Lanka</p>
+              <div className="social-modern-connect">
+                <h4>Follow Our Journey</h4>
+                <div className="social-modern-icons">
+                  <a href="#" className="metric-icon">
+                    <Facebook size={20} />
+                  </a>
+                  <a href="#" className="metric-icon">
+                    <Twitter size={20} />
+                  </a>
+                  <a href="#" className="metric-icon">
+                    <Instagram size={20} />
+                  </a>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="social-connect">
-              <h3>Connect With Us</h3>
-              <div className="social-bubbles">
-                <a href="#" className="social-bubble">
-                  <Facebook size={20} />
-                </a>
-                <a href="#" className="social-bubble">
-                  <Twitter size={20} />
-                </a>
-                <a href="#" className="social-bubble">
-                  <Instagram size={20} />
-                </a>
-              </div>
+          {/* Right Side: Elegant Form */}
+          <div className="contact-form-side">
+            <div className="form-modern-card">
+              <h2>
+                Send us a <span className="text-gradient">Message</span>
+              </h2>
+              <p>
+                Fill out the form below and we will get back to you within 24
+                hours.
+              </p>
+
+              <form onSubmit={handleSubmit} className="premium-modern-form">
+                <div className="form-modern-row">
+                  <div className="form-modern-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="John Wick"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-modern-group">
+                    <label>Email Address</label>
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="john@contintental.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-modern-group">
+                  <label>Subject</label>
+                  <select
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select an inquiry type...
+                    </option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Order Support">Order Support</option>
+                    <option value="Bulk Order Request">
+                      Bulk Order Request (Schools/Institutes)
+                    </option>
+                    <option value="Author Submission">
+                      Author/Manuscript Submission
+                    </option>
+                  </select>
+                </div>
+
+                <div className="form-modern-group">
+                  <label>Your Message</label>
+                  <textarea
+                    name="message"
+                    rows="5"
+                    placeholder="Tell us how we can help you..."
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-modern-primary w-100"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    "Sending..."
+                  ) : (
+                    <>
+                      <Send size={18} /> Send Message
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
-          </aside>
-
-          {/* Contact Form Card */}
-          <main className="contact-form-card">
-            <h2>Send a Message</h2>
-            <form onSubmit={handleSubmit} className="premium-form">
-              <div className="form-two-col">
-                <div className="form-group">
-                  <label className="form-label">Full Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    className="form-input"
-                    placeholder="E.g. John Doe"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-input"
-                    placeholder="john@example.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Subject</label>
-                <input
-                  type="text"
-                  name="subject"
-                  className="form-input"
-                  placeholder="How can we help?"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Your Message</label>
-                <textarea
-                  name="message"
-                  className="form-input"
-                  rows="6"
-                  placeholder="Write your message here..."
-                  style={{ resize: "none" }}
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                ></textarea>
-              </div>
-
-              <button type="submit" className="btn btn-primary submit-button">
-                Send Message <Send size={18} />
-              </button>
-            </form>
-          </main>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* ── MAP ABSTRACT SECTION ── */}
+      <section className="map-modern-section">
+        <div className="container">
+          <div className="map-modern-wrapper">
+            <div className="map-abstract-visual">
+              {/* Abstract placeholder for map */}
+              <div className="map-marker-pin">
+                <MapPin size={32} fill="var(--secondary-color)" color="white" />
+                <div className="pulse-ring"></div>
+              </div>
+            </div>
+            <div className="map-modern-text">
+              <h3>Find Our Flagship Store</h3>
+              <p>
+                Located in the heart of Kottawa, our flagship store offers the
+                complete collection of Methsara Publications. Drop by to browse,
+                ask questions, or just to say hello.
+              </p>
+              <a
+                href="#"
+                className="btn-modern-outline"
+                style={{
+                  borderColor: "var(--primary-dark)",
+                  color: "var(--primary-dark)",
+                  marginTop: "1rem",
+                }}
+              >
+                Get Directions
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

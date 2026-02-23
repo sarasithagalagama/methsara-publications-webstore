@@ -1,11 +1,15 @@
-// Epic: E6 - Promotions & Loyalty
+﻿// ============================================
+// MarketingManagerDashboard
+// Epic: E6 - Promotion & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
+// Purpose: MarketingManagerDashboard page component
+// ============================================
 // Purpose: Coupon, campaign, and promotion management
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../epics/E1_UserAndRoleManagement/context/AuthContext";
+import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthContext";
 import {
   Ticket,
   CheckCircle,
@@ -21,17 +25,17 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
-import StatCard from "../../components/dashboard/StatCard";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import Modal from "../../components/common/Modal";
-import StatusModal from "../../components/common/StatusModal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { Input, Select, Button, TextArea } from "../../components/common/Forms";
-import RevenueChart from "../../components/dashboard/charts/RevenueChart";
-import "../../components/dashboard/dashboard.css";
+import StatCard from "../../../components/dashboard/StatCard";
+import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import Modal from "../../../components/common/Modal";
+import StatusModal from "../../../components/common/StatusModal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { Input, Select, Button, TextArea } from "../../../components/common/Forms";
+import RevenueChart from "../../../components/dashboard/charts/RevenueChart";
+import "../../../components/dashboard/dashboard.css";
 import "./MarketingManagerDashboard.css";
-import { LogoutModal } from "../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
-import GiftVoucherManagement from "../../epics/E6_PromotionAndLoyalty/pages/marketing/GiftVoucherManagement";
+import { LogoutModal } from "../../../epics/E1_UserAndRoleManagement/components/Auth/AuthModals";
+import GiftVoucherManagement from "../../../epics/E6_PromotionAndLoyalty/pages/marketing/GiftVoucherManagement";
 
 const MarketingManagerDashboard = () => {
   const navigate = useNavigate();
@@ -62,6 +66,9 @@ const MarketingManagerDashboard = () => {
   const location = useLocation();
 
   // Sync tab with route
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     const path = location.pathname;
     if (path.includes("/campaigns")) {
@@ -130,6 +137,9 @@ const MarketingManagerDashboard = () => {
     fetchDashboardData();
   }, []);
 
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -441,6 +451,9 @@ const MarketingManagerDashboard = () => {
   };
 
   if (loading) {
+    // ─────────────────────────────────
+    // Render
+    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

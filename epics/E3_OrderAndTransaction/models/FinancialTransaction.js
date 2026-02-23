@@ -1,5 +1,5 @@
-// ============================================
-// DEMO MARKER: Financial Transaction Model
+﻿// ============================================
+// Financial Transaction Model
 // Epic: E3 - Order & Transaction
 // Owner: IT24100191 (Jayasinghe D.B.P)
 // Purpose: Record salary, supplier, and refund transactions

@@ -1,21 +1,47 @@
+﻿// ============================================
+// [Epic E6] Promotion and Loyalty
+// --------------------------------------------
+// This module helps Methsara Publications grow.
+// By offering gift vouchers, we allow existing customers
+// to introduce new students to our platform.
+// ============================================
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { ShoppingCart, Gift, Loader } from "lucide-react";
+import { ShoppingCart, Gift } from "lucide-react";
 import { useAuth } from "../../E1_UserAndRoleManagement/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import "./GiftVouchers.css";
 
 const GiftVouchers = () => {
+  // ─────────────────────────────────
+  // State Variables
+  // ─────────────────────────────────
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, refreshCounts } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * On mount, we load all available voucher products.
+   * These are special items that don't have shipping but generate digital codes.
+   */
+  // ─────────────────────────────────
+  // Side Effects
+  // ─────────────────────────────────
   useEffect(() => {
     fetchVouchers();
   }, []);
 
+  /**
+   * [Epic E6.2] - Voucher Discovery
+   * We pull voucher details (Value, Pricing, Images) from the
+   * promotion-specific API endpoint.
+   */
+  // ─────────────────────────────────
+  // Event Handlers
+  // ─────────────────────────────────
   const fetchVouchers = async () => {
     try {
       const res = await axios.get("/api/gift-vouchers/products");
@@ -29,6 +55,7 @@ const GiftVouchers = () => {
 
   const handleAddToCart = async (voucher) => {
     if (!user) {
+      toast.error("Please login to purchase gift vouchers");
       navigate("/?login=true");
       return;
     }
@@ -40,57 +67,75 @@ const GiftVouchers = () => {
         { productId: voucher._id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      refreshCounts();
       toast.success("Gift Voucher added to cart!");
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Failed to add to cart");
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
   };
 
+  // ─────────────────────────────────
+  // Render
+  // ─────────────────────────────────
   return (
     <div className="gift-vouchers-page">
       <div className="vouchers-hero">
         <div className="container">
-          <h1>Give the Gift of Knowledge</h1>
-          <p>
-            Methsara Publications Gift Vouchers are the perfect present for
-            students. Choose a value and let them pick the books they need for
-            their success.
-          </p>
+          <div className="banner-content">
+            <h1 className="animate-fade-in-up">
+              Give the Gift of <span className="gold-text">Knowledge</span>
+            </h1>
+            <p className="animate-fade-in-up delay-1">
+              Methsara Publications Gift Vouchers are the perfect present for
+              students. Choose a physical value card and let them pick
+              the books they need for their success.
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="container">
         {loading ? (
           <div className="voucher-loading">
-            <div className="spinner"></div>
+            <div
+              className="checkout-progress-modern"
+              style={{ width: "200px" }}
+            ></div>
           </div>
         ) : (
           <div className="vouchers-grid">
             {vouchers.length === 0 ? (
               <div className="voucher-empty">
-                <Gift
-                  size={48}
-                  style={{ marginBottom: "1rem", opacity: 0.3 }}
-                />
+                <div className="empty-icon-modern">
+                  <Gift size={48} />
+                </div>
                 <h3>No Vouchers Available</h3>
-                <p>Check back soon for new gift options.</p>
+                <p>Check back soon for new gift possibilities.</p>
               </div>
             ) : (
               vouchers.map((voucher) => (
                 <div key={voucher._id} className="voucher-card">
-                  <div className="voucher-visual">
-                    {voucher.image ? (
-                      <img
-                        src={voucher.image}
-                        alt={voucher.title}
-                        className="voucher-img"
-                      />
-                    ) : (
-                      <Gift size={64} className="voucher-icon" />
-                    )}
-                    <div className="voucher-value-badge">
-                      Rs. {voucher.price.toLocaleString()}
+                  <div className="voucher-visual-container">
+                    <div className="voucher-visual">
+                      <div className="voucher-pattern"></div>
+                      <div className="voucher-card-chip"></div>
+                      <div className="voucher-card-logo">METHSARA</div>
+                      {voucher.image ? (
+                        <img
+                          src={voucher.image}
+                          alt={voucher.title}
+                          className="voucher-img"
+                        />
+                      ) : (
+                        <Gift size={64} className="voucher-icon" />
+                      )}
+                      <div className="voucher-value-badge">
+                        Rs.{" "}
+                        {voucher.price.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}
+                      </div>
                     </div>
                   </div>
 
@@ -98,14 +143,14 @@ const GiftVouchers = () => {
                     <h3>{voucher.title}</h3>
                     <p>
                       {voucher.description ||
-                        "Valid for all books on our store."}
+                        "A gift card valid for all books currently available on our comprehensive educational platform."}
                     </p>
 
                     <button
                       className="voucher-btn"
                       onClick={() => handleAddToCart(voucher)}
                     >
-                      <ShoppingCart size={18} /> Add to Cart
+                      <ShoppingCart size={20} /> Pack & Add to Cart
                     </button>
                   </div>
                 </div>
