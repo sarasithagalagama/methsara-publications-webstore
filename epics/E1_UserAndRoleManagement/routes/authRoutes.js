@@ -23,8 +23,10 @@ const {
   logout,
   revokeSession,
   getSecurityLogs,
-} = require('../controllers/authController');
-const { protect, authorize } = require('../middleware/auth');
+  requestPasswordReset,
+  forceChangePassword,
+} = require("../controllers/authController");
+const { protect, authorize } = require("../middleware/auth");
 
 // Public routes
 router.post("/register", register); // E1.1 - Customer registration
@@ -39,6 +41,7 @@ router.put("/profile", protect, updateProfile); // E1.3 - Update profile
 router.put("/change-password", protect, changePassword); // E1.8 - Change password
 router.get("/sessions", protect, getSessions); // E1.13 - View active sessions
 router.post("/sessions/:id/revoke", protect, revokeSession); // E1.13 - Revoke session
+router.post("/force-change-password", protect, forceChangePassword); // User force password reset
 
 // Admin-only routes
 router.post("/create-staff", protect, authorize("admin"), createStaff); // E1.4 - Create staff
@@ -60,6 +63,12 @@ router.put(
   authorize("admin"),
   deactivateUser,
 ); // E1.10 - Deactivate user
+router.post(
+  "/users/:id/force-reset",
+  protect,
+  authorize("admin"),
+  requestPasswordReset,
+); // Admin force password reset
 router.get("/logs", protect, authorize("admin"), getSecurityLogs); // E1.11 - Security logs
 
 module.exports = router;

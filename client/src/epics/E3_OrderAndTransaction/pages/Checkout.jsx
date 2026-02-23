@@ -33,6 +33,10 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discount, setDiscount] = useState(0);
+
+  // Epic E6.4 Gift Voucher State
+  const [voucherCode, setVoucherCode] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -134,6 +138,26 @@ const Checkout = () => {
   };
 
   /**
+   * [Epic E6.4] - Gift Voucher Validation
+   */
+  const handleApplyVoucher = async () => {
+    if (!voucherCode) return;
+    try {
+      const res = await axios.post("/api/gift-vouchers/validate", {
+        code: voucherCode,
+      });
+      setAppliedVoucher(res.data.voucher);
+    } catch (error) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Voucher Error",
+        message: error.response?.data?.message || "Invalid or expired voucher",
+      });
+    }
+  };
+
+  /**
    * For Bank Transfers, we allow users to upload a high-res image
    * of their deposit slip as proof of payment.
    */
@@ -213,6 +237,7 @@ const Checkout = () => {
         paymentMethod: formData.paymentMethod,
         bankSlipUrl: formData.bankSlip,
         couponCode: appliedCoupon?.code,
+        giftVoucherCode: appliedVoucher?.code,
       };
 
       if (isGuest) {
@@ -253,7 +278,13 @@ const Checkout = () => {
 
   const deliveryFee = 350;
   const subtotal = cart?.totalAmount || 0;
-  const total = subtotal - discount + deliveryFee;
+  const totalBeforeVoucher = subtotal - discount + deliveryFee;
+
+  const calculatedVoucherDiscount = appliedVoucher
+    ? Math.min(appliedVoucher.balance, totalBeforeVoucher)
+    : 0;
+
+  const total = totalBeforeVoucher - calculatedVoucherDiscount;
 
   return (
     <div className="checkout-modern-page">
@@ -637,6 +668,37 @@ const Checkout = () => {
               )}
             </div>
 
+            <div className="coupon-box-modern">
+              <label>Gift Voucher</label>
+              <div className="coupon-flex-modern">
+                <input
+                  type="text"
+                  placeholder="Enter GV code"
+                  value={voucherCode}
+                  onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                />
+                <button
+                  type="button"
+                  className="coupon-btn-modern"
+                  onClick={handleApplyVoucher}
+                  style={{
+                    backgroundColor: "transparent",
+                    color: "var(--primary-color)",
+                    border: "1px solid var(--primary-color)",
+                  }}
+                >
+                  redeem
+                </button>
+              </div>
+              {appliedVoucher && (
+                <div className="coupon-success-msg-modern">
+                  <Check size={14} strokeWidth={3} /> Voucher "
+                  {appliedVoucher.code}" active (Balance: Rs.{" "}
+                  {appliedVoucher.balance})
+                </div>
+              )}
+            </div>
+
             <div className="checkout-totals-modern">
               <div className="totals-row-modern">
                 <span>Items Subtotal</span>
@@ -648,8 +710,16 @@ const Checkout = () => {
               </div>
               {discount > 0 && (
                 <div className="totals-row-modern discount-row-modern">
-                  <span>Loyalty Discount</span>
+                  <span>Loyalty Promo</span>
                   <span>- Rs. {discount.toLocaleString()}</span>
+                </div>
+              )}
+              {calculatedVoucherDiscount > 0 && (
+                <div className="totals-row-modern discount-row-modern">
+                  <span>Gift Voucher</span>
+                  <span>
+                    - Rs. {calculatedVoucherDiscount.toLocaleString()}
+                  </span>
                 </div>
               )}
               <div className="grand-total-modern">

@@ -75,6 +75,13 @@ const orderSchema = new mongoose.Schema({
     default: 0,
   },
 
+  // Gift Voucher Applied
+  giftVoucherCode: String,
+  giftVoucherDiscount: {
+    type: Number,
+    default: 0,
+  },
+
   // Delivery Address
   deliveryAddress: {
     name: String,
@@ -158,7 +165,11 @@ orderSchema.pre("save", function (next) {
 
   // Calculate total
   this.total =
-    this.subtotal - this.discount - this.couponDiscount + this.deliveryFee;
+    this.subtotal -
+    this.discount -
+    this.couponDiscount -
+    this.giftVoucherDiscount +
+    this.deliveryFee;
 
   this.updatedAt = Date.now();
   next();

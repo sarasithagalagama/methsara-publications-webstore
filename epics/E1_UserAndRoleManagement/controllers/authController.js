@@ -5,9 +5,9 @@
 // Features: Register, Login, RBAC
 // ============================================
 
-const User = require('../models/User');
-const Session = require('../models/Session');
-const { generateToken } = require('../middleware/auth');
+const User = require("../models/User");
+const Session = require("../models/Session");
+const { generateToken } = require("../middleware/auth");
 const UAParser = require("ua-parser-js");
 
 // Customer Registration (E1.1)
@@ -648,12 +648,10 @@ exports.revokeSession = async (req, res) => {
 
     // Ensure user owns the session OR is an admin
     if (session.user.toString() !== req.user.id && req.user.role !== "admin") {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Not authorized to revoke this session",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to revoke this session",
+      });
     }
 
     session.status = "revoked";
@@ -688,6 +686,66 @@ exports.getSecurityLogs = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch security logs",
+    });
+  }
+};
+
+// Request Password Reset (Admin-Triggered)
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.mustChangePassword = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset requested for user",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to request password reset",
+      error: error.message,
+    });
+  }
+};
+
+// Force Change Password (User action after Admin triggers reset)
+exports.forceChangePassword = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("+password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Optional but good practice: ensure they don't reuse the same password
+    // Handled intrinsically if we wanted, but not explicitly required
+
+    user.password = req.body.newPassword;
+    user.mustChangePassword = false;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update password",
+      error: error.message,
     });
   }
 };

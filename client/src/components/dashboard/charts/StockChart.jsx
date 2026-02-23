@@ -40,25 +40,25 @@ const StockChart = ({ data }) => {
   };
 
   const chartData = {
-    labels:
-      data && data.length > 0
-        ? data.map((d) => d._id)
-        : ["Main Store", "Balangoda", "Kottawa"],
+    labels: data && data.length > 0 ? data.map((d) => d._id) : ["No Data"],
     datasets: [
       {
         label: "Stock Units",
-        data:
+        data: data && data.length > 0 ? data.map((d) => d.totalQuantity) : [0],
+        backgroundColor:
           data && data.length > 0
-            ? data.map((d) => d.totalQuantity)
-            : [120, 80, 50],
-        backgroundColor: [
-          "#8D6E63", // Primary Brown
-          "#5D4037", // Dark Brown
-          "#D7CCC8", // Light Brown
-          "#A1887F", // Medium Brown
-          "#795548", // Standard Brown
-          "#BDBDBD", // Grey fallback
-        ],
+            ? [
+                "#8D6E63", // Primary Brown
+                "#5D4037", // Dark Brown
+                "#D7CCC8", // Light Brown
+                "#A1887F", // Medium Brown
+                "#795548", // Standard Brown
+                "#BDBDBD", // Grey
+                "#E0E0E0", // Light Grey
+                "#4E342E", // Very Dark Brown
+                "#A1887F", // Repeat Medium
+              ]
+            : ["#f3f4f6"], // Light grey for "No Data"
         borderColor: "#ffffff",
         borderWidth: 2,
         hoverOffset: 10,

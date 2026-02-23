@@ -9,9 +9,6 @@ import axios from "axios";
 import Modal from "../../../../components/common/Modal";
 import { useAuth } from "../../context/AuthContext";
 import {
-  Plus,
-  Trash2,
-  MapPin,
   Phone,
   User as UserIcon,
   Shield,
@@ -29,8 +26,8 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    addresses: [],
   });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -46,8 +43,8 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
       setFormData({
         name: user.name || "",
         phone: user.phone || "",
-        addresses: user.addresses || [],
       });
+      setFieldErrors({}); // Clear errors when user or modal opens
     }
   }, [user, isOpen]);
 
@@ -92,38 +89,45 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Clear field error as user types
+    if (fieldErrors[name]) {
+      const newErrors = { ...fieldErrors };
+      delete newErrors[name];
+      setFieldErrors(newErrors);
+    }
   };
 
-  const handleAddressChange = (index, field, value) => {
-    const newAddresses = [...formData.addresses];
-    newAddresses[index] = { ...newAddresses[index], [field]: value };
-    setFormData({ ...formData, addresses: newAddresses });
-  };
+  const validateForm = () => {
+    const errors = {};
 
-  const addAddress = () => {
-    setFormData({
-      ...formData,
-      addresses: [
-        ...formData.addresses,
-        {
-          label: "Home",
-          street: "",
-          city: "",
-          postalCode: "",
-          isDefault: false,
-        },
-      ],
-    });
-  };
+    // Name Validation
+    if (!formData.name.trim()) {
+      errors.name = "Full name is required";
+    }
 
-  const removeAddress = (index) => {
-    const newAddresses = formData.addresses.filter((_, i) => i !== index);
-    setFormData({ ...formData, addresses: newAddresses });
+    // Phone Validation (Optional but must be valid if provided)
+    if (formData.phone) {
+      const phoneRegex = /^(?:\+94|0)7[0-9]{8}$/;
+      if (!phoneRegex.test(formData.phone.replace(/\s/g, ""))) {
+        errors.phone = "Invalid Sri Lankan phone number (+94 7X XXX XXXX)";
+      }
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      setMessage({ type: "error", text: "Please fix the validation errors." });
+      return;
+    }
+
     setLoading(true);
     setMessage({ type: "", text: "" });
 
@@ -181,8 +185,12 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                className={fieldErrors.name ? "error-input" : ""}
                 required
               />
+              {fieldErrors.name && (
+                <span className="field-error">{fieldErrors.name}</span>
+              )}
             </div>
             <div className="form-group">
               <label>Phone Number</label>
@@ -191,116 +199,13 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                className={fieldErrors.phone ? "error-input" : ""}
                 placeholder="+94 7X XXX XXXX"
               />
+              {fieldErrors.phone && (
+                <span className="field-error">{fieldErrors.phone}</span>
+              )}
             </div>
-          </div>
-
-          <div className="settings-section">
-            <div className="section-header">
-              <h3>
-                <MapPin size={20} className="text-primary-color" /> Delivery
-                Addresses
-              </h3>
-              <button type="button" className="btn-text" onClick={addAddress}>
-                <Plus size={16} /> Add Address
-              </button>
-            </div>
-
-            {formData.addresses.length === 0 ? (
-              <p className="no-data-text">No addresses saved yet.</p>
-            ) : (
-              <div className="address-list">
-                {formData.addresses.map((addr, index) => (
-                  <div key={index} className="address-card-edit">
-                    <div className="address-header">
-                      <h4>Address #{index + 1}</h4>
-                      <button
-                        type="button"
-                        className="btn-icon danger"
-                        onClick={() => removeAddress(index)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                    <div className="form-row">
-                      <div className="form-group half">
-                        <label>Label</label>
-                        <input
-                          type="text"
-                          value={addr.label}
-                          onChange={(e) =>
-                            handleAddressChange(index, "label", e.target.value)
-                          }
-                          placeholder="e.g. Home, Office"
-                        />
-                      </div>
-                      <div className="form-group half">
-                        <label>City</label>
-                        <select
-                          value={addr.city}
-                          onChange={(e) =>
-                            handleAddressChange(index, "city", e.target.value)
-                          }
-                        >
-                          <option value="">Select District</option>
-                          <option value="Ampara">Ampara</option>
-                          <option value="Anuradhapura">Anuradhapura</option>
-                          <option value="Badulla">Badulla</option>
-                          <option value="Batticaloa">Batticaloa</option>
-                          <option value="Colombo">Colombo</option>
-                          <option value="Galle">Galle</option>
-                          <option value="Gampaha">Gampaha</option>
-                          <option value="Hambantota">Hambantota</option>
-                          <option value="Jaffna">Jaffna</option>
-                          <option value="Kalutara">Kalutara</option>
-                          <option value="Kandy">Kandy</option>
-                          <option value="Kegalle">Kegalle</option>
-                          <option value="Kilinochchi">Kilinochchi</option>
-                          <option value="Kurunegala">Kurunegala</option>
-                          <option value="Mannar">Mannar</option>
-                          <option value="Matale">Matale</option>
-                          <option value="Matara">Matara</option>
-                          <option value="Monaragala">Monaragala</option>
-                          <option value="Mullaitivu">Mullaitivu</option>
-                          <option value="Nuwara Eliya">Nuwara Eliya</option>
-                          <option value="Polonnaruwa">Polonnaruwa</option>
-                          <option value="Puttalam">Puttalam</option>
-                          <option value="Ratnapura">Ratnapura</option>
-                          <option value="Trincomalee">Trincomalee</option>
-                          <option value="Vavuniya">Vavuniya</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label>Street Address</label>
-                      <input
-                        type="text"
-                        value={addr.street}
-                        onChange={(e) =>
-                          handleAddressChange(index, "street", e.target.value)
-                        }
-                        placeholder="Street, Building, etc."
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Postal Code</label>
-                      <input
-                        type="text"
-                        value={addr.postalCode}
-                        onChange={(e) =>
-                          handleAddressChange(
-                            index,
-                            "postalCode",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="modal-actions">

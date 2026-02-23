@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { UserPlus, Edit, Ban, Eye, CheckCircle } from "lucide-react";
+import { UserPlus, Edit, Ban, Eye, CheckCircle, KeyRound } from "lucide-react";
 import Modal from "../../../components/common/Modal";
 import StatusModal from "../../../components/common/StatusModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
@@ -86,6 +86,45 @@ const AdminUsers = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleForceReset = async (userId) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Force Password Reset?",
+      message:
+        "Are you sure you want to force this user to reset their password? They will be locked out of the system until they set a new password upon their next login attempt.",
+      variant: "primary",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.post(
+            `/api/auth/users/${userId}/force-reset`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Reset Requested",
+            message:
+              "The user has been successfully flagged for a password reset.",
+          });
+        } catch (error) {
+          console.error("Error requesting password reset:", error);
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          setStatusModal({
+            isOpen: true,
+            type: "error",
+            title: "Action Failed",
+            message:
+              error.response?.data?.message ||
+              "Failed to request password reset. Please try again.",
+          });
+        }
+      },
+    });
   };
 
   const handleDeactivateUser = (userId) => {
@@ -515,6 +554,13 @@ const AdminUsers = () => {
                 onClick={() => handleEditClick(user)}
               >
                 <Edit size={16} />
+              </button>
+              <button
+                className="btn-icon"
+                title="Force Password Reset"
+                onClick={() => handleForceReset(user._id)}
+              >
+                <KeyRound size={16} />
               </button>
               {user.isActive && (
                 <button

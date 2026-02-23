@@ -12,6 +12,7 @@ const Coupon = require("../../E6_PromotionAndLoyalty/models/Coupon");
 const GiftVoucher = require("../../E6_PromotionAndLoyalty/models/GiftVoucher");
 const Campaign = require("../../E6_PromotionAndLoyalty/models/Campaign");
 const Location = require("../../E5_InventoryManagement/models/Location");
+const Review = require("../../E2_ProductCatalog/models/Review");
 
 // Create Order / Checkout (E3.3, E3.4)
 exports.createOrder = async (req, res) => {
@@ -22,6 +23,7 @@ exports.createOrder = async (req, res) => {
       paymentMethod,
       bankSlipUrl,
       couponCode,
+      giftVoucherCode,
       fulfillmentLocation,
     } = req.body;
 
@@ -93,8 +95,45 @@ exports.createOrder = async (req, res) => {
       }
     }
 
-    // Calculate delivery fee (simplified)
+    // Calculate delivery fee
     const deliveryFee = subtotal > 2000 ? 0 : 300;
+
+    // Apply Gift Voucher if provided
+    let giftVoucherDiscount = 0;
+    let appliedVoucherDoc = null;
+    if (giftVoucherCode) {
+      appliedVoucherDoc = await GiftVoucher.findOne({
+        code: giftVoucherCode.toUpperCase(),
+        isActive: true,
+      });
+
+      if (appliedVoucherDoc) {
+        if (new Date() > new Date(appliedVoucherDoc.expiryDate)) {
+          return res.status(400).json({
+            success: false,
+            message: "Gift voucher has expired",
+          });
+        }
+        if (appliedVoucherDoc.balance <= 0) {
+          return res.status(400).json({
+            success: false,
+            message: "Gift voucher has no remaining balance",
+          });
+        }
+
+        // Calculate amount to deduct (cannot exceed remaining order total before voucher)
+        const totalBeforeVoucher = subtotal - couponDiscount + deliveryFee;
+        giftVoucherDiscount = Math.min(
+          appliedVoucherDoc.balance,
+          totalBeforeVoucher,
+        );
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "Invalid gift voucher code",
+        });
+      }
+    }
 
     // Create order
     const order = await Order.create({
@@ -105,8 +144,10 @@ exports.createOrder = async (req, res) => {
       subtotal,
       couponCode,
       couponDiscount,
+      giftVoucherCode: appliedVoucherDoc ? appliedVoucherDoc.code : undefined,
+      giftVoucherDiscount,
       deliveryFee,
-      total: subtotal - couponDiscount + deliveryFee,
+      total: subtotal - couponDiscount - giftVoucherDiscount + deliveryFee,
       deliveryAddress,
       paymentMethod,
       bankSlipUrl,
@@ -118,6 +159,16 @@ exports.createOrder = async (req, res) => {
         },
       ],
     });
+
+    // Deduct from Gift Voucher Balance Document
+    if (appliedVoucherDoc && giftVoucherDiscount > 0) {
+      appliedVoucherDoc.balance -= giftVoucherDiscount;
+      appliedVoucherDoc.usageHistory.push({
+        order: order._id,
+        amountUsed: giftVoucherDiscount,
+      });
+      await appliedVoucherDoc.save();
+    }
 
     // Deduct inventory (E5.8) (SKIP for Gift Vouchers)
     for (const item of orderItems) {
@@ -216,9 +267,30 @@ exports.getOrder = async (req, res) => {
       });
     }
 
+    // Check which items have already been reviewed by the user
+    let itemsWithReviewStatus = order.items.map((item) => item.toObject());
+    if (req.user) {
+      const userReviews = await Review.find({
+        user: req.user.id,
+        product: { $in: order.items.map((i) => i.product?._id || i.product) },
+      });
+
+      const reviewedProductIds = userReviews.map((r) => r.product.toString());
+
+      itemsWithReviewStatus = itemsWithReviewStatus.map((item) => ({
+        ...item,
+        isReviewed: reviewedProductIds.includes(
+          (item.product?._id || item.product).toString(),
+        ),
+      }));
+    }
+
     res.status(200).json({
       success: true,
-      order,
+      order: {
+        ...order.toObject(),
+        items: itemsWithReviewStatus,
+      },
     });
   } catch (error) {
     res.status(500).json({

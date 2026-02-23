@@ -343,15 +343,10 @@ const CustomerDashboard = () => {
                             <div className="item-image-wrapper">
                               <img
                                 src={
-                                  item.product?.mainImage ||
                                   item.product?.image ||
                                   "https://via.placeholder.com/60"
                                 }
-                                alt={
-                                  item.productTitle ||
-                                  item.product?.title ||
-                                  "Product"
-                                }
+                                alt={item.productTitle || "Product"}
                                 onError={(e) => {
                                   e.target.src =
                                     "https://via.placeholder.com/60?text=No+Image";
@@ -387,45 +382,6 @@ const CustomerDashboard = () => {
                         className="order-actions-modern"
                         style={{ display: "flex", gap: "1rem" }}
                       >
-                        {order.paymentMethod === "Bank Transfer" &&
-                        order.bankSlipUrl ? (
-                          <a
-                            href={order.bankSlipUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="view-receipt-btn"
-                            style={{
-                              textDecoration: "none",
-                              color: "var(--primary-color)",
-                              fontWeight: "600",
-                              fontSize: "0.95rem",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.25rem",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <FileText size={16} /> Receipt
-                          </a>
-                        ) : (
-                          <button
-                            className="view-receipt-btn"
-                            onClick={() => setSelectedOrder(order)}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "var(--primary-color)",
-                              fontWeight: "600",
-                              fontSize: "0.95rem",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.25rem",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <FileText size={16} /> Receipt
-                          </button>
-                        )}
                         <Link
                           to={`/orders/${order._id}`}
                           className="view-details-link"

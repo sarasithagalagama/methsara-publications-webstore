@@ -22,6 +22,30 @@
   font-family: monospace;
 }
 
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: #f5f0ee;
+  color: #5d4037;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  margin-bottom: 2rem;
+  border: none;
+  width: fit-content;
+}
+
+.btn-back:hover {
+  background-color: #5d4037;
+  color: white;
+  transform: translateX(-4px);
+  text-decoration: none;
+}
+
 .status-stepper {
   display: flex;
   justify-content: space-between;
@@ -183,4 +207,38 @@
   .step {
     width: 45%;
   }
+}
+
+/* Review Button Styling */
+.btn-review {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: var(--primary-color, #0f172a);
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-review:hover {
+  background-color: var(--primary-color, #0f172a);
+  color: white;
+  border-color: var(--primary-color, #0f172a);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1);
+}
+
+.btn-review svg {
+  transition: fill 0.2s ease;
+}
+
+.btn-review:hover svg {
+  fill: currentColor;
 }

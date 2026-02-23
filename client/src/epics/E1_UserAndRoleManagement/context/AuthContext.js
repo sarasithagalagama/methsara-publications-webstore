@@ -8,7 +8,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
-import ChangePasswordModal from "../components/ChangePasswordModal";
+import ForcePasswordResetModal from "../components/ForcePasswordResetModal";
 
 const AuthContext = createContext();
 
@@ -229,8 +229,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={value}>
       {children}
       {showPasswordModal && (
-        <ChangePasswordModal
-          isOpen={showPasswordModal}
+        <ForcePasswordResetModal
           onClose={() => setShowPasswordModal(false)}
           onSuccess={handlePasswordChangeSuccess}
           logout={logout}

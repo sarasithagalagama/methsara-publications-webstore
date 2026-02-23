@@ -32,7 +32,12 @@ import StatCard from "../../../components/dashboard/StatCard";
 import Modal from "../../../components/common/Modal";
 import StatusModal from "../../../components/common/StatusModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
-import { Input, Select, Button, TextArea } from "../../../components/common/Forms";
+import {
+  Input,
+  Select,
+  Button,
+  TextArea,
+} from "../../../components/common/Forms";
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
 import StockChart from "../../../components/dashboard/charts/StockChart";
 import StockAdjustmentModal from "../../../epics/E5_InventoryManagement/components/Inventory/StockAdjustmentModal";
@@ -725,12 +730,14 @@ const InventoryManagerDashboard = () => {
           >
             Receive from PO
           </button>
-          <button
-            className={`toggle-btn ${activeTab === "dispatch" ? "active" : ""}`}
-            onClick={() => setActiveTab("dispatch")}
-          >
-            Dispatch
-          </button>
+          {user?.role === "master_inventory_manager" && (
+            <button
+              className={`toggle-btn ${activeTab === "dispatch" ? "active" : ""}`}
+              onClick={() => setActiveTab("dispatch")}
+            >
+              Dispatch
+            </button>
+          )}
           <button
             className={`toggle-btn ${activeTab === "movements" ? "active" : ""}`}
             onClick={() => setActiveTab("movements")}
@@ -1582,164 +1589,175 @@ const InventoryManagerDashboard = () => {
       />
 
       {/* ── DISPATCH TAB (ORDERS) ── */}
-      {activeTab === "dispatch" && (
-        <div className="dashboard-card" style={{ marginTop: "20px" }}>
-          <div className="dashboard-card-header">
-            <div>
-              <h2 className="card-title">Order Dispatch & Delivery</h2>
-              <p className="text-secondary text-sm">
-                Manage order fulfillment and tracking for {selectedLocation}.
-              </p>
-            </div>
-            <div
-              className="bulk-actions"
-              style={{ display: "flex", gap: "10px" }}
-            >
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => handleBulkUpdateStatus("Pending", "Processing")}
-                title="Move all Pending orders to Processing"
+      {activeTab === "dispatch" &&
+        user?.role === "master_inventory_manager" && (
+          <div className="dashboard-card" style={{ marginTop: "20px" }}>
+            <div className="dashboard-card-header">
+              <div>
+                <h2 className="card-title">Order Dispatch & Delivery</h2>
+                <p className="text-secondary text-sm">
+                  Manage order fulfillment and tracking for {selectedLocation}.
+                </p>
+              </div>
+              <div
+                className="bulk-actions"
+                style={{ display: "flex", gap: "10px" }}
               >
-                <RefreshCw size={14} /> Process All Pending
-              </button>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => handleBulkUpdateStatus("Processing", "Shipped")}
-                title="Dispatch all Processing orders"
-              >
-                <Package size={14} /> Dispatch All Processing
-              </button>
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() =>
+                    handleBulkUpdateStatus("Pending", "Processing")
+                  }
+                  title="Move all Pending orders to Processing"
+                >
+                  <RefreshCw size={14} /> Process All Pending
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    handleBulkUpdateStatus("Processing", "Shipped")
+                  }
+                  title="Dispatch all Processing orders"
+                >
+                  <Package size={14} /> Dispatch All Processing
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Location</th>
-                  <th>Items</th>
-                  <th>Order Status</th>
-                  <th>Payment</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders
-                  .filter(
-                    (o) =>
-                      o.orderStatus !== "Cancelled" &&
-                      o.fulfillmentLocation === selectedLocation,
-                  )
-                  .map((order) => (
-                    <tr
-                      key={order._id}
-                      style={{
-                        backgroundColor:
-                          order.orderStatus === "Pending" ||
-                          order.orderStatus === "Processing"
-                            ? "var(--bg-color-hover)"
-                            : "transparent",
-                        borderLeft:
-                          order.orderStatus === "Pending" ||
-                          order.orderStatus === "Processing"
-                            ? "4px solid var(--primary-color)"
-                            : "none",
-                      }}
-                    >
-                      <td>
-                        <strong>#{order._id.slice(-6).toUpperCase()}</strong>
-                        <div style={{ fontSize: "0.75rem", color: "#888" }}>
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td>
-                        <div>{order.customer?.name || order.guestName}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#888" }}>
-                          {order.deliveryAddress?.city}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="role-badge">
-                          {order.fulfillmentLocation}
-                        </span>
-                      </td>
-                      <td>
-                        {order.items.length}{" "}
-                        {order.items.length === 1 ? "Book" : "Books"}
-                      </td>
-                      <td>
-                        <span
-                          className={`status-badge ${order.orderStatus.toLowerCase()}`}
-                        >
-                          {order.orderStatus}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className={`status-badge ${order.paymentStatus === "Paid" ? "success" : "warning"}`}
-                        >
-                          {order.paymentStatus}
-                        </span>
-                        <div
-                          style={{
-                            fontSize: "0.75rem",
-                            color: "#888",
-                            marginTop: "2px",
-                          }}
-                        >
-                          {order.paymentMethod}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="table-actions">
-                          {order.orderStatus === "Pending" && (
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() =>
-                                handleUpdateOrderStatus(order._id, "Processing")
-                              }
-                            >
-                              Process
-                            </button>
-                          )}
-                          {order.orderStatus === "Processing" && (
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() =>
-                                handleUpdateOrderStatus(order._id, "Shipped")
-                              }
-                            >
-                              Dispatch
-                            </button>
-                          )}
-                          {order.orderStatus === "Shipped" && (
-                            <button
-                              className="btn btn-gold btn-sm"
-                              onClick={() =>
-                                handleUpdateOrderStatus(order._id, "Delivered")
-                              }
-                            >
-                              Deliver
-                            </button>
-                          )}
-                        </div>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Location</th>
+                    <th>Items</th>
+                    <th>Order Status</th>
+                    <th>Payment</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders
+                    .filter(
+                      (o) =>
+                        o.orderStatus !== "Cancelled" &&
+                        o.fulfillmentLocation === selectedLocation,
+                    )
+                    .map((order) => (
+                      <tr
+                        key={order._id}
+                        style={{
+                          backgroundColor:
+                            order.orderStatus === "Pending" ||
+                            order.orderStatus === "Processing"
+                              ? "var(--bg-color-hover)"
+                              : "transparent",
+                          borderLeft:
+                            order.orderStatus === "Pending" ||
+                            order.orderStatus === "Processing"
+                              ? "4px solid var(--primary-color)"
+                              : "none",
+                        }}
+                      >
+                        <td>
+                          <strong>#{order._id.slice(-6).toUpperCase()}</strong>
+                          <div style={{ fontSize: "0.75rem", color: "#888" }}>
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </div>
+                        </td>
+                        <td>
+                          <div>{order.customer?.name || order.guestName}</div>
+                          <div style={{ fontSize: "0.75rem", color: "#888" }}>
+                            {order.deliveryAddress?.city}
+                          </div>
+                        </td>
+                        <td>
+                          <span className="role-badge">
+                            {order.fulfillmentLocation}
+                          </span>
+                        </td>
+                        <td>
+                          {order.items.length}{" "}
+                          {order.items.length === 1 ? "Book" : "Books"}
+                        </td>
+                        <td>
+                          <span
+                            className={`status-badge ${order.orderStatus.toLowerCase()}`}
+                          >
+                            {order.orderStatus}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={`status-badge ${order.paymentStatus === "Paid" ? "success" : "warning"}`}
+                          >
+                            {order.paymentStatus}
+                          </span>
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "#888",
+                              marginTop: "2px",
+                            }}
+                          >
+                            {order.paymentMethod}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            {order.orderStatus === "Pending" && (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                onClick={() =>
+                                  handleUpdateOrderStatus(
+                                    order._id,
+                                    "Processing",
+                                  )
+                                }
+                              >
+                                Process
+                              </button>
+                            )}
+                            {order.orderStatus === "Processing" && (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                onClick={() =>
+                                  handleUpdateOrderStatus(order._id, "Shipped")
+                                }
+                              >
+                                Dispatch
+                              </button>
+                            )}
+                            {order.orderStatus === "Shipped" && (
+                              <button
+                                className="btn btn-gold btn-sm"
+                                onClick={() =>
+                                  handleUpdateOrderStatus(
+                                    order._id,
+                                    "Delivered",
+                                  )
+                                }
+                              >
+                                Deliver
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  {orders.length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="text-center py-4">
+                        No orders found.
                       </td>
                     </tr>
-                  ))}
-                {orders.length === 0 && (
-                  <tr>
-                    <td colSpan="7" className="text-center py-4">
-                      No orders found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };

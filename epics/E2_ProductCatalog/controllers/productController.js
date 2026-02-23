@@ -154,10 +154,9 @@ exports.getProduct = async (req, res) => {
       discountAmount: pricing.discountAmount,
     };
 
-    // Fetch approved reviews from the Review collection
+    // Fetch all reviews from the Review collection (all are approved instantly now)
     const approvedReviews = await Review.find({
       product: product._id,
-      status: "approved",
     })
       .populate("user", "name")
       .sort({ createdAt: -1 });
@@ -322,26 +321,77 @@ exports.addReview = async (req, res) => {
       });
     }
 
+    // Check if user already reviewed
+    const alreadyReviewed = await Review.findOne({
+      product: product._id,
+      user: req.user.id,
+    });
+
+    if (alreadyReviewed) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already reviewed this product",
+      });
+    }
+
+    // Only allow customers who have purchased (Delivered order) to review
+    const verifiedPurchase = await Order.findOne({
+      customer: req.user.id,
+      orderStatus: "Delivered",
+      "items.product": product._id,
+    });
+
+    if (!verifiedPurchase) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You can only review products you have purchased and received.",
+      });
+    }
+
     // Add review as a proper document
     const review = await Review.create({
       product: product._id,
       user: req.user.id,
-      rating,
+      rating: Number(rating),
       comment,
       title, // Optional
-      status: "pending",
+    });
+
+    // Update Product Stats
+    const allReviews = await Review.find({ product: product._id });
+    const totalReviews = allReviews.length;
+    const averageRating =
+      totalReviews > 0
+        ? allReviews.reduce((acc, item) => item.rating + acc, 0) / totalReviews
+        : 0;
+
+    // Safely update product using findByIdAndUpdate to bypass validation errors on legacy document fields
+    await Product.findByIdAndUpdate(product._id, {
+      rating: averageRating,
+      averageRating: averageRating,
+      totalReviews: totalReviews,
+      $push: {
+        reviews: {
+          user: req.user.id,
+          rating: Number(rating),
+          comment,
+          isVerifiedPurchase: true,
+          createdAt: new Date(),
+        },
+      },
     });
 
     res.status(201).json({
       success: true,
-      message:
-        "Review submitted successfully. It will be visible after moderation.",
+      message: "Review submitted successfully.",
       review,
     });
   } catch (error) {
+    console.error("Error adding review:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to submit review",
+      message: error.message || "Failed to submit review",
       error: error.message,
     });
   }

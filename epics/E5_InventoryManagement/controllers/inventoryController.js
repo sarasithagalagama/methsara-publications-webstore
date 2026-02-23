@@ -450,7 +450,9 @@ exports.getInventoryStats = async (req, res) => {
       category: { $ne: "Gift Voucher" },
     });
 
-    const totalLocations = await require("../models/Location").countDocuments();
+    const totalLocations = await require("../models/Location").countDocuments({
+      status: "Active",
+    });
 
     // 3. Count total adjustments (E5.10)
     const adjustmentCount = physicalInventory.reduce(
@@ -495,7 +497,12 @@ exports.getInventoryStats = async (req, res) => {
     };
 
     // Calculate distribution for chart (Excluding Gift Vouchers)
-    const distribution = await Inventory.aggregate([
+    // Real distribution across all active locations
+    const allLocationsData = await require("../models/Location").find({
+      status: "Active",
+    });
+
+    const distributionRaw = await Inventory.aggregate([
       {
         $lookup: {
           from: "products",
@@ -506,7 +513,10 @@ exports.getInventoryStats = async (req, res) => {
       },
       { $unwind: "$productData" },
       {
-        $match: distributionMatch,
+        $match: {
+          "productData.category": { $ne: "Gift Voucher" },
+          "productData.isActive": true,
+        },
       },
       {
         $group: {
@@ -514,8 +524,19 @@ exports.getInventoryStats = async (req, res) => {
           totalQuantity: { $sum: "$availableQuantity" },
         },
       },
-      { $sort: { totalQuantity: -1 } },
     ]);
+
+    // Map raw distribution to all locations to ensure 0s are represented
+    const distribution = allLocationsData.map((loc) => {
+      const dist = distributionRaw.find((d) => d._id === loc.name);
+      return {
+        _id: loc.name,
+        totalQuantity: dist ? dist.totalQuantity : 0,
+      };
+    });
+
+    // Sort by quantity descending
+    distribution.sort((a, b) => b.totalQuantity - a.totalQuantity);
 
     res.status(200).json({
       success: true,
