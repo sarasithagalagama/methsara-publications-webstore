@@ -217,6 +217,20 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateProfile,
+    changePassword: async (passwordData) => {
+      try {
+        const res = await axios.put("/api/auth/change-password", passwordData);
+        return {
+          success: true,
+          message: res.data.message || "Password updated successfully",
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.response?.data?.message || "Failed to update password",
+        };
+      }
+    },
     isAuthenticated: !!user,
     showPasswordModal,
     setShowPasswordModal,

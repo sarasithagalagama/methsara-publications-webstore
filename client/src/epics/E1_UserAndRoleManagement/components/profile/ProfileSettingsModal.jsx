@@ -15,11 +15,12 @@ import {
   Monitor,
   Smartphone,
   Globe,
+  Lock,
 } from "lucide-react";
 import "./ProfileSettingsModal.css";
 
 const ProfileSettingsModal = ({ isOpen, onClose }) => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, changePassword } = useAuth();
   // ─────────────────────────────────
   // State Variables
   // ─────────────────────────────────
@@ -27,9 +28,21 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
     name: "",
     phone: "",
   });
+
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [passwordMessage, setPasswordMessage] = useState({
+    type: "",
+    text: "",
+  });
 
   const [activeTab, setActiveTab] = useState("profile");
   const [sessions, setSessions] = useState([]);
@@ -45,6 +58,13 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
         phone: user.phone || "",
       });
       setFieldErrors({}); // Clear errors when user or modal opens
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordMessage({ type: "", text: "" });
+      setMessage({ type: "", text: "" });
     }
   }, [user, isOpen]);
 
@@ -87,7 +107,6 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
       console.error("Failed to revoke", error);
     }
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -98,6 +117,62 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
       delete newErrors[name];
       setFieldErrors(newErrors);
     }
+  };
+
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData({ ...passwordData, [name]: value });
+
+    // Clear password field error
+    if (fieldErrors[name]) {
+      const newErrors = { ...fieldErrors };
+      delete newErrors[name];
+      setFieldErrors(newErrors);
+    }
+  };
+
+  const validatePasswordForm = () => {
+    const errors = {};
+    if (!passwordData.currentPassword)
+      errors.currentPassword = "Current password is required";
+    if (!passwordData.newPassword)
+      errors.newPassword = "New password is required";
+    if (passwordData.newPassword.length < 6)
+      errors.newPassword = "Password must be at least 6 characters";
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!validatePasswordForm()) return;
+
+    setPasswordLoading(true);
+    setPasswordMessage({ type: "", text: "" });
+
+    const result = await changePassword({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+    });
+
+    if (result.success) {
+      setPasswordMessage({
+        type: "success",
+        text: "Password changed successfully!",
+      });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } else {
+      setPasswordMessage({ type: "error", text: result.message });
+    }
+    setPasswordLoading(false);
   };
 
   const validateForm = () => {
@@ -221,6 +296,78 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
 
       {activeTab === "security" && (
         <div className="security-settings-section">
+          <div className="settings-section" style={{ marginBottom: "2rem" }}>
+            <h3>
+              <Lock size={20} className="text-primary-color" /> Change Password
+            </h3>
+            <form onSubmit={handlePasswordSubmit}>
+              {passwordMessage.text && (
+                <div
+                  className={`message-alert ${passwordMessage.type}`}
+                  style={{ marginBottom: "1.5rem" }}
+                >
+                  {passwordMessage.text}
+                </div>
+              )}
+              <div className="form-group">
+                <label>Current Password</label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordInputChange}
+                  className={fieldErrors.currentPassword ? "error-input" : ""}
+                />
+                {fieldErrors.currentPassword && (
+                  <span className="field-error">
+                    {fieldErrors.currentPassword}
+                  </span>
+                )}
+              </div>
+              <div className="form-row">
+                <div className="form-group half">
+                  <label>New Password</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordInputChange}
+                    className={fieldErrors.newPassword ? "error-input" : ""}
+                  />
+                  {fieldErrors.newPassword && (
+                    <span className="field-error">
+                      {fieldErrors.newPassword}
+                    </span>
+                  )}
+                </div>
+                <div className="form-group half">
+                  <label>Confirm New Password</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordInputChange}
+                    className={fieldErrors.confirmPassword ? "error-input" : ""}
+                  />
+                  {fieldErrors.confirmPassword && (
+                    <span className="field-error">
+                      {fieldErrors.confirmPassword}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={passwordLoading}
+                >
+                  {passwordLoading ? "Updating..." : "Update Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+
           <div className="settings-section">
             <h3>
               <Shield size={20} className="text-primary-color" /> Active
