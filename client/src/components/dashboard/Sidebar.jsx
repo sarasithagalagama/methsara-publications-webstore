@@ -27,6 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [alertCount, setAlertCount] = useState(0);
+  const [orderCount, setOrderCount] = useState(0);
 
   const isActive = (path) => location.pathname.startsWith(path);
 
@@ -52,9 +53,26 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       };
 
       fetchAlertsCount();
-      // Optional: Polling every 60 seconds to keep it updated, but single fetch is often enough
-      // const intervalId = setInterval(fetchAlertsCount, 60000);
-      // return () => clearInterval(intervalId);
+
+      // Fetch pending orders count for Inventory Managers
+      const fetchOrdersCount = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await axios.get("/api/orders", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const pending = (res.data.orders || []).filter(
+            (o) =>
+              (o.orderStatus === "Pending" || o.orderStatus === "Processing") &&
+              o.orderStatus !== "Cancelled",
+          ).length;
+          setOrderCount(pending);
+        } catch (error) {
+          console.error("Error fetching order count for sidebar:", error);
+        }
+      };
+
+      fetchOrdersCount();
     }
   }, [role]);
 
@@ -136,6 +154,25 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             label: "Overview",
           },
           {
+            path: "/inventory-manager/dashboard?tab=dispatch",
+            icon: <ShoppingCart size={20} />,
+            label: (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <span>Orders</span>
+                {orderCount > 0 && (
+                  <span className="sidebar-badge warning">{orderCount}</span>
+                )}
+              </div>
+            ),
+          },
+          {
             path: "/inventory-manager/alerts",
             icon: <Bell size={20} />,
             label: (
@@ -179,11 +216,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             path: "/product-manager/dashboard",
             icon: <LayoutDashboard size={20} />,
             label: "Overview",
-          },
-          {
-            path: "/product-manager/products",
-            icon: <Package size={20} />,
-            label: "Products",
           },
           {
             path: "/product-manager/categories",

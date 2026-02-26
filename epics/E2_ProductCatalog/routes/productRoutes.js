@@ -22,6 +22,8 @@ const {
   deleteCategory,
   toggleReviewHelpful,
   getProductAnalytics,
+  archiveProduct,
+  unarchiveProduct,
 } = require("../controllers/productController");
 const {
   protect,
@@ -63,6 +65,18 @@ router.delete(
   authorize("product_manager", "admin", "marketing_manager"),
   deleteProduct,
 ); // E2.3 - Delete product
+router.put(
+  "/:id/archive",
+  protect,
+  authorize("product_manager", "admin"),
+  archiveProduct,
+); // Archive
+router.put(
+  "/:id/unarchive",
+  protect,
+  authorize("product_manager", "admin"),
+  unarchiveProduct,
+); // Unarchive
 router.put(
   "/reviews/:reviewId/moderate",
   protect,

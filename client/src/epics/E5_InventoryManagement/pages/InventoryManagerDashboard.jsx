@@ -61,6 +61,7 @@ const InventoryManagerDashboard = () => {
   const [inventory, setInventory] = useState([]);
   const [transfers, setTransfers] = useState([]);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [notDispatchedCount, setNotDispatchedCount] = useState(0);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showAdjustmentModal, setShowAdjustmentModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -83,6 +84,7 @@ const InventoryManagerDashboard = () => {
   const [movements, setMovements] = useState([]);
   const [distribution, setDistribution] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [approvalRequests, setApprovalRequests] = useState([]);
 
   // Search state for inventory table
   const [inventorySearch, setInventorySearch] = useState("");
@@ -172,6 +174,11 @@ const InventoryManagerDashboard = () => {
       const locParam = params.get("location");
       const searchParam = params.get("search");
 
+      const tabParam = params.get("tab");
+      if (tabParam) {
+        setActiveTab(tabParam);
+      }
+
       if (locParam && finalLocs.includes(locParam)) {
         setSelectedLocation(locParam);
       } else if (!isMasterOrAdmin && user?.assignedLocation) {
@@ -232,17 +239,38 @@ const InventoryManagerDashboard = () => {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get("tab");
+    const locParam = params.get("location");
+    const searchParam = params.get("search");
+
+    if (tabParam) {
+      setActiveTab(tabParam);
+    } else if (location.pathname === "/inventory-manager/dashboard") {
+      setActiveTab("inventory");
+    }
+    if (locParam && allLocations.includes(locParam)) {
+      setSelectedLocation(locParam);
+    }
+    if (searchParam) {
+      setInventorySearch(searchParam);
+      setDebouncedSearch(searchParam);
+    }
+  }, [location.search, allLocations]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(inventorySearch);
     }, 500);
-    // ─────────────────────────────────
-    // Render
-    // ─────────────────────────────────
     return () => clearTimeout(timer);
   }, [inventorySearch]);
 
   useEffect(() => {
     if (isInitialized && selectedLocation) {
+      if (user?.role === "master_inventory_manager") {
+        fetchOrders();
+      }
+
       if (activeTab === "inventory") {
         fetchInventoryData(debouncedSearch);
         fetchDashboardStats();
@@ -267,8 +295,19 @@ const InventoryManagerDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
+      setLoading(false);
+
+      // Calculate non-dispatched orders for the selected location
+      const count = (res.data.orders || []).filter(
+        (o) =>
+          (o.orderStatus === "Pending" || o.orderStatus === "Processing") &&
+          o.fulfillmentLocation === selectedLocation &&
+          o.orderStatus !== "Cancelled",
+      ).length;
+      setNotDispatchedCount(count);
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setLoading(false);
     }
   };
 
@@ -392,8 +431,10 @@ const InventoryManagerDashboard = () => {
         config,
       );
       setPurchaseOrders(res.data.purchaseOrders || []);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching purchase orders:", error);
+      setLoading(false);
     }
   };
 
@@ -435,8 +476,10 @@ const InventoryManagerDashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setMovements(res.data.movements || []);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching movements:", error);
+      setLoading(false);
     }
   };
 
@@ -449,8 +492,10 @@ const InventoryManagerDashboard = () => {
         config,
       );
       setTransfers(res.data.transfers || []);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching transfers:", error);
+      setLoading(false);
     }
   };
 
@@ -550,6 +595,49 @@ const InventoryManagerDashboard = () => {
         error.response?.data?.message || "Failed to request transfer.",
       );
     }
+  };
+
+  const fetchApprovals = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const res = await axios.get("/api/approvals", config);
+      // Filter for Product module requests for this dashboard
+      const productRequests = (res.data.requests || []).filter(
+        (r) => r.module === "Product" || r.module === "Inventory",
+      );
+      setApprovalRequests(productRequests);
+    } catch (error) {
+      console.error("Error fetching approvals:", error);
+    }
+  };
+
+  const handleReviewApproval = (id, module, action, status) => {
+    setConfirmModal({
+      isOpen: true,
+      title: `${status === "Approved" ? "Approve" : "Reject"} ${module} ${action}?`,
+      message: `Are you sure you want to ${status.toLowerCase()} this ${module.toLowerCase()} ${action.toLowerCase()} request?`,
+      confirmText: `Yes, ${status}`,
+      variant: status === "Rejected" ? "danger" : "primary",
+      onConfirm: async () => {
+        closeConfirm();
+        try {
+          const token = localStorage.getItem("token");
+          await axios.put(
+            `/api/approvals/${id}`,
+            { status },
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          fetchApprovals();
+          fetchInventoryData();
+          fetchDashboardStats();
+          toast.success(`Request ${status.toLowerCase()} successfully`);
+        } catch (error) {
+          console.error(`Error ${status.toLowerCase()}ing request:`, error);
+          toast.error(`Failed to ${status.toLowerCase()} request`);
+        }
+      },
+    });
   };
 
   const handleApproveTransfer = (id, action) => {
@@ -685,6 +773,15 @@ const InventoryManagerDashboard = () => {
                 variant="primary"
               />
             )}
+            {user?.role === "master_inventory_manager" && (
+              <StatCard
+                icon={<Clock size={24} />}
+                label="Not Dispatched"
+                value={notDispatchedCount}
+                variant="warning"
+                onClick={() => setActiveTab("dispatch")}
+              />
+            )}
           </div>
         </div>
 
@@ -734,8 +831,48 @@ const InventoryManagerDashboard = () => {
             <button
               className={`toggle-btn ${activeTab === "dispatch" ? "active" : ""}`}
               onClick={() => setActiveTab("dispatch")}
+              style={{ display: "flex", alignItems: "center", gap: "6px" }}
             >
-              Dispatch
+              Orders
+              {notDispatchedCount > 0 && (
+                <span
+                  className="count-badge"
+                  style={{
+                    backgroundColor: "var(--warning-color)",
+                    color: "white",
+                    borderRadius: "10px",
+                    padding: "0 6px",
+                    fontSize: "0.7rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {notDispatchedCount}
+                </span>
+              )}
+            </button>
+          )}
+          {user?.role === "master_inventory_manager" && (
+            <button
+              className={`toggle-btn ${activeTab === "approvals" ? "active" : ""}`}
+              onClick={() => setActiveTab("approvals")}
+              style={{ display: "flex", alignItems: "center", gap: "6px" }}
+            >
+              Approvals
+              {approvalRequests.length > 0 && (
+                <span
+                  className="count-badge"
+                  style={{
+                    backgroundColor: "var(--accent-color)",
+                    color: "white",
+                    borderRadius: "10px",
+                    padding: "0 6px",
+                    fontSize: "0.7rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {approvalRequests.length}
+                </span>
+              )}
             </button>
           )}
           <button
@@ -847,6 +984,130 @@ const InventoryManagerDashboard = () => {
                             }}
                           >
                             <History size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── PRODUCT APPROVALS TAB ── */}
+      {activeTab === "approvals" && (
+        <div className="dashboard-card">
+          <div className="dashboard-card-header">
+            <h2 className="card-title">
+              Pending Product & Inventory Approvals
+            </h2>
+            <span className="card-subtitle">
+              Critical requests awaiting your review
+            </span>
+          </div>
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Requested By</th>
+                  <th>Module</th>
+                  <th>Action</th>
+                  <th>Target Details</th>
+                  <th>Requested Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {approvalRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="table-empty-state">
+                      No pending approval requests found.
+                    </td>
+                  </tr>
+                ) : (
+                  approvalRequests.map((req) => (
+                    <tr key={req._id}>
+                      <td>
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <span style={{ fontWeight: "600" }}>
+                            {req.requestedBy?.name || "Unknown"}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "var(--text-light)",
+                            }}
+                          >
+                            {req.requestedBy?.role}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`status-badge ${req.module === "Product" ? "active" : "pending"}`}
+                        >
+                          {req.module}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: "500" }}>{req.action}</span>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: "0.85rem", maxWidth: "250px" }}>
+                          {req.action === "Delete" ? (
+                            <span>
+                              Delete Product:{" "}
+                              <strong>{req.targetData?.title}</strong>
+                            </span>
+                          ) : req.action === "Adjust Stock" ? (
+                            <span>
+                              Adjust Stock:{" "}
+                              <strong>
+                                {req.targetData?.quantityChange > 0 ? "+" : ""}
+                                {req.targetData?.quantityChange}
+                              </strong>
+                            </span>
+                          ) : (
+                            <span>{JSON.stringify(req.targetData)}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            className="btn-icon"
+                            style={{ color: "var(--success-color)" }}
+                            title="Approve"
+                            onClick={() =>
+                              handleReviewApproval(
+                                req._id,
+                                req.module,
+                                req.action,
+                                "Approved",
+                              )
+                            }
+                          >
+                            <Check size={18} />
+                          </button>
+                          <button
+                            className="btn-icon"
+                            style={{ color: "var(--danger-color)" }}
+                            title="Reject"
+                            onClick={() =>
+                              handleReviewApproval(
+                                req._id,
+                                req.module,
+                                req.action,
+                                "Rejected",
+                              )
+                            }
+                          >
+                            <XCircle size={18} />
                           </button>
                         </div>
                       </td>
@@ -1594,7 +1855,7 @@ const InventoryManagerDashboard = () => {
           <div className="dashboard-card" style={{ marginTop: "20px" }}>
             <div className="dashboard-card-header">
               <div>
-                <h2 className="card-title">Order Dispatch & Delivery</h2>
+                <h2 className="card-title">Pending & Processing Orders</h2>
                 <p className="text-secondary text-sm">
                   Manage order fulfillment and tracking for {selectedLocation}.
                 </p>

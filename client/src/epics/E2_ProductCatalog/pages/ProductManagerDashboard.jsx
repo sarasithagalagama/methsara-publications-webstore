@@ -21,6 +21,7 @@ import {
   BarChart2,
   Upload,
   Tags,
+  Archive,
 } from "lucide-react";
 
 import StatCard from "../../../components/dashboard/StatCard";
@@ -35,17 +36,19 @@ import { LogoutModal } from "../../../epics/E1_UserAndRoleManagement/components/
 
 const ProductManagerDashboard = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   // ─────────────────────────────────
   // State Variables
   // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalProducts: 0,
     avgRating: 0,
+    archivedProducts: 0,
   });
   const [products, setProducts] = useState([]);
 
   const [activeTab, setActiveTab] = useState("products");
+  const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -144,33 +147,102 @@ const ProductManagerDashboard = () => {
     }
   };
 
-  const confirmDeleteProduct = (product) => {
+  const handleArchiveProduct = async (product) => {
     setConfirmModal({
       isOpen: true,
-      title: "Delete Product?",
-      message: `Are you sure you want to delete "${product.title}"? This will remove all associated data including sales history.`,
-      variant: "danger",
+      title: "Archive Product?",
+      message: `Are you sure you want to archive "${product.title}"? It will be hidden from the catalog but kept in the system.`,
+      variant: "warning",
       onConfirm: async () => {
         try {
           const token = localStorage.getItem("token");
           const config = { headers: { Authorization: `Bearer ${token}` } };
-          await axios.delete(`/api/products/${product._id}`, config);
+          await axios.put(`/api/products/${product._id}/archive`, {}, config);
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
           fetchDashboardData();
           setStatusModal({
             isOpen: true,
             type: "success",
-            title: "Product Deleted",
-            message:
-              "The product has been permanently removed from the catalog.",
+            title: "Product Archived",
+            message: "The product has been archived and hidden from customers.",
           });
         } catch (err) {
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
           setStatusModal({
             isOpen: true,
             type: "error",
-            title: "Delete Failed",
-            message: err.response?.data?.message || "Failed to delete product.",
+            title: "Archive Failed",
+            message:
+              err.response?.data?.error ||
+              err.response?.data?.message ||
+              "Failed to archive product.",
+          });
+        }
+      },
+    });
+  };
+
+  const handleUnarchiveProduct = async (product) => {
+    try {
+      const token = localStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.put(`/api/products/${product._id}/unarchive`, {}, config);
+      fetchDashboardData();
+      setStatusModal({
+        isOpen: true,
+        type: "success",
+        title: "Product Restored",
+        message: `"${product.title}" is now visible in the catalog again.`,
+      });
+    } catch (err) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Restore Failed",
+        message: "Failed to unarchive product.",
+      });
+    }
+  };
+
+  const confirmDeleteProduct = (product) => {
+    const isAdmin = user?.role === "admin";
+    setConfirmModal({
+      isOpen: true,
+      title: isAdmin ? "Delete Product?" : "Request Deletion?",
+      message: isAdmin
+        ? `Are you sure you want to delete "${product.title}"? This will remove all associated data including sales history.`
+        : `Are you sure you want to request deletion for "${product.title}"? This will be sent to the Inventory Manager for approval.`,
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const config = { headers: { Authorization: `Bearer ${token}` } };
+          const res = await axios.delete(
+            `/api/products/${product._id}`,
+            config,
+          );
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          fetchDashboardData();
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: res.data.pendingApproval
+              ? "Deletion Requested"
+              : "Product Deleted",
+            message: res.data.pendingApproval
+              ? "Your deletion request has been submitted to the Inventory Manager for approval."
+              : "The product has been permanently removed from the catalog.",
+          });
+        } catch (err) {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          setStatusModal({
+            isOpen: true,
+            type: "error",
+            title: "Action Failed",
+            message:
+              err.response?.data?.error ||
+              err.response?.data?.message ||
+              "Failed to process request.",
           });
         }
       },
@@ -211,13 +283,13 @@ const ProductManagerDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const productsRes = await axios.get("/api/products");
+      const productsRes = await axios.get("/api/products?includeArchived=true");
       const allProducts = productsRes.data.products || [];
 
       const ratedProducts = allProducts.filter((p) => p.averageRating > 0);
 
       setStats({
-        totalProducts: allProducts.length,
+        totalProducts: allProducts.filter((p) => !p.isArchived).length,
         avgRating:
           ratedProducts.length > 0
             ? (
@@ -225,6 +297,7 @@ const ProductManagerDashboard = () => {
                 ratedProducts.length
               ).toFixed(1)
             : "0.0",
+        archivedProducts: allProducts.filter((p) => p.isArchived).length,
       });
 
       setProducts(allProducts);
@@ -243,7 +316,8 @@ const ProductManagerDashboard = () => {
       product.subject?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGrade =
       gradeFilter === "all" || product.category === gradeFilter;
-    return matchesSearch && matchesGrade;
+    const matchesArchived = product.isArchived === (activeTab === "archived");
+    return matchesSearch && matchesGrade && matchesArchived;
   });
 
   // ── Real-time validation helper ──────────────────────────────────
@@ -587,18 +661,25 @@ const ProductManagerDashboard = () => {
       />
 
       {/* Stats Grid */}
-      <div className="dashboard-grid dashboard-grid-2">
+      <div className="dashboard-grid dashboard-grid-3">
         <StatCard
           icon={<Package size={24} />}
-          label="Total Products"
+          label="Catalog Items"
           value={stats.totalProducts}
           variant="primary"
+        />
+        <StatCard
+          icon={<Archive size={24} />}
+          label="Archived Items"
+          value={stats.archivedProducts}
+          variant="warning"
+          onClick={() => setActiveTab("archived")}
         />
         <StatCard
           icon={<Star size={24} />}
           label="Avg Rating"
           value={stats.avgRating}
-          variant="warning"
+          variant="success"
         />
       </div>
 
@@ -616,14 +697,24 @@ const ProductManagerDashboard = () => {
         >
           Category Insights
         </button>
+        <button
+          className={`tab-btn ${activeTab === "archived" ? "active" : ""}`}
+          onClick={() => setActiveTab("archived")}
+        >
+          Archived Items
+        </button>
       </div>
 
       {/* Content Area */}
       <div className="dashboard-card">
-        {activeTab === "products" && (
+        {(activeTab === "products" || activeTab === "archived") && (
           <>
             <div className="dashboard-card-header">
-              <h2 className="card-title">Product Catalog</h2>
+              <h2 className="card-title">
+                {activeTab === "products"
+                  ? "Product Catalog"
+                  : "Archived Items"}
+              </h2>
             </div>
 
             <div className="table-controls">
@@ -725,6 +816,23 @@ const ProductManagerDashboard = () => {
                           >
                             <Edit size={16} />
                           </button>
+                          {product.isArchived ? (
+                            <button
+                              className="btn-icon text-primary"
+                              title="Restore Product"
+                              onClick={() => handleUnarchiveProduct(product)}
+                            >
+                              <Plus size={18} />
+                            </button>
+                          ) : (
+                            <button
+                              className="btn-icon text-warning"
+                              title="Archive Product"
+                              onClick={() => handleArchiveProduct(product)}
+                            >
+                              <Package size={16} />
+                            </button>
+                          )}
                           <button
                             className="btn-icon text-error"
                             title="Delete Product"

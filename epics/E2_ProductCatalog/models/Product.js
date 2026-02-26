@@ -111,6 +111,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  isArchived: {
+    type: Boolean,
+    default: false,
+  },
   isFeatured: {
     type: Boolean,
     default: false,

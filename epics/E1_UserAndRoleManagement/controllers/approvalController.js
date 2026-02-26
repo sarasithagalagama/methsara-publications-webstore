@@ -3,10 +3,11 @@
 // Purpose: Handle Admin Approval Workflow
 // ============================================
 
-const ApprovalRequest = require('../models/ApprovalRequest');
-const FinancialTransaction = require('../../E3_OrderAndTransaction/models/FinancialTransaction');
-const Supplier = require('../../E4_SupplierManagement/models/Supplier');
-const Inventory = require('../../E5_InventoryManagement/models/Inventory');
+const ApprovalRequest = require("../models/ApprovalRequest");
+const FinancialTransaction = require("../../E3_OrderAndTransaction/models/FinancialTransaction");
+const Supplier = require("../../E4_SupplierManagement/models/Supplier");
+const Inventory = require("../../E5_InventoryManagement/models/Inventory");
+const Product = require("../../E2_ProductCatalog/models/Product");
 
 exports.getPendingRequests = async (req, res) => {
   try {
@@ -44,8 +45,19 @@ exports.reviewRequest = async (req, res) => {
     if (request.status !== "Pending") {
       return res.status(400).json({
         success: false,
-        message: `Request acts already ${request.status}`,
+        message: `Request is already ${request.status}`,
       });
+    }
+
+    // Role-based restrictions
+    if (req.user.role === "master_inventory_manager") {
+      if (request.module !== "Product" && request.module !== "Inventory") {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are only authorized to review Product and Inventory requests",
+        });
+      }
     }
 
     if (status === "Approved") {
@@ -85,6 +97,15 @@ exports.reviewRequest = async (req, res) => {
               request.documentId,
               request.targetData,
               { runValidators: true },
+            );
+          }
+          break;
+        case "Product":
+          if (request.action === "Delete") {
+            await Product.findByIdAndUpdate(
+              request.documentId,
+              { isActive: false },
+              { new: true },
             );
           }
           break;

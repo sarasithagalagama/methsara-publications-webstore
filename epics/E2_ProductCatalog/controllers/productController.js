@@ -10,6 +10,8 @@ const Review = require("../models/Review");
 const Category = require("../models/Category");
 const Order = require("../../E3_OrderAndTransaction/models/Order");
 const Campaign = require("../../E6_PromotionAndLoyalty/models/Campaign");
+const Inventory = require("../../E5_InventoryManagement/models/Inventory");
+const ApprovalRequest = require("../../E1_UserAndRoleManagement/models/ApprovalRequest");
 
 // Get All Products with Search & Filter (E2.4, E2.5)
 exports.getProducts = async (req, res) => {
@@ -23,10 +25,14 @@ exports.getProducts = async (req, res) => {
       minPrice,
       maxPrice,
       sort,
+      includeArchived,
     } = req.query;
 
     // Build query
     let query = { isActive: true };
+    if (includeArchived !== "true") {
+      query.isArchived = false;
+    }
 
     // Search by title or ISBN
     if (search) {
@@ -282,9 +288,75 @@ exports.updateProduct = async (req, res) => {
 // Delete Product (E2.1) - Admin only
 exports.deleteProduct = async (req, res) => {
   try {
+    const productId = req.params.id;
+
+    // Check inventory stock across all locations before deleting
+    const inventoryRecords = await Inventory.find({ product: productId });
+    const stockLocations = inventoryRecords.filter((r) => r.quantity > 0);
+    const totalStock = stockLocations.reduce((sum, r) => sum + r.quantity, 0);
+
+    if (totalStock > 0) {
+      const locationBreakdown = stockLocations
+        .map((r) => `${r.location}: ${r.quantity}`)
+        .join(", ");
+
+      return res.status(400).json({
+        success: false,
+        message: "Cannot delete product with remaining stock",
+        error: `This product has ${totalStock} items in inventory across: ${locationBreakdown}. Please adjust stock to 0 in all locations before deleting.`,
+      });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // INTERCEPTION: Maker-Checker for Non-Admins
+    if (req.user.role !== "admin") {
+      const newRequest = await ApprovalRequest.create({
+        module: "Product",
+        action: "Delete",
+        documentId: productId,
+        targetData: { title: product.title }, // Metadata for the reviewer
+        requestedBy: req.user._id,
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        message: "Deletion request submitted for Inventory Manager approval.",
+        request: newRequest,
+      });
+    }
+
+    product.isActive = false;
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete product",
+      error: error.message,
+    });
+  }
+};
+
+// Archive Product
+exports.archiveProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
     const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
+      productId,
+      { isArchived: true },
       { new: true },
     );
 
@@ -297,12 +369,43 @@ exports.deleteProduct = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Product deleted successfully",
+      message: "Product archived successfully",
+      product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to delete product",
+      message: "Failed to archive product",
+      error: error.message,
+    });
+  }
+};
+
+// Unarchive Product
+exports.unarchiveProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { isArchived: false },
+      { new: true },
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product unarchived successfully",
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to unarchive product",
       error: error.message,
     });
   }

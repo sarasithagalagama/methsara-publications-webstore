@@ -9,12 +9,12 @@ const approvalRequestSchema = new mongoose.Schema(
   {
     module: {
       type: String,
-      enum: ["FinancialTransaction", "Supplier", "Inventory"],
+      enum: ["FinancialTransaction", "Supplier", "Inventory", "Product"],
       required: true,
     },
     action: {
       type: String,
-      enum: ["Update", "Adjust Stock"],
+      enum: ["Update", "Adjust Stock", "Delete"],
       required: true,
     },
     documentId: {
