@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // AdminDashboard
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
@@ -34,9 +34,7 @@ import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const { logout } = useAuth();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalOrders: 0,
@@ -54,25 +52,23 @@ const AdminDashboard = () => {
   });
 
   // Modal State for Approvals
+  // [Approval workflow] Managers submit change requests; the admin reviews and approves/rejects them here
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [approvalRemarks, setApprovalRemarks] = useState("");
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
+      // allSettled (not Promise.all) — if one API fails, the rest still load (fault-tolerant)
       const results = await Promise.allSettled([
         axios.get("/api/auth/users", config),
         axios.get("/api/orders", config),
@@ -110,6 +106,7 @@ const AdminDashboard = () => {
       }
 
       const totalOrders = allOrders.length;
+      // Only count revenue from paid orders (not pending/COD unpaid)
       const totalRevenue = allOrders
         .filter((order) => order.paymentStatus === "Paid")
         .reduce((sum, order) => sum + (order.total || 0), 0);
@@ -139,6 +136,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Sends an approve/reject decision for a pending manager change request
   const handleReviewRequest = async (status) => {
     if (!selectedRequest) return;
     try {
@@ -259,9 +257,7 @@ const AdminDashboard = () => {
   ];
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

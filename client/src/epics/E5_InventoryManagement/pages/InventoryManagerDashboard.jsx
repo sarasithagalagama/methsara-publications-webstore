@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // InventoryManagerDashboard
 // Epic: E5 - Inventory Management
 // Owner: IT24100264 (Bandara N W C D)
@@ -48,9 +48,7 @@ const InventoryManagerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalItems: 0,
     lowStock: 0,
@@ -62,7 +60,9 @@ const InventoryManagerDashboard = () => {
   const [transfers, setTransfers] = useState([]);
   const [activeTab, setActiveTab] = useState("inventory");
   const [notDispatchedCount, setNotDispatchedCount] = useState(0);
+  // [E5.4] Transfer requests between locations — requires fromLocation, toLocation, product, quantity, reason
   const [showTransferModal, setShowTransferModal] = useState(false);
+  // [E5.3] Adjustment modal pre-selects the clicked inventory item for quick ± quantity changes
   const [showAdjustmentModal, setShowAdjustmentModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedItemForAdj, setSelectedItemForAdj] = useState(null);
@@ -75,6 +75,7 @@ const InventoryManagerDashboard = () => {
     reason: "",
   });
 
+  // [E5.9] Low stock alert count surfaces as a stat card — also drives the badge on the sidebar nav
   const [lowStockAlerts, setLowStockAlerts] = useState([]);
   const [sourceInventory, setSourceInventory] = useState([]);
   const [sourceLoading, setSourceLoading] = useState(false);
@@ -84,8 +85,10 @@ const InventoryManagerDashboard = () => {
   const [movements, setMovements] = useState([]);
   const [distribution, setDistribution] = useState([]);
   const [orders, setOrders] = useState([]);
+  // [E5.8] approvalRequests shows stock deduction approvals needed before dispatching orders
   const [approvalRequests, setApprovalRequests] = useState([]);
 
+  // [E5.7] Debounce applied to inventory search to avoid filtering on every keystroke
   // Search state for inventory table
   const [inventorySearch, setInventorySearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -117,7 +120,7 @@ const InventoryManagerDashboard = () => {
   const closeConfirm = () =>
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
 
-  // Determine available locations based on role
+  // [E5.1] [E5.2] Role determines location scope: master/admin see all, location_manager sees only their site
   const isMasterOrAdmin =
     user?.role === "admin" ||
     user?.role === "master_inventory_manager" ||
@@ -131,9 +134,7 @@ const InventoryManagerDashboard = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize data on mount
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     const init = async () => {
       await fetchLocations();
@@ -144,9 +145,7 @@ const InventoryManagerDashboard = () => {
     fetchOrders();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchLocations = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -671,7 +670,7 @@ const InventoryManagerDashboard = () => {
   // Filtered inventory for search (now handled server-side, but keeping this for local consistency if needed)
   const filteredInventory = inventory;
 
-  // --- Filtering & Pagination for Movements ---
+  // Filtering & Pagination For Movements
   const filteredMovements = movements.filter((move) => {
     // 1. Text Search
     const searchMatch =
@@ -702,8 +701,6 @@ const InventoryManagerDashboard = () => {
   useEffect(() => {
     setMovementPage(1);
   }, [movementSearch, movementTypeFilter]);
-  // ---------------------------------------------
-
   if (loading) {
     return (
       <div className="dashboard-container">

@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // CategoryManager
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -21,22 +21,16 @@ import DashboardHeader from "../../../components/dashboard/DashboardHeader";
 import "../../../components/dashboard/dashboard.css";
 
 const CategoryManager = () => {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchProducts = async () => {
     try {
       const res = await axios.get("/api/products");
@@ -48,7 +42,8 @@ const CategoryManager = () => {
     }
   };
 
-  // Derive consolidated categories from products
+  // [E2.3] Category breakdown derived client-side by aggregating product.category values
+  // No separate Category collection in the DB — categories are inferred from product data
   const MAIN_CATEGORIES = [
     "A/L",
     "Grade 6",
@@ -63,7 +58,8 @@ const CategoryManager = () => {
   const categoryBreakdown = products.reduce((acc, p) => {
     let cat = p.category;
 
-    // Map existing grade/category to our new simplified list if needed
+    // [E2.3] Fallback mapping: products created before the simplified category system
+    // are re-classified using legacy grade/examType fields
     if (!cat || !MAIN_CATEGORIES.includes(cat)) {
       if (
         p.grade === "Grade 12" ||
@@ -89,9 +85,7 @@ const CategoryManager = () => {
   }, {});
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

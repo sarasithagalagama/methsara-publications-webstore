@@ -15,8 +15,11 @@ const {
   requestPayment,
   emailPurchaseOrder,
   verifyDelivery,
-} = require('../controllers/purchaseOrderController');
-const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
+} = require("../controllers/purchaseOrderController");
+const {
+  protect,
+  authorize,
+} = require("../../E1_UserAndRoleManagement/middleware/auth");
 
 // Base authentication applies to all PO routes
 router.use(protect);
@@ -27,7 +30,8 @@ router.get(
   authorize(
     "supplier_manager",
     "admin",
-    "inventory_manager",
+    "master_inventory_manager",
+    "location_inventory_manager",
     "finance_manager",
   ),
   getAllPurchaseOrders,
@@ -37,14 +41,20 @@ router.get(
   authorize(
     "supplier_manager",
     "admin",
-    "inventory_manager",
+    "master_inventory_manager",
+    "location_inventory_manager",
     "finance_manager",
   ),
   getPurchaseOrder,
 );
 router.put(
   "/:id/status",
-  authorize("supplier_manager", "admin", "inventory_manager"),
+  authorize(
+    "supplier_manager",
+    "admin",
+    "master_inventory_manager",
+    "location_inventory_manager",
+  ),
   updatePOStatus,
 );
 router.put(
@@ -59,7 +69,12 @@ router.post(
 );
 router.put(
   "/:id/verify-delivery",
-  authorize("supplier_manager", "admin", "inventory_manager"),
+  authorize(
+    "supplier_manager",
+    "admin",
+    "master_inventory_manager",
+    "location_inventory_manager",
+  ),
   verifyDelivery,
 );
 

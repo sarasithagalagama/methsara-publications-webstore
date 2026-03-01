@@ -1,88 +1,90 @@
-# 🚀 ONE COMMAND START - Updated!
+# One Command Start
 
-## ✅ Now You Can Run Everything with ONE Command!
-
-I've set up `concurrently` so both backend and frontend start together!
-
----
-
-## 🎯 Single Command to Run Everything
+## Single Command to Run Everything
 
 ```bash
 npm start
 ```
 
-That's it! This single command will:
-- ✅ Start backend server on http://localhost:5000
-- ✅ Start React frontend on http://localhost:3000
-- ✅ Run both simultaneously in one terminal
+This uses `concurrently` to launch both backend and frontend in one terminal.
+
+| Prefix | Service | URL |
+|---|---|---|
+| `[0]` | Backend (Express + MongoDB) | http://localhost:5000 |
+| `[1]` | Frontend (React) | http://localhost:3000 |
 
 ---
 
-## 📊 What You'll See
+## First-Time Setup
 
-When you run `npm start`, you'll see output from both servers:
+Run this once before `npm start`:
+
+```bash
+# Root dependencies (Express, Mongoose, JWT, etc.)
+npm install
+
+# Frontend dependencies (React, Tailwind, etc.)
+cd client && npm install && cd ..
+```
+
+Also create your `.env` file in the project root:
+```env
+MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/methsara_publications
+JWT_SECRET=your_secret_key
+PORT=5000
+NODE_ENV=development
+```
+
+---
+
+## Individual Commands
+
+| Command | What It Does |
+|---|---|
+| `npm start` | Backend + Frontend together |
+| `npm run server` | Backend only (with nodemon) |
+| `npm run client` | Frontend only (React dev server) |
+| `npm run dev` | Backend only (alternative) |
+
+---
+
+## Stopping the Servers
+
+Press `Ctrl + C` once — stops both backend and frontend.
+
+---
+
+## Expected Startup Output
 
 ```
 [0] [nodemon] starting `node server.js`
 [0] ✅ MongoDB Connected Successfully
+[0] 📦 Database: methsara_publications
 [0] 🚀 Server running on port 5000
-[1] 
+[1]
 [1] Compiled successfully!
-[1] 
-[1] You can now view methsara-publications-client in the browser.
-[1]   Local:            http://localhost:3000
+[1] Local: http://localhost:3000
 ```
 
-**[0]** = Backend  
-**[1]** = Frontend
+`[0]` = Backend output  
+`[1]` = Frontend output
 
 ---
 
-## 🛠️ Alternative Commands (if needed)
+## If Something Fails
 
-### Run Backend Only
+**Port 5000 already in use:**
 ```bash
-npm run server
+taskkill /F /IM node.exe
+npm start
 ```
 
-### Run Frontend Only
+**Frontend modules missing:**
 ```bash
-npm run client
+cd client && npm install && cd ..
+npm start
 ```
 
-### Run Backend (old way)
-```bash
-npm run dev
-```
-
----
-
-## ⚠️ First Time Setup
-
-Before running `npm start`, make sure you've installed concurrently:
-
-```bash
-npm install
-```
-
-This installs the `concurrently` package that allows running multiple commands.
-
----
-
-## 🎉 Benefits
-
-✅ **One Terminal** - No need for 2 terminals anymore  
-✅ **Easier** - Just `npm start` and you're done  
-✅ **Cleaner** - All output in one place  
-✅ **Faster** - Both start at the same time  
-
----
-
-## 🔴 To Stop Both Servers
-
-Press `Ctrl + C` once - it stops both!
-
----
-
-**Now you can start your entire application with just ONE command! 🚀**
+**MongoDB won't connect:**
+- Check `.env` has the correct `MONGO_URI`
+- Verify your IP is whitelisted in MongoDB Atlas

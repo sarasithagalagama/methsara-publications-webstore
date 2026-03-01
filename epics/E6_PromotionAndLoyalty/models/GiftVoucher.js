@@ -1,20 +1,23 @@
 ﻿// ============================================
 // Gift Voucher Model
 // Epic: E6 - Promotion & Loyalty
-// Owner: IT24100191 (Jayasinghe D.B.P)
+// Owner: IT24101266 (Perera M.U.E)
 // Purpose: Gift voucher system (E6.4)
 // ============================================
 
 const mongoose = require("mongoose");
 
+// [E6.4] GiftVoucher: a monetary voucher with a balance that depletes across multiple uses
 const giftVoucherSchema = new mongoose.Schema(
   {
+    // [E6.4] code: auto-generated as 'GV-XXXXXXXX' in pre-validate hook if not supplied
     code: {
       type: String,
       required: true,
       unique: true,
       uppercase: true,
     },
+    // [E6.4] value = face value; balance = remaining amount after partial use (balance <= value)
     value: {
       type: Number,
       required: true,
@@ -46,6 +49,7 @@ const giftVoucherSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    // [E6.4] usageHistory: records each use of the voucher with order ref and amount deducted
     usageHistory: [
       {
         order: {
@@ -66,7 +70,7 @@ const giftVoucherSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Auto-generate voucher code before validation
+// [E6.4] Pre-validate: auto-generates a random GV-XXXXXXXX code if none was supplied by admin
 giftVoucherSchema.pre("validate", function (next) {
   if (!this.code) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

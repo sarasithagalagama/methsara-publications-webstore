@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // SupplierManagerDashboard
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -45,7 +45,7 @@ const SupplierManagerDashboard = () => {
   const { logout } = useAuth();
   const poSectionRef = useRef(null);
 
-  // ── State ──────────────────────────────────────────────────────────────────
+  // State
   const [stats, setStats] = useState({
     totalSuppliers: 0,
     bookshops: 0,
@@ -69,6 +69,7 @@ const SupplierManagerDashboard = () => {
   const [verifyItems, setVerifyItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  // [E4.4] emailingPO tracks which PO is being emailed to prevent double-send while the request is in-flight
   const [emailingPO, setEmailingPO] = useState(null);
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
@@ -81,16 +82,13 @@ const SupplierManagerDashboard = () => {
 
   const closeConfirm = () =>
     setConfirmState((prev) => ({ ...prev, isOpen: false }));
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
+  // [E4.1] [E4.2] Parallel fetch: suppliers + purchase orders loaded together to populate dashboard stats
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -117,7 +115,7 @@ const SupplierManagerDashboard = () => {
       });
 
       setSuppliers(allSuppliers);
-      setPurchaseOrders(allPOs.slice(0, 10)); // recent 10 POs
+      setPurchaseOrders(allPOs.slice(0, 10)); // [E4.3] Only the 10 most recent POs shown in dashboard table; full list is in PurchaseOrderList page
       setLoading(false);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -151,7 +149,7 @@ const SupplierManagerDashboard = () => {
     });
   };
 
-  // ── Supplier handlers ──────────────────────────────────────────────────────
+  // Supplier handlers
   const handleViewSupplier = (supplier) => {
     setSelectedSupplier(supplier);
     setShowViewModal(true);
@@ -345,9 +343,7 @@ const SupplierManagerDashboard = () => {
   });
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

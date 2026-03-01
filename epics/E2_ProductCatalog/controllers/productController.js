@@ -28,13 +28,13 @@ exports.getProducts = async (req, res) => {
       includeArchived,
     } = req.query;
 
-    // Build query
+    // [E2.4] Build base query: only active, non-archived products unless admin requests archived
     let query = { isActive: true };
     if (includeArchived !== "true") {
-      query.isArchived = false;
+      query.isArchived = { $ne: true };
     }
 
-    // Search by title or ISBN
+    // [E2.4] Full-text search on title and ISBN using case-insensitive regex
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -42,7 +42,7 @@ exports.getProducts = async (req, res) => {
       ];
     }
 
-    // Filter by grade
+    // [E2.5] Multi-value grade filter: supports comma-separated values for grade browsing page
     if (grade) {
       if (grade.includes(",")) {
         query.grade = { $in: grade.split(",") };
@@ -56,7 +56,7 @@ exports.getProducts = async (req, res) => {
       query.subject = subject;
     }
 
-    // Filter by category
+    // [E2.5] If no category given, exclude 'Gift Voucher' from general catalog (sold via E6 module)
     if (category) {
       query.category = category;
     } else {
@@ -69,14 +69,14 @@ exports.getProducts = async (req, res) => {
       query.examType = examType;
     }
 
-    // Filter by price range
+    // [E2.5] Price range filter for budget-conscious customers
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
     }
 
-    // Pagination
+    // [E2.4] Pagination: 12 items per page (grid-friendly); page number from query param
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12; // 12 items per page by default
     const skip = (page - 1) * limit;
@@ -84,7 +84,7 @@ exports.getProducts = async (req, res) => {
     // Execute query with pagination
     let productsQuery = Product.find(query);
 
-    // Sort
+    // [E2.7] Sort options: price_asc, price_desc, title, newest, popular (by purchaseCount)
     if (sort === "price_asc") {
       productsQuery = productsQuery.sort({ price: 1 });
     } else if (sort === "price_desc") {
@@ -103,7 +103,7 @@ exports.getProducts = async (req, res) => {
 
     const result = await productsQuery.skip(skip).limit(limit);
 
-    // Apply campaign discounts
+    // [E6.5] Overlay campaign discounts: getDiscountedPrice picks best active campaign per product
     const productsWithDiscounts = await Promise.all(
       result.map(async (p) => {
         const pricing = await Campaign.getDiscountedPrice(p);
@@ -134,7 +134,7 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// Get Single Product (E2.6)
+// [E2.6] getProduct: increments viewCount and overlays campaign discount pricing on single product view
 exports.getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -181,12 +181,12 @@ exports.getProduct = async (req, res) => {
   }
 };
 
-// Create Product (E2.1) - Admin only
+// [E2.1] createProduct: ISBN uniqueness check + restore-on-soft-delete to preserve order history IDs
 exports.createProduct = async (req, res) => {
   try {
     const { isbn } = req.body;
 
-    // Check if product with this ISBN already exists (including soft-deleted ones)
+    // [E2.1] Check for existing ISBN including soft-deleted products
     const existingProduct = await Product.findOne({ isbn });
 
     if (existingProduct) {
@@ -197,8 +197,8 @@ exports.createProduct = async (req, res) => {
           error: "A book with this ISBN already exists in the catalog.",
         });
       } else {
-        // If it was "deleted" (isActive: false), restore and update it
-        // This avoids duplicate key errors while preserving ID for order history consistency
+        // [E2.10] Soft-deleted product with same ISBN: restore it instead of creating new
+        // Preserves the _id so existing order history references remain valid
         const updatedProduct = await Product.findByIdAndUpdate(
           existingProduct._id,
           {
@@ -249,7 +249,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Update Product (E2.1) - Admin only
+// [E2.1] updateProduct: straight findByIdAndUpdate with runValidators; ISBN duplicate handled via 11000
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -285,12 +285,12 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// Delete Product (E2.1) - Admin only
+// [E2.10] deleteProduct: checks all inventory locations; if stock exists, creates an ApprovalRequest instead
 exports.deleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
 
-    // Check inventory stock across all locations before deleting
+    // [E2.10] Cross-epic check: query E5 Inventory to block deletion if stock > 0 at any location
     const inventoryRecords = await Inventory.find({ product: productId });
     const stockLocations = inventoryRecords.filter((r) => r.quantity > 0);
     const totalStock = stockLocations.reduce((sum, r) => sum + r.quantity, 0);

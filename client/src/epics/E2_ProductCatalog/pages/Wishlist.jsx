@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Wishlist
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -38,25 +38,22 @@ const Wishlist = () => {
   const navigate = useNavigate();
   const { refreshCounts } = useAuth();
 
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(null); // productId being added
   const [removingItem, setRemovingItem] = useState(null); // productId being removed
 
+  // [E2.9] Wishlist stored in localStorage — persists across sessions without requiring login
   // Load wishlist from localStorage
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("wishlist")) || [];
     setWishlistItems(stored);
     setLoading(false);
   }, []);
 
-  // Persist wishlist changes
+  // Persist wishlist changes to localStorage and refresh header badge count
   const persistWishlist = (updated) => {
     setWishlistItems(updated);
     localStorage.setItem("wishlist", JSON.stringify(updated));
@@ -64,9 +61,7 @@ const Wishlist = () => {
   };
 
   // Remove a single item from wishlist
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const handleRemove = (productId) => {
     setRemovingItem(productId);
     setTimeout(() => {
@@ -88,8 +83,8 @@ const Wishlist = () => {
     setAddingToCart(item._id);
     try {
       const token = localStorage.getItem("token");
+      // [E3.1] Guest cart (localStorage) vs authenticated cart (server API) — branch on JWT token presence
       if (!token) {
-        // Guest cart
         let guestCart = JSON.parse(localStorage.getItem("guestCart")) || {
           items: [],
           totalAmount: 0,
@@ -156,9 +151,7 @@ const Wishlist = () => {
     0,
   );
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   return (
     <div className="wl-page">
       {/* ── Banner ── */}

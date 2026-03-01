@@ -91,6 +91,7 @@ const purchaseOrderSchema = new mongoose.Schema(
     notes: {
       type: String,
     },
+    // [E4.3] statusHistory: immutable audit trail of every status transition + who made it + when
     statusHistory: [
       {
         status: String,
@@ -109,7 +110,7 @@ const purchaseOrderSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Auto-generate PO number
+// [E4.2] Pre-save hook: auto-generates poNumber in format PO-YYMM-XXXX (e.g. PO-2402-0001)
 purchaseOrderSchema.pre("save", async function (next) {
   if (!this.poNumber) {
     const count = await mongoose.model("PurchaseOrder").countDocuments();

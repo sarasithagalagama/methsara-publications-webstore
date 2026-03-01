@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // DeliverySchedule
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -13,22 +13,18 @@ import "../../../../components/dashboard/dashboard.css";
 
 const DeliverySchedule = () => {
   const navigate = useNavigate();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchSchedule();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
+  // [E4.3] Delivery Schedule: filters POs where status is NOT 'Received' or 'Cancelled'
+  // Sorted by expectedDeliveryDate ascending to show the most urgent first
   const fetchSchedule = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -53,9 +49,7 @@ const DeliverySchedule = () => {
   };
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

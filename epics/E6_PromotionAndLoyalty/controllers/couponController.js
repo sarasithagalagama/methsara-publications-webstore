@@ -5,12 +5,12 @@
 // Purpose: Marketing and promotions (E6.1-E6.7)
 // ============================================
 
-const Coupon = require('../models/Coupon');
-const GiftVoucher = require('../models/GiftVoucher');
-const Campaign = require('../models/Campaign');
-const Order = require('../../E3_OrderAndTransaction/models/Order');
+const Coupon = require("../models/Coupon");
+const GiftVoucher = require("../models/GiftVoucher");
+const Campaign = require("../models/Campaign");
+const Order = require("../../E3_OrderAndTransaction/models/Order");
 
-// Create coupon (E6.1)
+// [E6.1] createCoupon: marketing_manager creates coupons via simple Coupon.create (no validation needed at creation)
 exports.createCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.create(req.body);
@@ -50,11 +50,12 @@ exports.getAllCoupons = async (req, res) => {
   }
 };
 
-// Validate coupon (E6.6)
+// [E6.6] validateCoupon: single-query validation checks isActive + validFrom<=now<=validUntil atomically
 exports.validateCoupon = async (req, res) => {
   try {
     const { code } = req.params;
 
+    // [E6.6] Compound query: code match + isActive + date range — if any condition fails, returns 404
     const coupon = await Coupon.findOne({
       code: code.toUpperCase(),
       isActive: true,
@@ -69,7 +70,7 @@ exports.validateCoupon = async (req, res) => {
       });
     }
 
-    // Check usage limit
+    // [E6.3] Second check: usage limit (cannot be in initial query since null = unlimited)
     if (
       coupon.maxUsageCount &&
       coupon.currentUsageCount >= coupon.maxUsageCount

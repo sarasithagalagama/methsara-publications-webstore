@@ -29,7 +29,7 @@ const supplierSchema = new mongoose.Schema({
     required: [true, "Phone is required"],
   },
 
-  // Partner Category
+  // [E4.1] category: classifies the supply partner type (impacts PO workflow and terms)
   category: {
     type: String,
     enum: ["Material Supplier", "Distributor", "Bookshop"],
@@ -54,7 +54,7 @@ const supplierSchema = new mongoose.Schema({
     trim: true,
   },
 
-  // Payment Terms
+  // [E4.5] paymentTerms: defines credit window for supplier invoices (Cash = pay immediately)
   paymentTerms: {
     type: String,
     enum: [
@@ -66,6 +66,7 @@ const supplierSchema = new mongoose.Schema({
     ],
     default: "Cash",
   },
+  // [E4.5] creditLimit: maximum outstanding balance allowed before new POs are blocked
   creditLimit: {
     type: Number,
     default: 0,
@@ -76,6 +77,7 @@ const supplierSchema = new mongoose.Schema({
     branchName: String,
     accountNumber: String,
   },
+  // [E4.5] outstandingBalance: increases on each PO, decreases when finance logs payment
   outstandingBalance: {
     type: Number,
     default: 0,
@@ -90,12 +92,13 @@ const supplierSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // [E4.6] isVerified: admin manually verifies new suppliers before they can be assigned to POs
   isVerified: {
     type: Boolean,
     default: false,
   },
 
-  // Performance Metrics
+  // [E4.3] Performance Metrics: totalOrders and totalValue auto-incremented on each PO creation
   totalOrders: {
     type: Number,
     default: 0,

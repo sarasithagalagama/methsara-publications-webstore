@@ -6,10 +6,10 @@
 // Updated: Fixed export issue
 // ============================================
 
-const StockTransfer = require('../models/StockTransfer');
-const Inventory = require('../models/Inventory');
+const StockTransfer = require("../models/StockTransfer");
+const Inventory = require("../models/Inventory");
 
-// Request Stock Transfer (E5.4)
+// [E5.4] requestTransfer: validates source stock then creates a pending StockTransfer document
 exports.requestTransfer = async (req, res) => {
   try {
     const { product, fromLocation, toLocation, quantity, reason } = req.body;
@@ -20,7 +20,7 @@ exports.requestTransfer = async (req, res) => {
         .json({ success: false, message: "Cannot transfer to same location" });
     }
 
-    // Check if source has enough stock
+    // [E5.4] Pre-validate: check source inventory BEFORE creating the transfer request
     const sourceInventory = await Inventory.findOne({
       product,
       location: fromLocation,
@@ -58,7 +58,7 @@ exports.requestTransfer = async (req, res) => {
   }
 };
 
-// Approve/Reject Transfer (E5.5)
+// [E5.5] approveTransfer: security-gated — only source location manager, master IM, or admin can approve
 exports.approveTransfer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -77,7 +77,7 @@ exports.approveTransfer = async (req, res) => {
         .json({ success: false, message: "Transfer already processed" });
     }
 
-    // SECURITY CHECK: Only Source Location Manager, Master IM, or Admin can approve
+    // [E5.5] Security check: only the source location's manager, or master IM / admin can approve
     const isMasterOrAdmin =
       req.user.role === "admin" || req.user.role === "master_inventory_manager";
 

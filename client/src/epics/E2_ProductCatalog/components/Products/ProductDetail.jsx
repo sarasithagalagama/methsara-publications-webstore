@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Product Detail Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -20,24 +20,19 @@ import "./Products.css";
 
 function ProductDetail() {
   const { id } = useParams();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [cartMessage, setCartMessage] = useState("");
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     loadProduct();
   }, [id]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const loadProduct = async () => {
     try {
       setLoading(true);
@@ -57,17 +52,16 @@ function ProductDetail() {
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
-      cart.push({ product, quantity });
+      cart.push({ product, quantity, itemModel: "Product" });
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`${quantity} x ${product.title} added to cart!`);
+    setCartMessage(`${quantity} × ${product.title} added to cart!`);
+    setTimeout(() => setCartMessage(""), 3000);
   };
 
   if (loading)
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -137,7 +131,7 @@ function ProductDetail() {
             <span>
               By <strong>{product.author}</strong>
             </span>
-            <span className="dot-separator">â€¢</span>
+            <span className="dot-separator">•</span>
             <span>
               Published by <strong>{product.publisher}</strong>
             </span>
@@ -218,8 +212,25 @@ function ProductDetail() {
             </div>
 
             <button onClick={addToCart} className="btn-add-to-cart">
-              ðŸ›’ Add to Cart
+              🛒 Add to Cart
             </button>
+
+            {cartMessage && (
+              <div
+                style={{
+                  marginTop: "0.75rem",
+                  padding: "0.6rem 1rem",
+                  background: "#d4edda",
+                  border: "1px solid #c3e6cb",
+                  borderRadius: "8px",
+                  color: "#155724",
+                  fontSize: "0.9rem",
+                  fontWeight: 500,
+                }}
+              >
+                ✓ {cartMessage}
+              </div>
+            )}
           </div>
 
           {/* Reviews Section */}

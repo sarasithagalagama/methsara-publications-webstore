@@ -26,6 +26,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Product description is required"],
   },
+  // [E2.1] isbn: ISBN is the unique business key for books (used in search filter E2.4)
   isbn: {
     type: String,
     required: [true, "ISBN is required"],
@@ -43,6 +44,7 @@ const productSchema = new mongoose.Schema({
     required: [true, "Price is required"],
     min: [0, "Price cannot be negative"],
   },
+  // [E6.5] isFlashSale: flag used by Campaign system to highlight flash-sale items on the frontend
   isFlashSale: {
     type: Boolean,
     default: false,
@@ -57,10 +59,12 @@ const productSchema = new mongoose.Schema({
     type: String,
     default: "General",
   },
+  // [E4.1] supplier: links each product back to the supplying company (E4 Supplier module)
   supplier: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Supplier",
   },
+  // [E2.5] grade: allows students to filter by their grade level (multi-select supported in getProducts)
   grade: {
     type: String,
     required: [true, "Grade is required"],
@@ -80,6 +84,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Subject is required"],
   },
+  // [E2.5] examType: secondary filter alongside grade (O/L, A/L, Scholarship, etc.)
   examType: {
     type: String,
     enum: ["O/L", "A/L", "Scholarship", "General", "Other"],
@@ -111,6 +116,7 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // [E2.10] isArchived: soft-delete flag — archived products are hidden from catalog but preserved for order history
   isArchived: {
     type: Boolean,
     default: false,
@@ -125,6 +131,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  // [E2.8] reviews: embedded sub-documents store verified-purchase reviews; isVerifiedPurchase checked in reviewController
   reviews: [
     {
       user: {
@@ -158,6 +165,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  // [E2.7] purchaseCount: tracks total sales; used by sort='popular' option in getProducts
   purchaseCount: {
     type: Number,
     default: 0,
@@ -174,7 +182,7 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-// Middleware to keep 'rating' and 'averageRating' synced and update timestamp
+// [E2.8] Pre-save: recalculates averageRating and totalReviews whenever a review is added or removed
 productSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
 

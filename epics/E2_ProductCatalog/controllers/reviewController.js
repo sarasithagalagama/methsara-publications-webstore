@@ -1,3 +1,10 @@
+// ============================================
+// Review Controller
+// Epic: E2 - Product Catalog
+// Owner: IT24101314 (Appuhami H A P L)
+// Purpose: Product reviews and ratings (E2.8)
+// ============================================
+
 const Review = require("../models/Review");
 const Product = require("../models/Product");
 

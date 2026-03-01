@@ -5,11 +5,12 @@
 // Purpose: Supplier and PO management (E4.1-E4.7)
 // ============================================
 
-const Supplier = require('../models/Supplier');
+const Supplier = require("../models/Supplier");
 
-// Get all suppliers (E4.1)
+// [E4.1] getAllSuppliers: returns only active suppliers (soft-delete pattern)
 exports.getAllSuppliers = async (req, res) => {
   try {
+    // [E4.1] isActive filter hides deactivated suppliers without removing their PO history
     const suppliers = await Supplier.find({ isActive: true });
 
     res.status(200).json({
@@ -27,7 +28,7 @@ exports.getAllSuppliers = async (req, res) => {
   }
 };
 
-// Create supplier (E4.1)
+// [E4.1] createSupplier: plain Supplier.create; no approval needed for creating new suppliers
 exports.createSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.create(req.body);
@@ -47,7 +48,7 @@ exports.createSupplier = async (req, res) => {
   }
 };
 
-// Update supplier (E4.1)
+// [E4.1][E1.12] updateSupplier: maker-checker — non-admin edits route through ApprovalRequest (cross-epic E1)
 exports.updateSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(req.params.id);
@@ -59,9 +60,9 @@ exports.updateSupplier = async (req, res) => {
       });
     }
 
-    // INTERCEPTION: Maker-Checker for Non-Admins
+    // [E1.12] Non-admin users cannot directly edit supplier data; creates an ApprovalRequest instead
     if (req.user.role !== "admin") {
-      const ApprovalRequest = require('../../E1_UserAndRoleManagement/models/ApprovalRequest');
+      const ApprovalRequest = require("../../E1_UserAndRoleManagement/models/ApprovalRequest");
 
       const newRequest = await ApprovalRequest.create({
         module: "Supplier",

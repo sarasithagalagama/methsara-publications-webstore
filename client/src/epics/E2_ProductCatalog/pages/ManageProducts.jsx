@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // ManageProducts Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -26,10 +26,9 @@ import { useAuth } from "../../../epics/E1_UserAndRoleManagement/context/AuthCon
 
 const ManageProducts = ({ isTab = false }) => {
   const { user } = useAuth();
+  // [E1.6] RBAC: isTab=true embeds this inside a dashboard tab; isAdmin=true unlocks delete
   const isAdmin = user?.role === "admin";
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -62,16 +61,12 @@ const ManageProducts = ({ isTab = false }) => {
 
   const closeConfirm = () => setConfirmModal({ isOpen: false, id: null });
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -92,8 +87,69 @@ const ManageProducts = ({ isTab = false }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // [E2.3] Client-side validation: ensures required fields are filled and price is positive before API call
+  const validateProductForm = () => {
+    if (!formData.title.trim()) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Validation Error",
+        message: "Book title is required.",
+      });
+      return false;
+    }
+    if (!formData.isbn.trim() || formData.isbn.trim().length < 3) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Validation Error",
+        message: "A valid ISBN is required (min 3 characters).",
+      });
+      return false;
+    }
+    if (!formData.author.trim()) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Validation Error",
+        message: "Author name is required.",
+      });
+      return false;
+    }
+    if (!formData.description.trim()) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Validation Error",
+        message: "Book description is required.",
+      });
+      return false;
+    }
+    const price = parseFloat(formData.price);
+    if (!formData.price || isNaN(price) || price <= 0) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Validation Error",
+        message: "Price must be greater than Rs. 0.",
+      });
+      return false;
+    }
+    if (!formData.subject.trim()) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Validation Error",
+        message: "Subject is required.",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateProductForm()) return;
     setIsSubmitting(true);
 
     try {
@@ -102,6 +158,8 @@ const ManageProducts = ({ isTab = false }) => {
 
       const submissionData = { ...formData };
 
+      // [E2.3] Category-to-grade mapping: the UI presents simplified Sri Lanka education categories
+      // but the backend stores grade (Grade 12, etc.) and examType (A/L, O/L, General) separately
       // Map simplified category to backend grade/examType
       if (submissionData.category === "A/L") {
         submissionData.grade = "Grade 12";
@@ -193,6 +251,7 @@ const ManageProducts = ({ isTab = false }) => {
     }
   };
 
+  // [E2.2] Image upload — multipart/form-data POST to /api/upload, max 5MB, returns hosted image URL
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -328,9 +387,7 @@ const ManageProducts = ({ isTab = false }) => {
     },
   ];
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   return (
     <div className={isTab ? "" : "dashboard-container"}>
       {!isTab && (
@@ -453,7 +510,7 @@ const ManageProducts = ({ isTab = false }) => {
                 type="number"
                 value={formData.price}
                 onChange={handleInputChange}
-                min="0"
+                min="1"
                 step="0.01"
                 required
               />

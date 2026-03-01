@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // AdminUsers
 // Epic: E1 - User & Role Management
 // Owner: IT24100548 (Galagama S.T)
@@ -20,9 +20,7 @@ import "../../../components/dashboard/dashboard.css";
 import "./AdminDashboard.css";
 
 const AdminUsers = () => {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("all");
@@ -64,16 +62,12 @@ const AdminUsers = () => {
     nicBackImage: null,
   });
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -88,6 +82,7 @@ const AdminUsers = () => {
     }
   };
 
+  // [E1.8] Admin flags a staff account to force a password change on their next login
   const handleForceReset = async (userId) => {
     setConfirmModal({
       isOpen: true,
@@ -127,6 +122,7 @@ const AdminUsers = () => {
     });
   };
 
+  // [E1.10] Deactivating immediately prevents login without permanently deleting the account
   const handleDeactivateUser = (userId) => {
     setConfirmModal({
       isOpen: true,
@@ -195,6 +191,7 @@ const AdminUsers = () => {
     const nameRegex = /^[a-zA-Z\s]*$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
+    // Sri Lanka NIC: old format = 9 digits + V or X, new format = 12 digits
     const nicOldRegex = /^\d{9}[VXvx]$/;
     const nicNewRegex = /^\d{12}$/;
 
@@ -252,6 +249,7 @@ const AdminUsers = () => {
         nicFrontImage: formData.nicFrontImage,
         nicBackImage: formData.nicBackImage,
       };
+      // [E1.5] Location scoping: inventory managers are tied to one branch; master sees all; others have no location
       if (formData.role === "location_inventory_manager") {
         updateData.assignedLocation = formData.assignedLocation;
       } else if (formData.role === "master_inventory_manager") {
@@ -320,7 +318,10 @@ const AdminUsers = () => {
     const file = files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert("File is too large. Please select a file under 5MB.");
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: "File is too large. Please select an image under 5MB.",
+      }));
       e.target.value = "";
       return;
     }
@@ -487,9 +488,7 @@ const AdminUsers = () => {
   ];
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">
@@ -581,7 +580,7 @@ const AdminUsers = () => {
         <Modal
           isOpen={!!editingUser}
           onClose={() => setEditingUser(null)}
-          title={`Edit User – ${editingUser.name}`}
+          title={`Edit User � ${editingUser.name}`}
           size="lg"
         >
           <form onSubmit={handleEditSubmit} className="dashboard-form">
@@ -650,7 +649,7 @@ const AdminUsers = () => {
                           marginTop: "0.5rem",
                         }}
                       >
-                        ✓ Image loaded
+                        ? Image loaded
                       </p>
                     )}
                   </div>
@@ -671,7 +670,7 @@ const AdminUsers = () => {
                           marginTop: "0.5rem",
                         }}
                       >
-                        ✓ Image loaded
+                        ? Image loaded
                       </p>
                     )}
                   </div>

@@ -17,7 +17,7 @@ const couponSchema = new mongoose.Schema({
     trim: true,
   },
 
-  // Discount Details
+  // [E6.2] discountType: 'percentage' reduces by %, 'fixed' subtracts a flat LKR amount
   discountType: {
     type: String,
     enum: ["percentage", "fixed"],
@@ -28,12 +28,16 @@ const couponSchema = new mongoose.Schema({
     required: [true, "Discount value is required"],
     min: 0,
   },
+  // [E6.2] maxDiscount: caps percentage discounts (e.g. 20% off but max LKR 500)
   maxDiscount: {
     type: Number, // Max discount for percentage type
     default: null,
   },
 
-  // Usage Rules
+  // [E6.3] Usage tracking fields:
+  // maxUsageCount: total redemptions allowed across all users (null = unlimited)
+  // usagePerUser: how many times a single user can redeem this coupon (default 1)
+  // currentUsageCount: incremented on each successful redemption for limit enforcement
   minPurchaseAmount: {
     type: Number,
     default: 0,
@@ -62,7 +66,7 @@ const couponSchema = new mongoose.Schema({
     required: true,
   },
 
-  // Restrictions
+  // [E6.2] applicableGrades: restricts coupon to students in specific grade levels (empty = all grades)
   applicableGrades: [
     {
       type: String,

@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // GiftVoucherManagement
 // Epic: E6 - Promotion & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
@@ -20,12 +20,16 @@ import {
 import Modal from "../../../../components/common/Modal";
 import StatusModal from "../../../../components/common/StatusModal";
 import ConfirmModal from "../../../../components/common/ConfirmModal";
-import { Input, Select, Button, TextArea } from "../../../../components/common/Forms";
+import {
+  Input,
+  Select,
+  Button,
+  TextArea,
+} from "../../../../components/common/Forms";
 
 const GiftVoucherManagement = () => {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
+  // [E6.4] Two tabs: 'products' manages the voucher catalog (purchasable gift cards); 'issued' tracks redeemed codes
   const [activeTab, setActiveTab] = useState("products");
   const [voucherProducts, setVoucherProducts] = useState([]);
   const [issuedVouchers, setIssuedVouchers] = useState([]);
@@ -49,7 +53,7 @@ const GiftVoucherManagement = () => {
 
   // New Voucher Product Form
   const [newProduct, setNewProduct] = useState({
-    title: "",
+    name: "",
     price: "",
     description: "Gift Voucher for Methsara Publications",
     image: "/assets/gift_voucher_premium.png",
@@ -69,9 +73,7 @@ const GiftVoucherManagement = () => {
   const [issuedVoucherErrors, setIssuedVoucherErrors] = useState({});
   const [productErrors, setProductErrors] = useState({});
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchVoucherProducts();
     if (activeTab === "issued") {
@@ -79,9 +81,7 @@ const GiftVoucherManagement = () => {
     }
   }, [activeTab]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchVoucherProducts = async () => {
     setLoading(true);
     try {
@@ -144,7 +144,7 @@ const GiftVoucherManagement = () => {
 
   const validateProduct = (name, value) => {
     let error = "";
-    if (name === "title") {
+    if (name === "name") {
       if (!value) error = "Voucher name is required";
       else if (value.length < 3) error = "Name must be at least 3 characters";
     } else if (name === "price") {
@@ -217,16 +217,10 @@ const GiftVoucherManagement = () => {
       const token = localStorage.getItem("token");
       const productData = {
         ...newProduct,
-        category: "Gift Voucher",
-        grade: "Other",
-        subject: "General",
-        author: "Methsara Publications",
-        isbn: `GV-${Date.now()}`,
-        stock: 9999,
         isActive: true,
       };
 
-      await axios.post("/api/products", productData, {
+      await axios.post("/api/gift-vouchers/products", productData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -240,10 +234,10 @@ const GiftVoucherManagement = () => {
 
       fetchVoucherProducts();
       setNewProduct({
-        title: "",
+        name: "",
         description: "Gift Voucher for Methsara Publications",
         price: "",
-        image: "https://via.placeholder.com/300x400?text=Gift+Voucher",
+        image: "/assets/gift_voucher_premium.png",
       });
     } catch (error) {
       console.error("Error creating voucher product:", error);
@@ -269,9 +263,13 @@ const GiftVoucherManagement = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`/api/products/${editingProduct._id}`, editingProduct, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.put(
+        `/api/gift-vouchers/products/${editingProduct._id}`,
+        editingProduct,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       setStatusModal({
         isOpen: true,
@@ -299,7 +297,7 @@ const GiftVoucherManagement = () => {
     setConfirmModal({
       isOpen: true,
       title: "Delete Voucher Product?",
-      message: `Are you sure you want to remove "${product.title}"? This will remove it from the store catalog.`,
+      message: `Are you sure you want to remove "${product.name}"? This will remove it from the store catalog.`,
       onConfirm: () => handleDelete(product._id),
     });
   };
@@ -307,7 +305,7 @@ const GiftVoucherManagement = () => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/api/products/${id}`, {
+      await axios.delete(`/api/gift-vouchers/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -425,9 +423,7 @@ const GiftVoucherManagement = () => {
     }
   };
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   return (
     <div className="gift-voucher-management">
       <div className="dashboard-tabs" style={{ marginBottom: "2rem" }}>
@@ -506,11 +502,11 @@ const GiftVoucherManagement = () => {
                 <div className="form-grid-2">
                   <Input
                     label="Voucher Name"
-                    name="title"
+                    name="name"
                     placeholder="e.g. Rs. 1000 Gift Card"
-                    value={newProduct.title}
+                    value={newProduct.name}
                     onChange={handleProductInputChange}
-                    error={productErrors.title}
+                    error={productErrors.name}
                     required
                   />
                   <Input
@@ -661,7 +657,7 @@ const GiftVoucherManagement = () => {
                     {product.image ? (
                       <img
                         src={product.image}
-                        alt={product.title}
+                        alt={product.name}
                         style={{
                           width: "100%",
                           height: "100%",
@@ -674,7 +670,7 @@ const GiftVoucherManagement = () => {
                     )}
                   </div>
                   <div className="category-card-info">
-                    <h4>{product.title}</h4>
+                    <h4>{product.name}</h4>
                     <span>Rs. {product.price}</span>
                   </div>
                   <div className="category-card-actions">
@@ -794,11 +790,11 @@ const GiftVoucherManagement = () => {
             <div className="form-grid-2">
               <Input
                 label="Voucher Name"
-                value={editingProduct?.title}
+                value={editingProduct?.name}
                 onChange={(e) =>
                   setEditingProduct({
                     ...editingProduct,
-                    title: e.target.value,
+                    name: e.target.value,
                   })
                 }
                 required

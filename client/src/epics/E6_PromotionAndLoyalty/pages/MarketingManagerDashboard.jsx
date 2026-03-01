@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // MarketingManagerDashboard
 // Epic: E6 - Promotion & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
@@ -30,7 +30,12 @@ import DashboardHeader from "../../../components/dashboard/DashboardHeader";
 import Modal from "../../../components/common/Modal";
 import StatusModal from "../../../components/common/StatusModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
-import { Input, Select, Button, TextArea } from "../../../components/common/Forms";
+import {
+  Input,
+  Select,
+  Button,
+  TextArea,
+} from "../../../components/common/Forms";
 import RevenueChart from "../../../components/dashboard/charts/RevenueChart";
 import "../../../components/dashboard/dashboard.css";
 import "./MarketingManagerDashboard.css";
@@ -41,6 +46,7 @@ const MarketingManagerDashboard = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
+  // [E6.1] Dashboard KPIs: activeCoupons, totalUsed (E6.3 usage tracking), activeVouchers, campaigns, CTR
   // Dashboard State
   const [stats, setStats] = useState({
     activeCoupons: 0,
@@ -65,10 +71,9 @@ const MarketingManagerDashboard = () => {
 
   const location = useLocation();
 
+  // [E6.5] Tab sync with URL path: /campaigns, /analytics, /gift-vouchers map to dashboard sub-tabs
   // Sync tab with route
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     const path = location.pathname;
     if (path.includes("/campaigns")) {
@@ -110,6 +115,7 @@ const MarketingManagerDashboard = () => {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
 
   // Forms
+  // [E6.1] [E6.2] couponForm includes all required fields: code, discountType, discountValue, validUntil, maxUsageCount
   const [couponForm, setCouponForm] = useState({
     code: "",
     discountType: "percentage",
@@ -137,9 +143,7 @@ const MarketingManagerDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -337,7 +341,12 @@ const MarketingManagerDashboard = () => {
           fetchDashboardData();
         } catch (error) {
           console.error("Error deleting coupon:", error);
-          alert("Failed to delete coupon");
+          setStatusModal({
+            isOpen: true,
+            type: "error",
+            title: "Delete Failed",
+            message: "Failed to delete the coupon. Please try again.",
+          });
         }
       },
     });
@@ -444,16 +453,19 @@ const MarketingManagerDashboard = () => {
           fetchDashboardData();
         } catch (error) {
           console.error("Error deleting campaign:", error);
-          alert("Failed to delete campaign");
+          setStatusModal({
+            isOpen: true,
+            type: "error",
+            title: "Delete Failed",
+            message: "Failed to delete the campaign. Please try again.",
+          });
         }
       },
     });
   };
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

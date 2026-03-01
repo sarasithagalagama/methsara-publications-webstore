@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Coupon List Component
 // Epic: E6 - Promotions & Loyalty
 // Owner: IT24101266 (Perera M.U.E)
@@ -8,30 +8,32 @@
 import React, { useState, useEffect } from "react";
 import couponService from "../../services/couponService";
 import ConfirmModal from "../../../../components/common/ConfirmModal";
+import StatusModal from "../../../../components/common/StatusModal";
 
 function CouponList() {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     id: null,
   });
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    type: "error",
+    title: "",
+    message: "",
+  });
 
   const closeConfirm = () => setConfirmModal({ isOpen: false, id: null });
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     loadCoupons();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
+  // [E6.1] [E6.3] Load all coupons including their usage count for the early component version of coupon management
   const loadCoupons = async () => {
     try {
       const response = await couponService.getCoupons();
@@ -54,14 +56,17 @@ function CouponList() {
       await couponService.deleteCoupon(id);
       loadCoupons();
     } catch (err) {
-      alert("Failed to delete coupon");
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Delete Failed",
+        message: "Failed to delete coupon. Please try again.",
+      });
     }
   };
 
   if (loading)
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -108,7 +113,7 @@ function CouponList() {
               </p>
               <p>
                 <strong>Used:</strong> {coupon.usedCount} /{" "}
-                {coupon.maxUsageCount || "âˆž"}
+                {coupon.maxUsageCount || "∞"}
               </p>
               <p>
                 <strong>Valid Until:</strong>{" "}
@@ -142,6 +147,14 @@ function CouponList() {
         message="Are you sure you want to delete this coupon? This action cannot be undone."
         confirmText="Delete Coupon"
         variant="danger"
+      />
+
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        onClose={() => setStatusModal({ ...statusModal, isOpen: false })}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
       />
     </div>
   );

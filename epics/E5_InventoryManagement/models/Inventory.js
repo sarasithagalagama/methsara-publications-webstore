@@ -17,13 +17,16 @@ const inventorySchema = new mongoose.Schema({
   productTitle: String,
   productISBN: String,
 
-  // Location
+  // [E5.1][E5.2] location: identifies the branch; each product has one Inventory doc per location
   location: {
     type: String,
     required: true,
   },
 
-  // Stock Levels
+  // [E5.3] Three stock level fields:
+  // quantity = physical stock on shelf
+  // reservedQuantity = items in pending orders, not yet dispatched
+  // availableQuantity = quantity - reservedQuantity (what's actually available to sell)
   quantity: {
     type: Number,
     required: true,
@@ -40,17 +43,18 @@ const inventorySchema = new mongoose.Schema({
     default: 0,
   },
 
-  // Thresholds
+  // [E5.9] lowStockThreshold: triggers low-stock alert on dashboard when quantity falls <= this value
   lowStockThreshold: {
     type: Number,
     default: 10,
   },
+  // [E5.9] reorderPoint: suggests re-order on PO creation when quantity drops below this value
   reorderPoint: {
     type: Number,
     default: 20,
   },
 
-  // Stock Adjustments History
+  // [E5.3] adjustments: immutable history of every stock change (type, qty, reason, who did it)
   adjustments: [
     {
       type: {

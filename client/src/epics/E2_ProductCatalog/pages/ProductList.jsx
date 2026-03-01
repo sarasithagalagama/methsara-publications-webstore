@@ -1,9 +1,8 @@
-﻿// ============================================
-// [Epic E2] Product Catalog
-// --------------------------------------------
-// This module provides the "storefront" experience.
-// It allows students and parents to discover books using
-// various filters like Grade, Subject, and Price.
+// ============================================
+// Product List Page
+// Epic: E2 - Product Catalog
+// Owner: IT24101314 (Appuhami H A P L)
+// Purpose: Storefront - browse, filter, and discover books
 // ============================================
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -24,11 +23,9 @@ import {
 import toast from "react-hot-toast";
 import "./ProductList.css";
 
-/**
- * [Epic E2.1] - Categories from the Source
- * Instead of hardcoding, we pull categories directly from the database
- * to ensure the storefront is always in sync with our inventory.
- */
+// [Epic E2.1] - Categories from the Source
+// Instead of hardcoding, we pull categories directly from the database
+// to ensure the storefront is always in sync with our inventory.
 const fetchCategories = async () => {
   // ... logically mapped in the component
 };
@@ -46,9 +43,7 @@ const SkeletonCard = () => (
 );
 
 const ProductList = () => {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,13 +51,14 @@ const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { refreshCounts } = useAuth();
 
-  // Managing all filters in one state makes it easy to sync with the URL
+  // [E2.4] [E2.5] Filters initialized from URL search params — enables shareable/bookmarkable filtered URLs
+  // e.g. /books?category=A%2FL&sort=price_asc restores the exact filter state on load
   const [filters, setFilters] = useState({
     category: searchParams.get("category") || "",
     subject: searchParams.get("subject") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
-    sort: searchParams.get("sort") || "newest",
+    sort: searchParams.get("sort") || "newest", // [E2.7] Sort: newest/price_asc/price_desc/title
     search: searchParams.get("search") || "",
   });
 
@@ -72,23 +68,19 @@ const ProductList = () => {
     totalItems: 0,
     limit: 12,
   });
+  // searchDebounce ref holds the pending timeout ID so it can be cancelled on each new keystroke
   const searchDebounce = useRef(null);
 
-  /**
-   * We fetch categories on mount to populate the sidebar.
-   * This ensures the user only sees relevant filtering options.
-   */
-  // ─────────────────────────────────
+  // We fetch categories on mount to populate the sidebar.
+  // This ensures the user only sees relevant filtering options.
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
-    // ─────────────────────────────────
     // Event Handlers
-    // ─────────────────────────────────
     const fetchCategories = async () => {
       try {
         const res = await axios.get("/api/products/categories");
         const allCategories = res.data.categories || [];
+        // [E2.5] Sri Lanka education hierarchy: A/L at top, then secondary grades, then Others
         const desiredOrder = [
           "A/L",
           "Grade 6",
@@ -116,11 +108,9 @@ const ProductList = () => {
     fetchCategories();
   }, []);
 
-  /**
-   * [Epic E2.2] - Smart Searching (Debounced)
-   * To prevent overwhelming the server, we wait 350ms after the user
-   * stops typing before triggering a search.
-   */
+  // [Epic E2.2] - Smart Searching (Debounced)
+  // To prevent overwhelming the server, we wait 350ms after the user
+  // stops typing before triggering a search.
   useEffect(() => {
     if (searchDebounce.current) clearTimeout(searchDebounce.current);
     searchDebounce.current = setTimeout(
@@ -136,16 +126,12 @@ const ProductList = () => {
       },
       filters.search ? 350 : 0,
     );
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return () => clearTimeout(searchDebounce.current);
   }, [filters, pagination.currentPage]);
 
-  /**
-   * If the user changes a filter, we should always start
-   * viewing from Page 1 of the new results.
-   */
+  // If the user changes a filter, we should always start
+  // viewing from Page 1 of the new results.
   useEffect(() => {
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
   }, [
@@ -157,11 +143,9 @@ const ProductList = () => {
     filters.search,
   ]);
 
-  /**
-   * [Epic E2.1] - The Data Engine
-   * Dynamically constructs a query based on all active filters
-   * and fetches the matching books from our API.
-   */
+  // [Epic E2.1] - The Data Engine
+  // Dynamically constructs a query based on all active filters
+  // and fetches the matching books from our API.
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -199,10 +183,8 @@ const ProductList = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  /**
-   * Simple "panic button" for the user to reset all their
-   * choices and see the whole catalog again.
-   */
+  // Simple "panic button" for the user to reset all their
+  // choices and see the whole catalog again.
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -614,10 +596,10 @@ const ProductList = () => {
                           </div>
                         </div>
                         {product.isFlashSale && (
-                          <span className="flash-badge">ðŸ”¥ SALE</span>
+                          <span className="flash-badge">🔥 SALE</span>
                         )}
                         {product.isFeatured && !product.isFlashSale && (
-                          <span className="featured-badge">â­ Featured</span>
+                          <span className="featured-badge">⭐ Featured</span>
                         )}
                       </div>
                       <div className="book-info">
@@ -627,7 +609,7 @@ const ProductList = () => {
                           product.grade === "Grade 13"
                             ? "A/L"
                             : product.grade}
-                          {product.subject && ` Â· ${product.subject}`}
+                          {product.subject && ` · ${product.subject}`}
                         </span>
                         <h3 className="book-title">
                           {product.titleSinhala || product.title}

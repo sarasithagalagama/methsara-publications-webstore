@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Finance Manager Dashboard
 // Epic: E3 - Orders & Transactions
 // Owner: IT24100191 (Jayasinghe D.B.P)
@@ -40,15 +40,19 @@ import "./FinanceManagerDashboard.css";
 import Invoice from "../../../epics/E3_OrderAndTransaction/components/Order/Invoice";
 import Modal from "../../../components/common/Modal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
-import { Input, Select, TextArea, Button } from "../../../components/common/Forms";
+import {
+  Input,
+  Select,
+  TextArea,
+  Button,
+} from "../../../components/common/Forms";
 
 const FinanceManagerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
-  // ─────────────────────────────────
+  // [E3.9] Financial KPIs: totalRevenue, totalExpenses, netIncome, pendingOrders aggregated server-side
   // State Variables
-  // ─────────────────────────────────
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalExpenses: 0,
@@ -67,6 +71,7 @@ const FinanceManagerDashboard = () => {
   // New Features State
   const [showReportModal, setShowReportModal] = useState(false);
   const [showTaxModal, setShowTaxModal] = useState(false);
+  // [E3.9] taxRate stored in localStorage so it persists across sessions without a DB field
   const [taxRate, setTaxRate] = useState(() => {
     return localStorage.getItem("taxRate") || "18";
   });
@@ -76,12 +81,12 @@ const FinanceManagerDashboard = () => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [allFinancialTransactions, setAllFinancialTransactions] = useState([]);
   const [editingFinItem, setEditingFinItem] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview"); // overview, salaries, suppliers
+  const [activeTab, setActiveTab] = useState("overview"); // [E3.9] Tabs: overview (revenue), salaries (E3.11), suppliers (E4 integration)
   const [showPOModal, setShowPOModal] = useState(false);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [slipViewerUrl, setSlipViewerUrl] = useState(null); // Bank slip popup
+  const [slipViewerUrl, setSlipViewerUrl] = useState(null); // [E3.4] Bank slip popup: finance manager reviews upload before approving order
 
   // Form States for Modals
   const [salaryInputs, setSalaryInputs] = useState({}); // { memberId: amount }
@@ -112,9 +117,7 @@ const FinanceManagerDashboard = () => {
   const closeConfirm = () =>
     setConfirmState((prev) => ({ ...prev, isOpen: false }));
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const handleSaveTax = () => {
     localStorage.setItem("taxRate", tempTaxRate);
     setTaxRate(tempTaxRate);
@@ -128,9 +131,7 @@ const FinanceManagerDashboard = () => {
     if (element) element.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
 
@@ -645,9 +646,7 @@ const FinanceManagerDashboard = () => {
   const handleViewSlip = (dataUrl) => setSlipViewerUrl(dataUrl);
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

@@ -1,3 +1,10 @@
+// ============================================
+// Upload Routes
+// Epic: E2 - Product Catalog
+// Owner: IT24101314 (Appuhami H A P L)
+// Purpose: Product image upload API endpoints
+// ============================================
+
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");

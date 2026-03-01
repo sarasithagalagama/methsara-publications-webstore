@@ -7,6 +7,7 @@
 import api from "../../../api/config";
 
 const supplierService = {
+  // [E4.1] Fetch all suppliers — returns array of Material Suppliers, Distributors, and Bookshops
   getSuppliers: async () => {
     const response = await api.get("/suppliers");
     return response.data;
@@ -17,6 +18,7 @@ const supplierService = {
     return response.data;
   },
 
+  // [E4.1] Create new supplier with business registration, bank details, payment terms
   createSupplier: async (supplierData) => {
     const response = await api.post("/suppliers", supplierData);
     return response.data;
@@ -32,6 +34,7 @@ const supplierService = {
     return response.data;
   },
 
+  // [E4.6] Analytics: on-time delivery rate, quality score, total orders per supplier
   getAnalytics: async () => {
     const response = await api.get("/suppliers/analytics");
     return response.data;

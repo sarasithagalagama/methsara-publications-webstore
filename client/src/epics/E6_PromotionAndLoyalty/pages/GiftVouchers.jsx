@@ -1,9 +1,8 @@
-﻿// ============================================
-// [Epic E6] Promotion and Loyalty
-// --------------------------------------------
-// This module helps Methsara Publications grow.
-// By offering gift vouchers, we allow existing customers
-// to introduce new students to our platform.
+// ============================================
+// Gift Vouchers Page
+// Epic: E6 - Promotion & Loyalty
+// Owner: IT24101266 (Perera M.U.E)
+// Purpose: Purchase and manage gift vouchers (E6.4)
 // ============================================
 
 import React, { useState, useEffect } from "react";
@@ -15,33 +14,22 @@ import toast from "react-hot-toast";
 import "./GiftVouchers.css";
 
 const GiftVouchers = () => {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user, refreshCounts } = useAuth();
   const navigate = useNavigate();
 
-  /**
-   * On mount, we load all available voucher products.
-   * These are special items that don't have shipping but generate digital codes.
-   */
-  // ─────────────────────────────────
+  // On mount, load all available voucher products.
+  // These are special items without shipping that generate digital codes.
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchVouchers();
   }, []);
 
-  /**
-   * [Epic E6.2] - Voucher Discovery
-   * We pull voucher details (Value, Pricing, Images) from the
-   * promotion-specific API endpoint.
-   */
-  // ─────────────────────────────────
+  // [Epic E6.2] - Voucher Discovery
+  // Pull voucher details (value, pricing, images) from the promotion API endpoint.
   // Event Handlers
-  // ─────────────────────────────────
   const fetchVouchers = async () => {
     try {
       const res = await axios.get("/api/gift-vouchers/products");
@@ -53,6 +41,7 @@ const GiftVouchers = () => {
     }
   };
 
+  // [E6.4] Voucher add-to-cart: uses itemModel='VoucherProduct' so backend distinguishes from regular books
   const handleAddToCart = async (voucher) => {
     if (!user) {
       toast.error("Please login to purchase gift vouchers");
@@ -64,10 +53,10 @@ const GiftVouchers = () => {
       const token = localStorage.getItem("token");
       await axios.post(
         "/api/cart/add",
-        { productId: voucher._id, quantity: 1 },
+        { productId: voucher._id, quantity: 1, itemModel: "VoucherProduct" },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      refreshCounts();
+      if (refreshCounts) refreshCounts();
       toast.success("Gift Voucher added to cart!");
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -75,9 +64,7 @@ const GiftVouchers = () => {
     }
   };
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   return (
     <div className="gift-vouchers-page">
       <div className="vouchers-hero">
@@ -88,8 +75,8 @@ const GiftVouchers = () => {
             </h1>
             <p className="animate-fade-in-up delay-1">
               Methsara Publications Gift Vouchers are the perfect present for
-              students. Choose a physical value card and let them pick
-              the books they need for their success.
+              students. Choose a digital gift card and let them pick the books
+              they need for their success.
             </p>
           </div>
         </div>
@@ -124,7 +111,7 @@ const GiftVouchers = () => {
                       {voucher.image ? (
                         <img
                           src={voucher.image}
-                          alt={voucher.title}
+                          alt={voucher.name}
                           className="voucher-img"
                         />
                       ) : (
@@ -140,10 +127,10 @@ const GiftVouchers = () => {
                   </div>
 
                   <div className="voucher-content">
-                    <h3>{voucher.title}</h3>
+                    <h3>{voucher.name}</h3>
                     <p>
                       {voucher.description ||
-                        "A gift card valid for all books currently available on our comprehensive educational platform."}
+                        "A digital gift card valid for all books currently available on our comprehensive educational platform."}
                     </p>
 
                     <button

@@ -5,15 +5,15 @@
 // Purpose: Financial dashboard and reporting (E3.9, E3.10, E3.11)
 // ============================================
 
-const Order = require('../models/Order');
-const User = require('../../E1_UserAndRoleManagement/models/User');
-const FinancialTransaction = require('../models/FinancialTransaction');
-const Supplier = require('../../E4_SupplierManagement/models/Supplier');
-const PurchaseOrder = require('../../E4_SupplierManagement/models/PurchaseOrder');
+const Order = require("../models/Order");
+const User = require("../../E1_UserAndRoleManagement/models/User");
+const FinancialTransaction = require("../models/FinancialTransaction");
+const Supplier = require("../../E4_SupplierManagement/models/Supplier");
+const PurchaseOrder = require("../../E4_SupplierManagement/models/PurchaseOrder");
 const PDFDocument = require("pdfkit");
 const { Parser } = require("json2csv");
 
-// Financial Dashboard (E3.9)
+// [E3.9] getFinancialDashboard: aggregates revenue from Orders + FinancialTransactions; cross-epic (imports E4 PO)
 const getFinancialDashboard = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -25,20 +25,19 @@ const getFinancialDashboard = async (req, res) => {
       };
     }
 
-    // --- 1. Basic Stats Calculation ---
-    // Paid Orders Revenue
+    // [E3.9] Revenue from Orders (only Paid orders counted to avoid inflating figures)
     const orderRevenue = await Order.aggregate([
       { $match: { ...dateFilter, paymentStatus: "Paid" } },
       { $group: { _id: null, total: { $sum: "$total" }, count: { $sum: 1 } } },
     ]);
 
-    // Financial Transactions Income
+    // [E3.9] FinancialTransaction income: custom transactions entered by finance_manager
     const txIncome = await FinancialTransaction.aggregate([
       { $match: { ...dateFilter, isIncome: true, status: "Completed" } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
-    // Financial Transactions Expenses
+    // [E3.9] Expenses: non-cancelled financial transactions (e.g. supplier payments)
     const txExpenses = await FinancialTransaction.aggregate([
       {
         $match: {
@@ -56,7 +55,7 @@ const getFinancialDashboard = async (req, res) => {
     const totalExpenses = txExpenses[0]?.total || 0;
     const netIncome = totalRevenue - totalExpenses;
 
-    // --- 2. Growth Calculation (Last 30 vs Prev 30) ---
+    // [E3.9] Growth comparison: last 30 days vs prior 30 days for revenue trend indicator
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const sixtyDaysAgo = new Date();
@@ -332,7 +331,7 @@ const updateTransaction = async (req, res) => {
 
     // INTERCEPTION: Maker-Checker for Non-Admins
     if (req.user.role !== "admin") {
-      const ApprovalRequest = require('../../E1_UserAndRoleManagement/models/ApprovalRequest');
+      const ApprovalRequest = require("../../E1_UserAndRoleManagement/models/ApprovalRequest");
 
       const newRequest = await ApprovalRequest.create({
         module: "FinancialTransaction",

@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Supplier List Component
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -9,6 +9,7 @@ import React, { useState, useEffect } from "react";
 import supplierService from "../../services/supplierService";
 import SupplierFormModal from "./SupplierFormModal";
 import ConfirmModal from "../../../../components/common/ConfirmModal";
+import StatusModal from "../../../../components/common/StatusModal";
 import {
   Plus,
   Printer,
@@ -24,9 +25,8 @@ import "../../../../components/dashboard/dashboard.css";
 import "./SupplierList.css";
 
 function SupplierList() {
-  // ─────────────────────────────────
+  // [E4.1] [E4.5] Category tabs: Material Supplier, Distributor, Bookshop — re-filters on tab or search change
   // State Variables
-  // ─────────────────────────────────
   const [suppliers, setSuppliers] = useState([]);
   const [filteredSuppliers, setFilteredSuppliers] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
@@ -38,12 +38,16 @@ function SupplierList() {
     isOpen: false,
     id: null,
   });
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   const closeConfirm = () => setConfirmModal({ isOpen: false, id: null });
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     loadSuppliers();
   }, []);
@@ -52,9 +56,8 @@ function SupplierList() {
     filterSuppliers(activeTab);
   }, [suppliers, activeTab, supplierSearch]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
+  // [E4.1] Load all suppliers on mount; filtering happens client-side via filterSuppliers
   const loadSuppliers = async () => {
     try {
       const response = await supplierService.getSuppliers();
@@ -100,7 +103,12 @@ function SupplierList() {
       setShowModal(false);
       setEditingSupplier(null);
     } catch (err) {
-      alert("Failed to save partner");
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Save Failed",
+        message: "Failed to save partner details. Please try again.",
+      });
     }
   };
 
@@ -115,7 +123,12 @@ function SupplierList() {
       await supplierService.deleteSupplier(id);
       loadSuppliers();
     } catch (err) {
-      alert("Failed to delete partner");
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Delete Failed",
+        message: "Failed to delete partner. Please try again.",
+      });
     }
   };
 
@@ -134,9 +147,7 @@ function SupplierList() {
   };
 
   if (loading)
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -282,6 +293,14 @@ function SupplierList() {
         message="Are you sure you want to delete this partner? This action cannot be undone."
         confirmText="Delete Partner"
         variant="danger"
+      />
+
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        onClose={() => setStatusModal({ ...statusModal, isOpen: false })}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
       />
     </div>
   );

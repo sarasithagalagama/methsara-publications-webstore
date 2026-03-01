@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Product Manager Dashboard
 // Epic: E2 - Product Catalog Management
 // Owner: IT24101314 (Appuhami H A P L)
@@ -22,6 +22,8 @@ import {
   Upload,
   Tags,
   Archive,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import StatCard from "../../../components/dashboard/StatCard";
@@ -37,11 +39,9 @@ import { LogoutModal } from "../../../epics/E1_UserAndRoleManagement/components/
 const ProductManagerDashboard = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
-  // ─────────────────────────────────
+  // [E2.1] Dashboard stats: totalProducts, archivedProducts, avgRating fetched on mount
   // State Variables
-  // ─────────────────────────────────
   const [stats, setStats] = useState({
-    totalProducts: 0,
     avgRating: 0,
     archivedProducts: 0,
   });
@@ -52,9 +52,12 @@ const ProductManagerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  // [E2.5] [E2.7] Product list supports search by term and filter by grade for the dashboard table
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState("");
   const [gradeFilter, setGradeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   // Category State
   const [categories, setCategories] = useState([]);
@@ -108,9 +111,7 @@ const ProductManagerDashboard = () => {
   const [uploadingBackCover, setUploadingBackCover] = useState(false);
   const [uploadingSamplePages, setUploadingSamplePages] = useState(false);
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchDashboardData();
     fetchCategories();
@@ -119,9 +120,7 @@ const ProductManagerDashboard = () => {
 
   const [suppliers, setSuppliers] = useState([]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchSuppliers = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -308,6 +307,11 @@ const ProductManagerDashboard = () => {
     }
   };
 
+  // Reset to page 1 whenever filters/tab change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, gradeFilter, activeTab]);
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -320,7 +324,13 @@ const ProductManagerDashboard = () => {
     return matchesSearch && matchesGrade && matchesArchived;
   });
 
-  // ── Real-time validation helper ──────────────────────────────────
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  // Real-time validation helper
   const validateField = (name, value) => {
     switch (name) {
       case "title":
@@ -633,9 +643,7 @@ const ProductManagerDashboard = () => {
   };
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">
@@ -760,7 +768,7 @@ const ProductManagerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProducts.map((product) => (
+                  {paginatedProducts.map((product) => (
                     <tr key={product._id}>
                       <td>
                         <img
@@ -852,6 +860,51 @@ const ProductManagerDashboard = () => {
                 </div>
               )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div
+                className="pagination-container"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  marginTop: "1rem",
+                }}
+              >
+                <button
+                  className="pagination-btn"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div
+                  className="pagination-numbers"
+                  style={{ display: "flex", gap: "0.25rem" }}
+                >
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      className={`page-number${currentPage === i + 1 ? " active" : ""}`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="pagination-btn"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
           </>
         )}
 
@@ -1608,6 +1661,7 @@ const ProductManagerDashboard = () => {
           navigate("/");
         }}
       />
+
       <StatusModal
         isOpen={statusModal.isOpen}
         onClose={() => setStatusModal({ ...statusModal, isOpen: false })}

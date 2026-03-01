@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // SupplierFormModal
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -10,9 +10,7 @@ import { Building, MapPin, Phone, FileText, Briefcase } from "lucide-react";
 import "./SupplierFormModal.css";
 
 const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [formData, setFormData] = useState({
     name: "",
     category: "Material Supplier",
@@ -36,7 +34,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // Realtime Validation Logic
+  // [E4.1] Real-time field validation before save; touched state prevents showing errors before user interaction
   const validateField = (name, value) => {
     let error = "";
     switch (name) {
@@ -54,6 +52,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         else if (!emailRegex.test(value)) error = "Invalid email format";
         break;
       case "phone":
+        // Sri Lanka mobile regex: starts with +94 or 07, followed by 8 digits
         const phoneRegex = /^(?:\+94|0)7\d{8}$/;
         if (!value) error = "Phone number is required";
         else if (!phoneRegex.test(value.replace(/\s/g, "")))
@@ -89,9 +88,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     return error;
   };
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -131,9 +128,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     }
   }, [initialData, isOpen]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const handleChange = (e) => {
     let { name, value } = e.target;
 
@@ -219,9 +214,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     onClose();
   };
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   return (
     <Modal
       isOpen={isOpen}

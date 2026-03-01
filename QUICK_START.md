@@ -1,386 +1,258 @@
-# 🚀 Quick Start Guide - Full Stack Application
+# Quick Start Guide — Full Stack Application
 
-## ✅ What You Have
+## What You Have
 
-- **Backend**: Node.js/Express + MongoDB (21 files)
-- **Frontend**: React (30+ files)
-- **Database**: MongoDB Atlas (connected)
-- **All 6 Epics**: Fully implemented
+- **Backend**: Node.js/Express + Mongoose (6 epics, 18 MongoDB collections)
+- **Frontend**: React + Tailwind CSS
+- **Database**: MongoDB Atlas (cloud)
+- **All 6 Epics**: Fully implemented and wired
 
 ---
 
-## 🎯 Running the Application
+## Prerequisites
 
-### Step 1: Start Backend Server
+- Node.js v18+ installed
+- MongoDB Atlas cluster running (or local MongoDB)
+- `.env` file configured (see below)
 
-Open **Terminal 1**:
+### `.env` file (create in project root)
+```env
+MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/methsara_publications
+JWT_SECRET=your_super_secret_key_here
+PORT=5000
+NODE_ENV=development
+```
+
+---
+
+## Option A — One Command (Recommended)
 
 ```bash
-# Make sure you're in the project root
-cd c:\Users\ASUS\OneDrive\Desktop\methsara-publications-webstore
+# From project root
+npm install
+cd client && npm install && cd ..
+npm start
+```
 
-# Start backend
+This starts both backend and frontend simultaneously (uses `concurrently`).
+
+| Output prefix | Service | URL |
+|---|---|---|
+| `[0]` | Backend (Express) | http://localhost:5000 |
+| `[1]` | Frontend (React) | http://localhost:3000 |
+
+---
+
+## Option B — Two Terminals
+
+**Terminal 1 — Backend:**
+```bash
 npm run dev
 ```
 
-**Expected Output:**
+Expected output:
 ```
 ✅ MongoDB Connected Successfully
 📦 Database: methsara_publications
 🚀 Server running on port 5000
-📍 API URL: http://localhost:5000
 ```
 
-**✅ Backend is ready when you see this!**
-
----
-
-### Step 2: Install Frontend Dependencies (First Time Only)
-
-Open **Terminal 2**:
-
+**Terminal 2 — Frontend:**
 ```bash
-# Navigate to client folder
-cd c:\Users\ASUS\OneDrive\Desktop\methsara-publications-webstore\client
-
-# Install dependencies
-npm install
-```
-
-This will install:
-- react
-- react-dom
-- react-router-dom
-- axios
-- react-scripts
-
-**⏱️ This takes 1-2 minutes**
-
----
-
-### Step 3: Start React Frontend
-
-In the same **Terminal 2** (after npm install completes):
-
-```bash
-# Start React app
+cd client
 npm start
 ```
 
-**Expected Output:**
+Expected output:
 ```
 Compiled successfully!
-
-You can now view methsara-publications-client in the browser.
-
-  Local:            http://localhost:3000
-  On Your Network:  http://192.168.x.x:3000
+Local: http://localhost:3000
 ```
 
-**✅ Frontend is ready!** Browser should open automatically.
-
 ---
 
-## 🌐 Access the Application
+## All API Endpoints
 
-### Main Application
-**URL:** http://localhost:3000
+| Epic | Base URL |
+|---|---|
+| E1 — Auth / Users | `http://localhost:5000/api/auth` |
+| E1 — Approvals | `http://localhost:5000/api/approvals` |
+| E2 — Products | `http://localhost:5000/api/products` |
+| E2 — Reviews | `http://localhost:5000/api/reviews` |
+| E2 — Upload | `http://localhost:5000/api/upload` |
+| E3 — Orders | `http://localhost:5000/api/orders` |
+| E3 — Cart | `http://localhost:5000/api/cart` |
+| E3 — Financial | `http://localhost:5000/api/financial` |
+| E4 — Suppliers | `http://localhost:5000/api/suppliers` |
+| E4 — Purchase Orders | `http://localhost:5000/api/purchase-orders` |
+| E5 — Inventory | `http://localhost:5000/api/inventory` |
+| E5 — Locations | `http://localhost:5000/api/locations` |
+| E5 — Stock Transfers | `http://localhost:5000/api/stock-transfers` |
+| E6 — Coupons / Campaigns | `http://localhost:5000/api/coupons` |
+| E6 — Gift Vouchers | `http://localhost:5000/api/gift-vouchers` |
 
-### Backend API
-**URL:** http://localhost:5000
-
-### API Endpoints
-- Auth: http://localhost:5000/api/auth
-- Products: http://localhost:5000/api/products
-- Orders: http://localhost:5000/api/orders
-- Suppliers: http://localhost:5000/api/suppliers
-- Inventory: http://localhost:5000/api/inventory
-- Coupons: http://localhost:5000/api/coupons
-
----
-
-## 🧪 Testing the Application
+## Testing the Application
 
 ### 1. Register & Login (E1)
-
 1. Go to http://localhost:3000
-2. Click **"Register"**
-3. Fill in the form:
-   - Name: Your Name
-   - Email: test@example.com
-   - Phone: 0771234567
-   - Password: test123
-4. Click **"Register"**
-5. You'll be auto-logged in and redirected to Products
+2. Click **Register**
+3. Fill in: Name, Email, Phone, Password (min 8 chars)
+4. You'll be auto-logged in and redirected to Products
 
 ### 2. Browse Products (E2)
+- Use the search bar (searches by title, author, ISBN)
+- Filter by **Grade**, **Exam Type**, **Category**
+- Sort by price or rating
+- Click a product to see details and reviews
 
-1. You'll see the product list
-2. Try the **search bar**: type "math"
-3. Try **filters**: Select "Grade 10"
-4. Try **sorting**: Select "Price (Low to High)"
-5. Click on a product to see details
+### 3. Shopping Cart & Checkout (E3)
+1. Click **Add to Cart** on any product
+2. Click the cart icon — update quantities or remove items
+3. At checkout: enter delivery address, select payment method
+4. Optionally enter a coupon code (e.g. `WELCOME10`)
+5. Click **Place Order** — order appears in **My Orders**
 
-### 3. Shopping Cart (E3)
+### 4. Staff / Admin Features (E4, E5, E6)
+These require a non-customer role. Create a staff account via Postman:
 
-1. Click **"Add to Cart"** on any product
-2. Click **"🛒 Cart"** in navigation
-3. Update quantities with **+/-** buttons
-4. Click **"Proceed to Checkout"**
-
-### 4. Checkout with Coupon (E3 + E6)
-
-1. Fill in delivery address
-2. Select payment method
-3. Enter coupon code: **WELCOME10**
-4. Click **"Apply"** - should show discount
-5. Click **"Place Order"**
-6. Check **"My Orders"** to see your order
-
-### 5. Admin Features (E4, E5, E6)
-
-*Note: Need admin role - create via Postman*
-
-- **Suppliers**: http://localhost:3000/suppliers
-- **Inventory**: http://localhost:3000/inventory
-- **Coupons**: http://localhost:3000/coupons
-
----
-
-## 📊 Create Sample Data (Using Postman)
-
-Before testing, add some products using Postman:
-
-### Quick Sample Product
-
-**POST** `http://localhost:5000/api/products`
-
-**Headers:**
-```
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: application/json
-```
-
-**Body:**
+**POST** `http://localhost:5000/api/auth/create-staff` (with admin JWT)
 ```json
 {
-  "name": "Mathematics Grade 10",
-  "description": "Complete math guide for O/L students",
-  "sku": "MATH-G10-001",
-  "price": 650,
-  "grade": "Grade 10",
-  "subject": "Mathematics",
-  "examType": "O/L",
-  "mainImage": "https://via.placeholder.com/300x400?text=Math+G10",
-  "isFeatured": true
+  "name": "Test Manager",
+  "email": "manager@test.com",
+  "password": "password123",
+  "role": "supplier_manager"
 }
 ```
 
-**See full Postman guide:** `docs/guides/Postman_Testing_Guide.md`
+Available roles: `admin | product_manager | finance_manager | supplier_manager | master_inventory_manager | location_inventory_manager | marketing_manager`
+
+See full Postman guide: [`docs/guides/Postman_Testing_Guide.md`](docs/guides/Postman_Testing_Guide.md)
 
 ---
 
-## ⚠️ Troubleshooting
+## How to Change Colors (Frontend)
 
-### Backend Won't Start
+### Global CSS Variables
+Edit `client/src/index.css`:
+```css
+:root {
+  --primary-color: #2563eb;      /* Main brand color (buttons, links) */
+  --secondary-color: #10b981;    /* Accent color */
+  --success-color: #10b981;      /* Success messages / badges */
+  --error-color:   #ef4444;      /* Error states */
+}
+```
 
-**Error:** `EADDRINUSE: address already in use :::5000`
+### Tailwind Config
+Edit `client/tailwind.config.js`:
+```javascript
+theme: {
+  extend: {
+    colors: {
+      primary:   '#2563EB',   // maps to bg-primary, text-primary
+      secondary: '#10B981',
+      accent:    '#F59E0B',   // star ratings, highlights
+    }
+  }
+}
+```
 
-**Solution:**
+Each epic also has color customization notes — see the `## How to Change Colors` section in each epic's README.
+
+---
+
+## Development Workflow
+
+### Making Backend Changes
+- Edit files in `epics/E*/controllers/`, `epics/E*/models/`, `epics/E*/routes/`
+- `nodemon` auto-restarts the server on save
+
+### Making Frontend Changes
+- Edit files in `client/src/epics/E*/`
+- React hot-reloads the browser on save
+
+### Daily Workflow
 ```bash
-# Kill existing node process
-taskkill /F /IM node.exe
+# Start everything
+npm start
 
-# Start again
+# Make changes, save files
+# Both servers auto-reload
+
+# Stop both servers
+Ctrl + C
+```
+
+---
+
+## Troubleshooting
+
+**Backend won't start — port in use:**
+```bash
+taskkill /F /IM node.exe
 npm run dev
 ```
 
-### Frontend Won't Start
-
-**Error:** `Cannot find module 'react'`
-
-**Solution:**
+**Frontend — module not found:**
 ```bash
 cd client
 npm install
 npm start
 ```
 
-### MongoDB Connection Failed
+**MongoDB connection failed:**
+- Check your `.env` file has the correct `MONGO_URI`
+- Verify MongoDB Atlas IP whitelist includes your current IP
 
-**Error:** `MongoServerError: Authentication failed`
+**CORS errors in browser:**
+- Ensure backend is on port 5000
+- Verify `client/package.json` has: `"proxy": "http://localhost:5000"`
 
-**Solution:**
-- Check `.env` file has correct MongoDB URI
-- Verify MongoDB Atlas is accessible
-- Check network connection
-
-### CORS Errors
-
-**Error:** `Access to XMLHttpRequest blocked by CORS`
-
-**Solution:**
-- Ensure backend is running on port 5000
-- Check `client/package.json` has: `"proxy": "http://localhost:5000"`
-
-### Components Not Found
-
-**Error:** `Module not found: Can't resolve './components/...'`
-
-**Solution:**
-- Verify all component files are created
-- Check file names match imports (case-sensitive)
-- Restart React dev server
+**JWT errors (401 Unauthorized):**
+- Token may be expired (7-day TTL) — log out and log in again
+- Check that `JWT_SECRET` in `.env` matches what was used to generate tokens
 
 ---
 
-## 📝 Development Workflow
-
-### Daily Development
-
-1. **Start Backend** (Terminal 1):
-   ```bash
-   npm run dev
-   ```
-
-2. **Start Frontend** (Terminal 2):
-   ```bash
-   cd client
-   npm start
-   ```
-
-3. **Make Changes**:
-   - Backend: Edit files → Server auto-restarts
-   - Frontend: Edit files → Browser auto-refreshes
-
-4. **Stop Servers**:
-   - Press `Ctrl + C` in both terminals
-
-### Making Changes
-
-**Backend Changes:**
-- Models: `models/`
-- Controllers: `controllers/`
-- Routes: `routes/`
-- Server restarts automatically
-
-**Frontend Changes:**
-- Components: `client/src/components/`
-- Styles: `client/src/components/*/**.css`
-- Services: `client/src/services/`
-- Browser refreshes automatically
-
----
-
-## 🎨 Customization Guide
-
-### Change Colors
-
-Edit `client/src/index.css`:
-
-```css
-:root {
-  --primary-color: #2563eb;      /* Main brand color */
-  --secondary-color: #10b981;    /* Secondary color */
-  --success-color: #10b981;      /* Success messages */
-  --error-color: #ef4444;        /* Error messages */
-}
-```
-
-### Modify Components
-
-Each component has **DEMO markers**:
-
-```javascript
-// DEMO MARKER: Login Component
-// Epic: E1 - User & Role Management
-// Owner: IT24100548
-// EASY TO MODIFY: Change text, colors, validation
-```
-
-Search for your ID to find your components!
-
----
-
-## 📦 Project Structure
+## Actual Project Structure
 
 ```
 methsara-publications-webstore/
-├── server.js                 # Backend entry
-├── package.json             # Backend dependencies
+├── server.js                 # Backend entry point
+├── package.json             # Root scripts + backend deps
 ├── .env                     # Environment variables
-├── models/                  # Database models
-├── controllers/             # Business logic
-├── routes/                  # API routes
-├── middleware/              # Auth middleware
-└── client/                  # Frontend
-    ├── public/
-    │   └── index.html
-    ├── src/
-    │   ├── components/      # React components
-    │   ├── services/        # API services
-    │   ├── App.js          # Main app
-    │   └── index.css       # Global styles
-    └── package.json        # Frontend dependencies
+├── epics/                   # All backend logic (controllers, models, routes)
+│   ├── E1_UserAndRoleManagement/
+│   ├── E2_ProductCatalog/
+│   ├── E3_OrderAndTransaction/
+│   ├── E4_SupplierManagement/
+│   ├── E5_InventoryManagement/
+│   └── E6_PromotionAndLoyalty/
+└── client/                  # React frontend
+    └── src/
+        ├── epics/           # Frontend components per epic
+        ├── components/      # Shared UI components
+        ├── context/         # Auth + Cart context
+        ├── services/        # Axios API calls
+        ├── pages/           # Home, About, Contact
+        └── api/config.js    # Base URL config
 ```
+
+Full tree: [FOLDER_STRUCTURE.md](FOLDER_STRUCTURE.md)
 
 ---
 
-## ✅ Verification Checklist
-
-Before demo/submission:
+## Pre-Demo Checklist
 
 - [ ] Backend starts without errors
 - [ ] Frontend starts without errors
-- [ ] Can register new user
-- [ ] Can login
-- [ ] Can browse products
-- [ ] Can add to cart
-- [ ] Can checkout
-- [ ] Can apply coupon
-- [ ] Can view orders
-- [ ] All 6 Epics accessible
-
----
-
-## 🎯 Next Steps
-
-1. ✅ **Test Everything** - Go through all features
-2. ✅ **Add Sample Data** - Use Postman to create products
-3. ✅ **Train Team** - Show members their components
-4. ✅ **Prepare Demo** - Practice showing features
-5. ✅ **Git Commits** - Each member commits their files
-
----
-
-## 🆘 Need Help?
-
-### Common Questions
-
-**Q: How do I add more products?**
-A: Use Postman with the guide in `docs/guides/Postman_Testing_Guide.md`
-
-**Q: How do I make a user admin?**
-A: Update user role directly in MongoDB Atlas
-
-**Q: Can I change the port?**
-A: Yes, edit `PORT=5001` in `.env` file
-
-**Q: How do I deploy this?**
-A: Backend → Heroku/Railway, Frontend → Vercel/Netlify
-
----
-
-**Your Sprint 1 application is ready to run! 🚀**
-
-**Quick Start:**
-```bash
-# Terminal 1
-npm run dev
-
-# Terminal 2
-cd client
-npm start
-```
-
-**Then open:** http://localhost:3000
+- [ ] Can register a new customer
+- [ ] Can log in and see profile
+- [ ] Can browse and search products
+- [ ] Can add to cart and checkout
+- [ ] Can apply coupon code
+- [ ] Can view order in My Orders
+- [ ] Admin can view financial dashboard
+- [ ] Inventory manager can view stock levels
+- [ ] All 6 epic dashboards accessible with correct roles

@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // CreatePurchaseOrder
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -9,14 +9,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft, Plus, Trash2, Save, AlertCircle } from "lucide-react";
 import DashboardHeader from "../../../../components/dashboard/DashboardHeader";
+import StatusModal from "../../../../components/common/StatusModal";
 import "../../../../components/dashboard/dashboard.css";
 
 const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,15 +27,20 @@ const CreatePurchaseOrder = () => {
     items: [{ product: "", quantity: 1, unitPrice: 0 }],
   });
   const [formErrors, setFormErrors] = useState({});
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Pre-fill from navigation state (e.g. from Low Stock Alerts)
+  // [E4.5] Pre-fill from navigation state (e.g. from Low Stock Alerts page — E5.9 links here with product pre-selected)
   useEffect(() => {
     if (!loading && products.length > 0 && location.state?.product) {
       const prefilledProduct = products.find(
@@ -57,9 +61,8 @@ const CreatePurchaseOrder = () => {
     }
   }, [loading, products, location.state]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
+  // [E4.2] Parallel fetch of suppliers and products for the PO form dropdowns
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -105,6 +108,7 @@ const CreatePurchaseOrder = () => {
     );
   };
 
+  // [E4.3] Validates supplier selection, delivery date, and all line items before API call
   const validateForm = () => {
     const errors = {};
     if (!formData.supplier) errors.supplier = "Please select a supplier";
@@ -116,19 +120,6 @@ const CreatePurchaseOrder = () => {
         errors.date = "Delivery date cannot be in the past";
       }
     }
-
-    if (!formData.items || formData.items.length === 0) {
-      errors.items = "At least one item is required";
-    } else {
-      let itemErrors = false;
-      // ... (omitted for brevity, will rely on context matching)
-      // ACTUALLY I NEED TO MATCH EXACT CONTEXT.
-      // Let me grab larger chunk.
-      // ...
-    }
-    // Wait, I should not break the file.
-    // Let's rewrite the whole validateForm function + the input part in one go? No, they are far apart.
-    // I will do two chunks. using multi_replace_file_content.
 
     if (!formData.items || formData.items.length === 0) {
       errors.items = "At least one item is required";
@@ -166,6 +157,7 @@ const CreatePurchaseOrder = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    setIsSubmitting(true);
 
     try {
       const token = localStorage.getItem("token");
@@ -175,23 +167,30 @@ const CreatePurchaseOrder = () => {
       await axios.post("/api/purchase-orders", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("Purchase Order created successfully!");
-      navigate("/supplier-manager/purchase-orders");
+      setStatusModal({
+        isOpen: true,
+        type: "success",
+        title: "Purchase Order Created",
+        message: "The purchase order has been submitted successfully.",
+      });
     } catch (error) {
       console.error("Error creating PO:", error);
-      alert(
-        "Failed to create PO: " +
-          (error.response?.data?.details ||
-            error.response?.data?.message ||
-            error.message),
-      );
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Failed to Create PO",
+        message:
+          error.response?.data?.details ||
+          error.response?.data?.message ||
+          error.message,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (loading)
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="loading-spinner">
         <div className="spinner"></div>
@@ -389,12 +388,31 @@ const CreatePurchaseOrder = () => {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              <Save size={18} /> Create Purchase Order
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              <Save size={18} />{" "}
+              {isSubmitting ? "Submitting..." : "Create Purchase Order"}
             </button>
           </div>
         </form>
       </div>
+
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        onClose={() => {
+          if (statusModal.type === "success") {
+            navigate("/supplier-manager/purchase-orders");
+          } else {
+            setStatusModal({ ...statusModal, isOpen: false });
+          }
+        }}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+      />
     </div>
   );
 };

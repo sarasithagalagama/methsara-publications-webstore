@@ -1,9 +1,8 @@
-﻿// ============================================
-// [Epic E4] Supplier Management
-// --------------------------------------------
-// This module manages the "B2B" side of the business.
-// It handles our relationship with authors and publishers,
-// tracking every purchase order from creation to delivery.
+// ============================================
+// Purchase Order List Page
+// Epic: E4 - Supplier Management
+// Owner: IT24100799 (Gawrawa G H Y)
+// Purpose: View and manage purchase orders (E4.2)
 // ============================================
 
 import React, { useState, useEffect } from "react";
@@ -12,13 +11,12 @@ import axios from "axios";
 import { ArrowLeft, Plus, Eye, CheckCircle, XCircle } from "lucide-react";
 import DashboardHeader from "../../../../components/dashboard/DashboardHeader";
 import ConfirmModal from "../../../../components/common/ConfirmModal";
+import StatusModal from "../../../../components/common/StatusModal";
 import "../../../../components/dashboard/dashboard.css";
 
 const PurchaseOrderList = () => {
   const navigate = useNavigate();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({
@@ -28,26 +26,24 @@ const PurchaseOrderList = () => {
   });
   const [selectedPO, setSelectedPO] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
-  /**
-   * On mount, we load all purchase orders.
-   * This gives the Supplier Manager a bird's-eye view of all procurement.
-   */
-  // ─────────────────────────────────
+  // On mount, we load all purchase orders.
+  // This gives the Supplier Manager a bird's-eye view of all procurement.
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchPOs();
   }, []);
 
-  /**
-   * [Epic E4.1] - Secure Procurement Data
-   * We fetch the PO list from our protected API, ensuring
-   * only authorized managers can see our supplier costs.
-   */
-  // ─────────────────────────────────
+  // [Epic E4.1] - Secure Procurement Data
+  // We fetch the PO list from our protected API, ensuring
+  // only authorized managers can see our supplier costs.
   // Event Handlers
-  // ─────────────────────────────────
   const fetchPOs = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -61,11 +57,9 @@ const PurchaseOrderList = () => {
     }
   };
 
-  /**
-   * [Epic E4.3] - Managing Order Lifecycle
-   * This handles the status transitions. A PO can go from
-   * 'Pending' to 'Approved' or 'Received' as we process the shipment.
-   */
+  // [Epic E4.3] - Managing Order Lifecycle
+  // This handles the status transitions. A PO can go from
+  // 'Pending' to 'Approved' or 'Received' as we process the shipment.
   const handleStatusUpdate = (id, status) => {
     setConfirmModal({ isOpen: true, poId: id, status });
   };
@@ -83,22 +77,23 @@ const PurchaseOrderList = () => {
       fetchPOs();
     } catch (error) {
       console.error("Error updating status:", error);
-      alert("Failed to update status");
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Update Failed",
+        message: "Failed to update purchase order status. Please try again.",
+      });
     }
   };
 
-  /**
-   * Detailed drill-down into a specific order's items and costs.
-   */
+  // Detailed drill-down into a specific order's items and costs.
   const handleViewPO = (po) => {
     setSelectedPO(po);
     setShowViewModal(true);
   };
 
   if (loading)
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="loading-spinner">
         <div className="spinner"></div>
@@ -213,10 +208,22 @@ const PurchaseOrderList = () => {
                                     },
                                   },
                                 );
-                                alert("Payment requested successfully");
+                                setStatusModal({
+                                  isOpen: true,
+                                  type: "success",
+                                  title: "Payment Requested",
+                                  message:
+                                    "Payment request has been sent successfully.",
+                                });
                                 fetchPOs();
                               } catch (err) {
-                                alert("Failed to request payment");
+                                setStatusModal({
+                                  isOpen: true,
+                                  type: "error",
+                                  title: "Request Failed",
+                                  message:
+                                    "Failed to send payment request. Please try again.",
+                                });
                               }
                             }}
                           >
@@ -296,7 +303,7 @@ const PurchaseOrderList = () => {
                 marginBottom: "1.5rem",
               }}
             >
-              <h3>Purchase Order Details â€” #{selectedPO?.poNumber}</h3>
+              <h3>Purchase Order Details — #{selectedPO?.poNumber}</h3>
               <button
                 onClick={() => setShowViewModal(false)}
                 className="btn-icon"
@@ -370,6 +377,14 @@ const PurchaseOrderList = () => {
           </div>
         </div>
       )}
+
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        onClose={() => setStatusModal({ ...statusModal, isOpen: false })}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+      />
     </div>
   );
 };

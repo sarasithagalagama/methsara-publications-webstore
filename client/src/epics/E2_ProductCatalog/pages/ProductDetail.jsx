@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // ProductDetail Component (Premium Redesign v2)
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -32,9 +32,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { refreshCounts } = useAuth();
 
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -49,10 +47,10 @@ const ProductDetail = () => {
   });
   const [hoveredRating, setHoveredRating] = useState(0);
   const [hasPurchased, setHasPurchased] = useState(false);
+  // [E2.8] hasPurchased gates the review form — only customers with a 'Delivered' order can write a review
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
+  // [id] dependency restarts all three fetches when the URL changes (navigating between product pages)
   useEffect(() => {
     fetchProductDetails();
     fetchRelatedProducts();
@@ -60,6 +58,8 @@ const ProductDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // [E2.8] Review gating: scan the customer's order history for any 'Delivered' order containing this product
+  // This prevents fake reviews from users who never received the book
   const checkPurchaseStatus = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -83,9 +83,7 @@ const ProductDetail = () => {
     }
   };
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const fetchProductDetails = async () => {
     try {
       setLoading(true);
@@ -102,6 +100,7 @@ const ProductDetail = () => {
     }
   };
 
+  // [E2.10] Related products — fetched from a separate backend endpoint based on same grade/subject
   const fetchRelatedProducts = async () => {
     try {
       const res = await axios.get(`/api/products/${id}/related`);
@@ -221,9 +220,7 @@ const ProductDetail = () => {
     }
   };
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   if (loading) {
     return (
       <div className="pd2-loading">
@@ -247,6 +244,7 @@ const ProductDetail = () => {
 
   const avgRating = Number(product.averageRating || 0);
   const totalReviews = product.totalReviews || 0;
+  // Decode JWT payload (base64 middle segment) to extract the current user's ID without an extra API call
   const currentUserId = (() => {
     try {
       const token = localStorage.getItem("token");

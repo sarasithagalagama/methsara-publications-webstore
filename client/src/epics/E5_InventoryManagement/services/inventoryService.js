@@ -7,11 +7,13 @@
 import api from "../../../api/config";
 
 const inventoryService = {
+  // [E5.2] Master view: admin/master_inventory_manager fetches stock across ALL locations
   getAllInventory: async () => {
     const response = await api.get("/inventory/all");
     return response.data;
   },
 
+  // [E5.1] Location-scoped view: location_inventory_manager sees only their assigned warehouse/branch
   getInventoryByLocation: async (location) => {
     const response = await api.get(`/inventory/location/${location}`);
     return response.data;
@@ -27,11 +29,13 @@ const inventoryService = {
     return response.data;
   },
 
+  // [E5.3] Manual stock adjustment: payload includes productId, location, change amount (+/-), reason
   adjustStock: async (adjustmentData) => {
     const response = await api.post("/inventory/adjust", adjustmentData);
     return response.data;
   },
 
+  // [E5.9] Low stock alerts: backend compares currentQuantity against reorderLevel per product per location
   getLowStockItems: async (location = null) => {
     const params = location ? `?location=${location}` : "";
     const response = await api.get(`/inventory/low-stock${params}`);

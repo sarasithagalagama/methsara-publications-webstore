@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Product List Component
 // Epic: E2 - Product Catalog
 // Owner: IT24101314 (Appuhami H A P L)
@@ -12,14 +12,13 @@ import ProductCard from "./ProductCard";
 import "./Products.css";
 
 function ProductList() {
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Filter states - 
+  // [E2.4] [E2.5] [E2.7] Filters object drives the API query — any change triggers a re-fetch
+  // Filter states -
   const [filters, setFilters] = useState({
     search: "",
     grade: "",
@@ -28,16 +27,12 @@ function ProductList() {
   });
 
   // Load products
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     loadProducts();
   }, [filters]);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
   const loadProducts = async () => {
     try {
       setLoading(true);
@@ -58,9 +53,7 @@ function ProductList() {
     });
   };
 
-  // ─────────────────────────────────
   // Render
-  // ─────────────────────────────────
   return (
     <div className="container">
       <div className="products-header">

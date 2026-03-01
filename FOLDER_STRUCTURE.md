@@ -1,102 +1,214 @@
 # Methsara Publications Webstore - Project Structure
 
-## 📁 Folder Organization
+This is the **actual** folder structure of the built project.
+
+---
+
+## 📁 Full Folder Tree
 
 ```
 methsara-publications-webstore/
 │
-├── 📂 docs/                          # All documentation
-│   ├── 📂 sprint-0/                  # Sprint 0 deliverables
-│   │   ├── README.md                 # Sprint 0 overview
-│   │   ├── Complete_Product_Backlog.md
-│   │   ├── Epic_Structure_Summary.md
-│   │   └── Sprint_0_Checklist.md
+├── server.js                           # Express entry point — registers all routes
+├── package.json                        # Root dependencies + npm scripts
+├── package-lock.json
+├── .env                                # Environment vars (not committed)
+├── README.md                           # Project overview
+├── QUICK_START.md                      # How to run the project
+├── ONE_COMMAND_START.md                # Single-command startup guide
+├── FOLDER_STRUCTURE.md                 # This file
+│
+├── epics/                              # BACKEND — all API logic, organized by epic
+│   ├── E1_UserAndRoleManagement/       # Auth, JWT, sessions, roles, approvals
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── authController_deactivation.js
+│   │   │   └── approvalController.js
+│   │   ├── middleware/
+│   │   │   └── auth.js                 # protect, authorize, generateToken
+│   │   ├── models/
+│   │   │   ├── User.js
+│   │   │   ├── Session.js
+│   │   │   └── ApprovalRequest.js      # Maker-checker pattern
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js           # /api/auth
+│   │   │   └── approvalRoutes.js       # /api/approvals
+│   │   └── README.md
 │   │
-│   ├── 📂 re-assignment/             # RE Assignment 1 deliverables
-│   │   ├── README.md                 # Assignment overview & checklist
-│   │   ├── RE_Assignment_1_Report.md # Main assignment report
-│   │   ├── Strategic_Dependency_Diagram.md
-│   │   ├── Business_Model_Canvas.md
-│   │   ├── UML_Use_Case_Diagram.md
-│   │   ├── Product_Backlog_Table.md
-│   │   ├── Burn_Up_Chart.md
-│   │   ├── Requirements_Traceability_Matrix.md
-│   │   └── RE_Assignment_Guidelines.md
+│   ├── E2_ProductCatalog/              # Products, reviews, categories, image upload
+│   │   ├── controllers/
+│   │   │   ├── productController.js
+│   │   │   └── reviewController.js
+│   │   ├── models/
+│   │   │   ├── Product.js
+│   │   │   ├── Review.js
+│   │   │   └── Category.js
+│   │   ├── routes/
+│   │   │   ├── productRoutes.js        # /api/products
+│   │   │   ├── reviewRoutes.js         # /api/reviews
+│   │   │   └── uploadRoutes.js         # /api/upload
+│   │   ├── uploads/                    # Product images stored here
+│   │   └── README.md
 │   │
-│   ├── 📂 guides/                    # How-to guides
-│   │   ├── Jira_Quick_Start.md
-│   │   ├── Assignment_Guide.md
-│   │   └── Product_Backlog_Guide.md
+│   ├── E3_OrderAndTransaction/         # Orders, cart, financial reports
+│   │   ├── controllers/
+│   │   │   ├── orderController.js      # Cross-epic: uses E2, E5, E6
+│   │   │   ├── cartController.js
+│   │   │   └── financialController.js
+│   │   ├── models/
+│   │   │   ├── Order.js
+│   │   │   ├── Cart.js
+│   │   │   └── FinancialTransaction.js
+│   │   ├── routes/
+│   │   │   ├── orderRoutes.js          # /api/orders
+│   │   │   ├── cartRoutes.js           # /api/cart
+│   │   │   └── financialRoutes.js      # /api/financial
+│   │   └── README.md
 │   │
-│   ├── 📂 planning/                  # Project planning docs
-│   │   ├── AGILE_PLAN.md
-│   │   ├── GIT_WORKFLOW.md
-│   │   └── VIVA_CONTRIBUTION_MAP.md
+│   ├── E4_SupplierManagement/          # Suppliers, purchase orders
+│   │   ├── controllers/
+│   │   │   ├── supplierController.js
+│   │   │   └── purchaseOrderController.js
+│   │   ├── models/
+│   │   │   ├── Supplier.js
+│   │   │   └── PurchaseOrder.js
+│   │   ├── routes/
+│   │   │   ├── supplierRoutes.js       # /api/suppliers
+│   │   │   └── purchaseOrderRoutes.js  # /api/purchase-orders
+│   │   └── README.md
 │   │
-│   └── 📂 presentations/             # Presentation materials
-│       └── Sprint_0_Presentation_Guide.pdf
+│   ├── E5_InventoryManagement/         # Stock (product × location), transfers
+│   │   ├── controllers/
+│   │   │   ├── inventoryController.js
+│   │   │   ├── locationController.js
+│   │   │   └── stockTransferController.js
+│   │   ├── models/
+│   │   │   ├── Inventory.js
+│   │   │   ├── Location.js
+│   │   │   └── StockTransfer.js
+│   │   ├── routes/
+│   │   │   ├── inventoryRoutes.js      # /api/inventory
+│   │   │   ├── locationRoutes.js       # /api/locations
+│   │   │   └── stockTransferRoutes.js  # /api/stock-transfers
+│   │   └── README.md
+│   │
+│   └── E6_PromotionAndLoyalty/         # Coupons, campaigns, gift vouchers
+│       ├── controllers/
+│       │   ├── couponController.js     # Also handles campaigns
+│       │   └── giftVoucherController.js
+│       ├── models/
+│       │   ├── Coupon.js
+│       │   ├── Campaign.js
+│       │   ├── GiftVoucher.js
+│       │   └── VoucherProduct.js
+│       ├── routes/
+│       │   ├── couponRoutes.js         # /api/coupons  (also /api/coupons/campaigns)
+│       │   └── giftVoucherRoutes.js    # /api/gift-vouchers
+│       └── README.md
 │
-├── 📂 Week 01/                       # Week 1 submissions
-│   └── (existing files)
+├── client/                             # FRONTEND — React application
+│   ├── package.json                    # Frontend dependencies
+│   ├── public/
+│   │   └── index.html
+│   ├── build/                          # Production build output
+│   └── src/
+│       ├── index.js                    # React entry point
+│       ├── index.css                   # Global base styles
+│       ├── App.js                      # Router + layout
+│       ├── App.css
+│       ├── api/
+│       │   └── config.js               # Axios base URL config
+│       ├── assets/                     # Images, fonts
+│       ├── components/
+│       │   ├── common/                 # Shared UI (Navbar, Footer, etc.)
+│       │   ├── dashboard/              # Dashboard layout components
+│       │   └── Layouts/                # Page layout wrappers
+│       ├── context/                    # React Context (AuthContext, CartContext)
+│       ├── epics/                      # Feature components, one folder per epic
+│       │   ├── E1_UserAndRoleManagement/
+│       │   ├── E2_ProductCatalog/
+│       │   ├── E3_OrderAndTransaction/
+│       │   ├── E4_SupplierManagement/
+│       │   ├── E5_InventoryManagement/
+│       │   └── E6_PromotionAndLoyalty/
+│       ├── pages/                      # Public pages (Home, About, Contact)
+│       └── services/                   # Axios API service functions
 │
-├── 📂 Week 02/                       # Week 2 submissions
-│   └── (existing files)
+├── docs/                               # Documentation
+│   ├── database_design.md
+│   ├── database_er_diagrams.md
+│   ├── guides/
+│   │   └── Postman_Testing_Guide.md
+│   ├── planning/
+│   ├── presentations/
+│   ├── re-assignment/
+│   └── sprint-0/
 │
-├── 📂 src/                           # Source code (to be created)
-│   ├── 📂 frontend/                  # React frontend
-│   ├── 📂 backend/                   # Node.js/Express backend
-│   └── 📂 database/                  # MongoDB schemas
-│
-├── 📂 tests/                         # Test files (to be created)
-│   ├── 📂 unit/
-│   ├── 📂 integration/
-│   └── 📂 e2e/
-│
-├── 📂 config/                        # Configuration files (to be created)
-│   ├── .env.example
-│   └── database.config.js
-│
-├── .git/                             # Git repository
-├── .gitignore                        # Git ignore file
-└── README.md                         # Main project README
+├── scripts/                            # One-off utility / migration scripts
+└── uploads/                            # Root uploads fallback folder
 ```
 
-## 📋 Recommended Organization
+---
 
-### Current Files to Move:
+## 🔗 How the Backend is Wired Together
 
-**From Root → docs/planning/**
-- AGILE_PLAN.md
-- GIT_WORKFLOW.md
-- VIVA_CONTRIBUTION_MAP.md
+`server.js` imports and mounts all route files:
 
-**From Week 02 → docs/sprint-0/**
-- Complete_Product_Backlog.md
-- README.md (rename to Sprint_0_Overview.md)
+```javascript
+// E1
+app.use('/api/auth',      authRoutes);
+app.use('/api/approvals', approvalRoutes);
 
-**From Week 02 → docs/guides/**
-- Jira_Quick_Start.md
-- Assignment_Guide.md
-- Product_Backlog_Guide.md
+// E2
+app.use('/api/products',  productRoutes);
+app.use('/api/reviews',   reviewRoutes);
+app.use('/api/upload',    uploadRoutes);
 
-**From Week 02 → docs/presentations/**
-- IE2091_Sprint_0_Presentation_Guide.pdf
-- 2026-S2-IE2091-Practical 2.pdf
+// E3
+app.use('/api/orders',    orderRoutes);
+app.use('/api/cart',      cartRoutes);
+app.use('/api/financial', financialRoutes);
 
-## 🎯 Benefits of This Structure:
+// E4
+app.use('/api/suppliers',       supplierRoutes);
+app.use('/api/purchase-orders', purchaseOrderRoutes);
 
-1. **Clear Separation**: Documentation vs. Code vs. Tests
-2. **Easy Navigation**: Find files by category
-3. **Scalability**: Easy to add new sprints/features
-4. **Professional**: Industry-standard structure
-5. **Git-Friendly**: Clean commit history
+// E5
+app.use('/api/inventory',       inventoryRoutes);
+app.use('/api/locations',       locationRoutes);
+app.use('/api/stock-transfers', stockTransferRoutes);
 
-## 📝 Next Steps:
+// E6
+app.use('/api/coupons',        couponRoutes);
+app.use('/api/gift-vouchers',  giftVoucherRoutes);
+```
 
-1. Create folder structure
-2. Move files to appropriate locations
-3. Update file references in documentation
-4. Commit organized structure to Git
+All middleware (auth, authorize) lives in `epics/E1_UserAndRoleManagement/middleware/auth.js` and is **imported by all other epics**.
+
+---
+
+## 🗄️ MongoDB Collections
+
+| Collection | Model File | Epic |
+|---|---|---|
+| `users` | E1/models/User.js | E1 |
+| `sessions` | E1/models/Session.js | E1 |
+| `approvalrequests` | E1/models/ApprovalRequest.js | E1 |
+| `products` | E2/models/Product.js | E2 |
+| `reviews` | E2/models/Review.js | E2 |
+| `categories` | E2/models/Category.js | E2 |
+| `orders` | E3/models/Order.js | E3 |
+| `carts` | E3/models/Cart.js | E3 |
+| `financialtransactions` | E3/models/FinancialTransaction.js | E3 |
+| `suppliers` | E4/models/Supplier.js | E4 |
+| `purchaseorders` | E4/models/PurchaseOrder.js | E4 |
+| `inventories` | E5/models/Inventory.js | E5 |
+| `locations` | E5/models/Location.js | E5 |
+| `stocktransfers` | E5/models/StockTransfer.js | E5 |
+| `coupons` | E6/models/Coupon.js | E6 |
+| `campaigns` | E6/models/Campaign.js | E6 |
+| `giftvouchers` | E6/models/GiftVoucher.js | E6 |
+| `voucherproducts` | E6/models/VoucherProduct.js | E6 |
 
 ---
 

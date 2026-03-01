@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
-    // Check if user already exists
+    // [E1.1] Prevent duplicate accounts by checking email uniqueness before creation
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Create customer account
+    // [E1.1] New customers always get role='customer'; isEmailVerified=true (TODO: real email service)
     const user = await User.create({
       name,
       email,
@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
       isEmailVerified: true, // TODO: Implement email verification service
     });
 
-    // Generate token
+    // [E1.2] Issue JWT immediately after registration so user is logged in straight away
     const token = generateToken(user._id);
 
     res.status(201).json({
@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user (include password for comparison)
+    // [E1.2] Must use .select("+password") because password has select:false in the User schema
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
@@ -81,7 +81,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check password
+    // [E1.2] comparePassword uses bcrypt.compare to safely check plaintext against stored hash
     const isPasswordMatch = await user.comparePassword(password);
 
     if (!isPasswordMatch) {
@@ -91,7 +91,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check if account is active
+    // [E1.8] Block login for deactivated accounts even when password is correct
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
@@ -103,15 +103,16 @@ exports.login = async (req, res) => {
     user.lastLogin = Date.now();
     await user.save();
 
-    // Generate token
+    // [E1.2] Sign a new JWT bound to this user's _id
     const token = generateToken(user._id);
 
-    // Track Session
+    // [E1.13] Parse the User-Agent header to generate a human-readable device string for the sessions dashboard
     const parser = new UAParser(req.headers["user-agent"]);
     const browser = parser.getBrowser();
     const os = parser.getOS();
     const deviceStr = `${browser.name || "Unknown Browser"} on ${os.name || "Unknown OS"}`;
 
+    // [E1.13] Create a Session record so the user can see and revoke their active sessions
     await Session.create({
       user: user._id,
       token,
@@ -120,6 +121,7 @@ exports.login = async (req, res) => {
       device: deviceStr,
     });
 
+    // [E1.8] mustChangePassword is included in response so frontend can redirect to forced-reset screen
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -161,7 +163,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// Create Staff Account (Admin only)
+// [E1.4] Create Staff Account (Admin only) — sets userType='staff', role from payload, mustChangePassword=true
 exports.createStaff = async (req, res) => {
   try {
     const {

@@ -5,16 +5,16 @@
 // Purpose: PO CRUD and tracking (E4.2, E4.3, E4.7)
 // ============================================
 
-const PurchaseOrder = require('../models/PurchaseOrder');
-const Product = require('../../E2_ProductCatalog/models/Product');
-const Inventory = require('../../E5_InventoryManagement/models/Inventory');
+const PurchaseOrder = require("../models/PurchaseOrder");
+const Product = require("../../E2_ProductCatalog/models/Product");
+const Inventory = require("../../E5_InventoryManagement/models/Inventory");
 
-// Create Purchase Order (E4.2)
+// [E4.2] createPurchaseOrder: calculates item totals, generates poNumber, initialises statusHistory
 exports.createPurchaseOrder = async (req, res) => {
   try {
     const { supplier, items, expectedDeliveryDate, location, notes } = req.body;
 
-    // Calculate totals
+    // [E4.2] Calculate line-item totalPrice and sum to get order totalAmount
     let totalAmount = 0;
     const processedItems = items.map((item) => {
       const totalPrice = item.quantity * item.unitPrice;
@@ -25,7 +25,8 @@ exports.createPurchaseOrder = async (req, res) => {
       };
     });
 
-    // Generate short PO Number explicitly (e.g., PO-2402-0001)
+    // [E4.2] Generate PO number explicitly in controller (duplicates pre-save hook for clarity)
+    // Format: PO-YYMM-XXXX — e.g. PO-2402-0001; padStart(4,'0') ensures 4-digit sequence
     const count = await PurchaseOrder.countDocuments();
     const dateStr = new Date().toISOString().slice(2, 7).replace("-", ""); // YYMM
     const poNumber = `PO-${dateStr}-${String(count + 1).padStart(4, "0")}`;
@@ -39,6 +40,7 @@ exports.createPurchaseOrder = async (req, res) => {
       location,
       notes,
       createdBy: req.user.id,
+      // [E4.3] Seed the statusHistory with the initial Pending entry for full audit trail from creation
       statusHistory: [
         {
           status: "Pending",
@@ -65,7 +67,7 @@ exports.createPurchaseOrder = async (req, res) => {
   }
 };
 
-// Get All Purchase Orders (E4.3)
+// [E4.3] getAllPurchaseOrders: filterable by status and location; populates supplier/product for full details
 exports.getAllPurchaseOrders = async (req, res) => {
   try {
     const { status, location } = req.query;
@@ -91,7 +93,7 @@ exports.getAllPurchaseOrders = async (req, res) => {
   }
 };
 
-// Update PO Status (E4.3)
+// [E4.3] updatePOStatus: appends to statusHistory on each transition; Received/Dispatched triggers E5 inventory update
 exports.updatePOStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -128,13 +130,14 @@ exports.updatePOStatus = async (req, res) => {
           {
             $inc: { quantity: isOutward ? -item.quantity : item.quantity },
             $push: {
-              history: {
-                type: isOutward ? "Distribution" : "Purchase Order",
+              adjustments: {
+                type: isOutward ? "Remove" : "Add",
                 quantity: isOutward ? -item.quantity : item.quantity,
                 reason: isOutward
                   ? `Dispatched to ${po.supplier.name}`
                   : `PO ${po.poNumber} received`,
-                performedBy: req.user.id,
+                adjustedBy: req.user.id,
+                timestamp: Date.now(),
               },
             },
           },
@@ -314,11 +317,12 @@ exports.verifyDelivery = async (req, res) => {
         {
           $inc: { quantity: item.receivedQty || item.quantity },
           $push: {
-            history: {
-              type: "Purchase Order",
+            adjustments: {
+              type: "Add",
               quantity: item.receivedQty || item.quantity,
               reason: `PO ${po.poNumber} verified and received`,
-              performedBy: req.user.id,
+              adjustedBy: req.user.id,
+              timestamp: Date.now(),
             },
           },
         },

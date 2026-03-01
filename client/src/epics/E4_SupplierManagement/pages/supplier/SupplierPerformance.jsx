@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // SupplierPerformance
 // Epic: E4 - Supplier Management
 // Owner: IT24100799 (Gawrawa G H Y)
@@ -15,9 +15,7 @@ import "../../../../components/dashboard/dashboard.css";
 
 const SupplierPerformance = () => {
   const navigate = useNavigate();
-  // ─────────────────────────────────
   // State Variables
-  // ─────────────────────────────────
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     onTimeDelivery: 0,
@@ -27,16 +25,14 @@ const SupplierPerformance = () => {
   });
   const [performance, setPerformance] = useState([]);
 
-  // ─────────────────────────────────
   // Side Effects
-  // ─────────────────────────────────
   useEffect(() => {
     fetchPerformance();
   }, []);
 
-  // ─────────────────────────────────
   // Event Handlers
-  // ─────────────────────────────────
+  // [E4.6] Performance metrics: onTimeDelivery%, qualityScore, returnRate, totalOrders from server analytics
+  // Note: returnRate hard-coded to 0.5 — backend return tracking is not yet implemented
   const fetchPerformance = async () => {
     try {
       const data = await supplierService.getAnalytics();
@@ -60,9 +56,7 @@ const SupplierPerformance = () => {
   };
 
   if (loading) {
-    // ─────────────────────────────────
     // Render
-    // ─────────────────────────────────
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">

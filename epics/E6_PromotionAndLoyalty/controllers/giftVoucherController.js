@@ -1,9 +1,17 @@
-const GiftVoucher = require('../models/GiftVoucher');
-const Product = require('../../E2_ProductCatalog/models/Product');
+// ============================================
+// Gift Voucher Controller
+// Epic: E6 - Promotion & Loyalty
+// Owner: IT24101266 (Perera M.U.E)
+// Purpose: Gift voucher system (E6.4)
+// ============================================
+
+const GiftVoucher = require("../models/GiftVoucher");
+const VoucherProduct = require("../models/VoucherProduct");
 
 // @desc    Create a new manual voucher (admin/manager)
 // @route   POST /api/gift-vouchers
 // @access  Private (Managers)
+// [E6.4] createVoucher: admin/manager manually issues a voucher with face value; balance = value at creation
 exports.createVoucher = async (req, res) => {
   try {
     const { value, expiryDate, recipientEmail, recipientName, message } =
@@ -12,7 +20,9 @@ exports.createVoucher = async (req, res) => {
     const voucher = await GiftVoucher.create({
       value,
       balance: value, // Initial balance = value
-      expiryDate,
+      // [E6.4] Default expiry: 1 year from now if not specified by admin
+      expiryDate:
+        expiryDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       purchasedBy: req.user._id, // Created by admin/manager
       recipientEmail,
       recipientName,
@@ -52,9 +62,7 @@ exports.getAllVouchers = async (req, res) => {
   }
 };
 
-// @desc    Validate a voucher code
-// @route   POST /api/gift-vouchers/validate
-// @access  Public (or Private if checking balance)
+// [E6.4] validateVoucher: checks isActive + not expired + balance > 0; returns balance for frontend display
 exports.validateVoucher = async (req, res) => {
   try {
     const { code } = req.body;
@@ -99,15 +107,12 @@ exports.validateVoucher = async (req, res) => {
   }
 };
 
-// @desc    Get Voucher Products (Products with category 'Gift Voucher')
-// @route   GET /api/gift-vouchers/products
-// @access  Public
+// [E6.4] getVoucherProducts: returns the VoucherProduct catalog (gift voucher denominations for sale)
 exports.getVoucherProducts = async (req, res) => {
   try {
-    const products = await Product.find({
-      category: "Gift Voucher",
-      isActive: true,
-    });
+    const products = await VoucherProduct.find({ isActive: true }).sort(
+      "displayOrder",
+    );
     res.status(200).json({
       success: true,
       products,
@@ -116,6 +121,67 @@ exports.getVoucherProducts = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error fetching voucher products",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Create a new voucher product for catalog
+// @route   POST /api/gift-vouchers/products
+// @access  Private (Admin/Marketing)
+exports.createVoucherProduct = async (req, res) => {
+  try {
+    const product = await VoucherProduct.create(req.body);
+    res.status(201).json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error creating voucher product",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Update a voucher product
+// @route   PUT /api/gift-vouchers/products/:id
+// @access  Private (Admin/Marketing)
+exports.updateVoucherProduct = async (req, res) => {
+  try {
+    const product = await VoucherProduct.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true },
+    );
+    res.status(200).json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating voucher product",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Delete a voucher product
+// @route   DELETE /api/gift-vouchers/products/:id
+// @access  Private (Admin/Marketing)
+exports.deleteVoucherProduct = async (req, res) => {
+  try {
+    await VoucherProduct.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: "Catalog item deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting catalog item",
       error: error.message,
     });
   }

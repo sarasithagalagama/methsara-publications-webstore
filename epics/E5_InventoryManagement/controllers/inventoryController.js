@@ -8,11 +8,12 @@
 const Inventory = require("../models/Inventory");
 const Product = require("../../E2_ProductCatalog/models/Product");
 
-// Get stock by location (E5.1, E5.2)
+// [E5.1][E5.2] getStockByLocation: role-aware — location IM auto-scoped to their branch; master IM sees all
 exports.getStockByLocation = async (req, res) => {
   try {
     const { search } = req.query;
 
+    // [E5.2] location_inventory_manager is always scoped to assignedLocation regardless of URL param
     const filterLocation =
       req.user.role === "location_inventory_manager"
         ? req.params.location === "all"
@@ -58,8 +59,8 @@ exports.getStockByLocation = async (req, res) => {
     // 2.1 Filter out inventory records where the product was filtered out by the match (e.g. Gift Vouchers)
     inventory = inventory.filter((item) => item.product !== null);
 
-    // 3. Dynamic Sync: Ensure all physical products have an inventory record for this location
-    // Skip this if it's an "all" locations query or if we are actively searching (to save perf)
+    // [E5.1] Dynamic Sync: auto-creates zero-stock Inventory records for products that have no record at this location
+    // Prevents inventory gaps when new products are added without a manual stock setup step
     if (filterLocation && filterLocation !== "all" && !search) {
       const allActiveProducts = await Product.find({
         isActive: true,
@@ -117,11 +118,10 @@ exports.getStockByLocation = async (req, res) => {
   }
 };
 
-// Adjust stock (E5.3)
-// Adjust stock (E5.3)
+// [E5.3] adjustStock: master IM / admin only; supports positive (add) or negative (remove) adjustment + logs to adjustments history
 exports.adjustStock = async (req, res) => {
   try {
-    // Restrict editing to Admin and Master Inventory Manager (E5.3)
+    // [E5.3] Role restriction: only master_inventory_manager or admin can manually adjust stock
     if (
       req.user.role !== "admin" &&
       req.user.role !== "master_inventory_manager"

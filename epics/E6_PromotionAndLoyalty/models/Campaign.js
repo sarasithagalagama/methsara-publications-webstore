@@ -1,7 +1,7 @@
 ﻿// ============================================
 // Campaign Model
 // Epic: E6 - Promotion & Loyalty
-// Owner: IT24100191 (Jayasinghe D.B.P)
+// Owner: IT24101266 (Perera M.U.E)
 // Purpose: Seasonal campaigns (E6.5)
 // ============================================
 
@@ -16,6 +16,7 @@ const campaignSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    // [E6.5] type: campaign category displayed on the frontend banner (Back to School, Flash Sale, etc.)
     type: {
       type: String,
       enum: [
@@ -49,6 +50,7 @@ const campaignSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    // [E6.5] applicableProducts: empty array = applies to ALL products; otherwise specific product whitelist
     applicableProducts: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -94,7 +96,8 @@ const campaignSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Helper to find best discount for a product
+// [E6.5] getDiscountedPrice: static method — finds all active campaigns and returns the BEST (highest) discount
+// Empty applicableProducts/applicableCategories arrays mean the campaign applies to every product
 campaignSchema.statics.getDiscountedPrice = async function (product) {
   const now = new Date();
   const activeCampaigns = await this.find({
