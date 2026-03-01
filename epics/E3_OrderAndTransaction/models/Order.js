@@ -72,6 +72,15 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  // [E3.9] Tax fields — taxRate sourced from Finance Manager's Tax Configuration
+  taxRate: {
+    type: Number,
+    default: 0,
+  },
+  taxAmount: {
+    type: Number,
+    default: 0,
+  },
   total: {
     type: Number,
     required: true,
@@ -163,7 +172,7 @@ const orderSchema = new mongoose.Schema({
 });
 
 // [E3.3] Pre-save: recalculates all item subtotals and the order total before every save
-// Ensures total = subtotal - discount - couponDiscount - giftVoucherDiscount + deliveryFee
+// Ensures total = subtotal + taxAmount - couponDiscount - giftVoucherDiscount + deliveryFee
 orderSchema.pre("save", function (next) {
   // Calculate item subtotals
   this.items.forEach((item) => {
@@ -173,9 +182,13 @@ orderSchema.pre("save", function (next) {
   // Calculate order subtotal
   this.subtotal = this.items.reduce((sum, item) => sum + item.subtotal, 0);
 
+  // Calculate tax on subtotal (taxRate is a percentage, e.g. 18 = 18%)
+  this.taxAmount = Math.round((this.subtotal * (this.taxRate || 0)) / 100);
+
   // Calculate total
   this.total =
-    this.subtotal -
+    this.subtotal +
+    this.taxAmount -
     this.discount -
     this.couponDiscount -
     this.giftVoucherDiscount +

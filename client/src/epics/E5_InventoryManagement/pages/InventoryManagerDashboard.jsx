@@ -127,8 +127,45 @@ const InventoryManagerDashboard = () => {
     user?.assignedLocation === "All" ||
     !user?.assignedLocation;
 
-  const canEdit =
-    user?.role === "admin" || user?.role === "master_inventory_manager";
+  // [E5.3] Determine if user can edit: admin can edit all;
+  // master IM defaults to main warehouse; others restricted to assigned location
+  const canEditItem = (item) => {
+    if (user?.role === "admin") return true;
+
+    if (user?.role === "master_inventory_manager") {
+      // Effective editable location: specific assignedLocation, or fall back to main warehouse
+      const editableLocation =
+        user?.assignedLocation && user?.assignedLocation !== "All"
+          ? user.assignedLocation
+          : mainWarehouseName;
+      return item?.location === editableLocation;
+    }
+
+    if (user?.role === "location_inventory_manager") {
+      return item?.location === user?.assignedLocation;
+    }
+
+    return false;
+  };
+
+  // [E5.3] Check if user can edit at the currently selected location
+  const canEditCurrentLocation = () => {
+    if (user?.role === "admin") return true;
+
+    if (user?.role === "master_inventory_manager") {
+      const editableLocation =
+        user?.assignedLocation && user?.assignedLocation !== "All"
+          ? user.assignedLocation
+          : mainWarehouseName;
+      return selectedLocation === editableLocation;
+    }
+
+    if (user?.role === "location_inventory_manager") {
+      return selectedLocation === user?.assignedLocation;
+    }
+
+    return false;
+  };
 
   const [selectedLocation, setSelectedLocation] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -545,8 +582,10 @@ const InventoryManagerDashboard = () => {
     }
 
     // Find the item in the selected source inventory
+    // Use .toString() to compare Mongoose ObjectId (object) with string from select value
     const sourceItem = sourceInventory.find(
-      (item) => item.product && item.product._id === transferForm.product,
+      (item) =>
+        item.product && item.product._id.toString() === transferForm.product,
     );
 
     if (!sourceItem) {
@@ -554,9 +593,11 @@ const InventoryManagerDashboard = () => {
       return;
     }
 
-    if (transferForm.quantity > sourceItem.quantity) {
+    // Check against availableQuantity (quantity minus reserved stock)
+    const availableQty = sourceItem.availableQuantity ?? sourceItem.quantity;
+    if (transferForm.quantity > availableQty) {
       toast.error(
-        `Insufficient stock at source. Only ${sourceItem.quantity} units available.`,
+        `Insufficient available stock at source. Only ${availableQty} units available.`,
       );
       return;
     }
@@ -575,7 +616,7 @@ const InventoryManagerDashboard = () => {
       await axios.post("/api/stock-transfers/request", transferForm, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setConfirmModal({ ...confirmModal, isOpen: false });
+      setConfirmModal((prev) => ({ ...prev, isOpen: false }));
       setShowTransferModal(false);
       toast.success("Transfer request submitted successfully");
       fetchTransfers();
@@ -589,7 +630,7 @@ const InventoryManagerDashboard = () => {
       });
     } catch (error) {
       console.error("Error requesting transfer:", error);
-      setConfirmModal({ ...confirmModal, isOpen: false });
+      setConfirmModal((prev) => ({ ...prev, isOpen: false }));
       toast.error(
         error.response?.data?.message || "Failed to request transfer.",
       );
@@ -960,7 +1001,7 @@ const InventoryManagerDashboard = () => {
                       </td>
                       <td>
                         <div className="table-actions">
-                          {canEdit && (
+                          {canEditItem(item) && (
                             <button
                               className="btn-icon"
                               title="Adjust Stock"
@@ -1171,7 +1212,7 @@ const InventoryManagerDashboard = () => {
                         <td>Rs. {(po.totalAmount || 0).toLocaleString()}</td>
                         <td>{new Date(po.createdAt).toLocaleDateString()}</td>
                         <td>
-                          {canEdit && (
+                          {canEditCurrentLocation() && (
                             <button
                               className="btn btn-primary btn-sm"
                               onClick={() =>
@@ -1201,7 +1242,7 @@ const InventoryManagerDashboard = () => {
         <div className="dashboard-card">
           <div className="dashboard-card-header">
             <h2 className="card-title">Stock Transfers ({selectedLocation})</h2>
-            {canEdit && (
+            {canEditCurrentLocation() && (
               <button
                 className="btn btn-primary"
                 onClick={() => setShowTransferModal(true)}
@@ -1257,7 +1298,7 @@ const InventoryManagerDashboard = () => {
                       </td>
                       <td>
                         {transfer.status === "Requested" &&
-                          canEdit &&
+                          canEditCurrentLocation() &&
                           (isMasterOrAdmin ||
                             transfer.fromLocation === selectedLocation) && (
                             <div className="table-actions">
@@ -1335,7 +1376,7 @@ const InventoryManagerDashboard = () => {
                     </td>
                     <td>{item.reorderLevel}</td>
                     <td>
-                      {canEdit && (
+                      {canEditItem(item) && (
                         <button
                           className="btn btn-primary btn-sm"
                           onClick={() => {

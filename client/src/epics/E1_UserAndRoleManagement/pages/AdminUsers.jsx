@@ -186,12 +186,45 @@ const AdminUsers = () => {
     setFormErrors({});
   };
 
+  // Helper function to validate date of birth
+  const validateDateOfBirth = (dob) => {
+    if (!dob) return "Date of birth is required";
+
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    // Check if date is valid
+    if (isNaN(birthDate.getTime())) return "Invalid date format";
+
+    // Check if date is not in the future
+    if (birthDate >= today)
+      return "Date of birth cannot be today or in the future";
+
+    // Calculate age
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    // Check minimum age (18 years)
+    if (age < 18) return "User must be at least 18 years old";
+
+    // Check maximum age (100 years - reasonable upper bound)
+    if (age > 100) return "Please enter a valid date of birth";
+
+    return null; // Valid
+  };
+
   const validateEditForm = () => {
     const errors = {};
     const nameRegex = /^[a-zA-Z\s]*$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
-    // Sri Lanka NIC: old format = 9 digits + V or X, new format = 12 digits
+    // Sri Lanka NIC: old format = 9 digits + V/X, new format = 12 digits
     const nicOldRegex = /^\d{9}[VXvx]$/;
     const nicNewRegex = /^\d{12}$/;
 
@@ -208,7 +241,14 @@ const AdminUsers = () => {
 
     if (formData.nic && formData.nic.trim()) {
       if (!nicOldRegex.test(formData.nic) && !nicNewRegex.test(formData.nic))
-        errors.nic = "Invalid NIC format (9 digits + V/X, or 12 digits)";
+        errors.nic =
+          "Invalid NIC format (Old: 9 digits + V/X (required), e.g., 123456789V | New: 12 digits, e.g., 200331810088)";
+    }
+
+    // Validate date of birth
+    if (formData.dateOfBirth) {
+      const dobError = validateDateOfBirth(formData.dateOfBirth);
+      if (dobError) errors.dateOfBirth = dobError;
     }
 
     if (
@@ -378,9 +418,12 @@ const AdminUsers = () => {
     const nicNewRegex = /^\d{12}$/;
     if (formData.nic && formData.nic.trim()) {
       if (!nicOldRegex.test(formData.nic) && !nicNewRegex.test(formData.nic))
-        errors.nic = "Invalid NIC format";
+        errors.nic =
+          "Invalid NIC format (Old: 9 digits + V/X (required), e.g., 123456789V | New: 12 digits, e.g., 200331810088)";
     }
-    if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
+    // Validate date of birth
+    const dobError = validateDateOfBirth(formData.dateOfBirth);
+    if (dobError) errors.dateOfBirth = dobError;
     if (!formData.address.trim()) errors.address = "Address is required";
     if (!formData.city.trim()) errors.city = "City is required";
     if (!formData.emergencyContactName.trim())
@@ -580,7 +623,7 @@ const AdminUsers = () => {
         <Modal
           isOpen={!!editingUser}
           onClose={() => setEditingUser(null)}
-          title={`Edit User � ${editingUser.name}`}
+          title={`Edit User ${editingUser.name}`}
           size="lg"
         >
           <form onSubmit={handleEditSubmit} className="dashboard-form">
@@ -602,7 +645,7 @@ const AdminUsers = () => {
                     name="nic"
                     value={formData.nic}
                     onChange={handleInputChange}
-                    placeholder="e.g., 123456789V or 199012345678"
+                    placeholder="e.g., 123456789V or 200331810088"
                     error={formErrors.nic}
                   />
                 </div>
@@ -853,7 +896,7 @@ const AdminUsers = () => {
                     name="nic"
                     value={formData.nic}
                     onChange={handleInputChange}
-                    placeholder="e.g., 123456789V or 199012345678"
+                    placeholder="e.g., 123456789V or 200331810088"
                     error={formErrors.nic}
                   />
                 </div>

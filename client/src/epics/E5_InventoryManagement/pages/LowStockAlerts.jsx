@@ -105,13 +105,6 @@ const LowStockAlerts = () => {
             onClick: fetchAlerts,
             variant: "outline",
           },
-          {
-            label: "Inventory Manager",
-            icon: <Package size={18} />,
-            onClick: () =>
-              (window.location.href = "/inventory-manager/dashboard"),
-            variant: "primary",
-          },
         ]}
       />
 

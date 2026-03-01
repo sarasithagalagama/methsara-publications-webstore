@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from "react";
 import Modal from "../../../../components/common/Modal";
 import { Building, MapPin, Phone, FileText, Briefcase } from "lucide-react";
+import toast from "react-hot-toast";
 import "./SupplierFormModal.css";
 
 const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
@@ -90,41 +91,47 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
 
   // Side Effects
   useEffect(() => {
-    if (initialData) {
-      setFormData({
-        ...initialData,
-        address: initialData.address || {
-          street: "",
-          city: "",
-          postalCode: "",
-        },
-        bankDetails: initialData.bankDetails || {
-          accountName: "",
-          bankName: "",
-          branchName: "",
-          accountNumber: "",
-        },
-      });
-    } else {
-      setFormData({
-        name: "",
-        category: "Material Supplier",
-        contactPerson: "",
-        email: "",
-        phone: "",
-        address: { street: "", city: "", postalCode: "" },
-        businessRegistration: "",
-        taxId: "",
-        paymentTerms: "Cash",
-        creditLimit: 0,
-        bankDetails: {
-          accountName: "",
-          bankName: "",
-          branchName: "",
-          accountNumber: "",
-        },
-        notes: "",
-      });
+    if (isOpen) {
+      // Reset errors and touched when modal opens
+      setErrors({});
+      setTouched({});
+
+      if (initialData) {
+        setFormData({
+          ...initialData,
+          address: initialData.address || {
+            street: "",
+            city: "",
+            postalCode: "",
+          },
+          bankDetails: initialData.bankDetails || {
+            accountName: "",
+            bankName: "",
+            branchName: "",
+            accountNumber: "",
+          },
+        });
+      } else {
+        setFormData({
+          name: "",
+          category: "Material Supplier",
+          contactPerson: "",
+          email: "",
+          phone: "",
+          address: { street: "", city: "", postalCode: "" },
+          businessRegistration: "",
+          taxId: "",
+          paymentTerms: "Cash",
+          creditLimit: 0,
+          bankDetails: {
+            accountName: "",
+            bankName: "",
+            branchName: "",
+            accountNumber: "",
+          },
+          notes: "",
+        });
+      }
     }
   }, [initialData, isOpen]);
 
@@ -195,6 +202,33 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleClose = () => {
+    // Reset all form state when closing
+    setFormData({
+      name: "",
+      category: "Material Supplier",
+      contactPerson: "",
+      email: "",
+      phone: "",
+      address: { street: "", city: "", postalCode: "" },
+      businessRegistration: "",
+      taxId: "",
+      paymentTerms: "Cash",
+      creditLimit: 0,
+      bankDetails: {
+        accountName: "",
+        bankName: "",
+        branchName: "",
+        accountNumber: "",
+      },
+      notes: "",
+    });
+    setErrors({});
+    setTouched({});
+    setLoading(false);
+    onClose();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setTouched({
@@ -206,19 +240,29 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       "address.city": true,
     });
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Please fix the validation errors before submitting");
+      return;
+    }
 
     setLoading(true);
-    await onSave(formData);
-    setLoading(false);
-    onClose();
+    try {
+      await onSave(formData);
+      // Parent will handle closing the modal on success
+      // Reset loading in case parent doesn't close modal (shouldn't happen)
+      setLoading(false);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // Reset loading state so user can try again
+      setLoading(false);
+    }
   };
 
   // Render
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={initialData ? "Edit Partner" : "Add New Partner"}
       size="lg"
     >
@@ -556,7 +600,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         </div>
 
         <div className="modal-actions">
-          <button type="button" onClick={onClose} className="btn-secondary">
+          <button type="button" onClick={handleClose} className="btn-secondary">
             Cancel
           </button>
           <button type="submit" disabled={loading} className="btn-primary">

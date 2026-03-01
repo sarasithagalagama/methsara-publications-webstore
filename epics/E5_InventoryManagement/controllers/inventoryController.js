@@ -6,6 +6,7 @@
 // ============================================
 
 const Inventory = require("../models/Inventory");
+const Location = require("../models/Location");
 const Product = require("../../E2_ProductCatalog/models/Product");
 
 // [E5.1][E5.2] getStockByLocation: role-aware — location IM auto-scoped to their branch; master IM sees all
@@ -118,18 +119,18 @@ exports.getStockByLocation = async (req, res) => {
   }
 };
 
-// [E5.3] adjustStock: master IM / admin only; supports positive (add) or negative (remove) adjustment + logs to adjustments history
+// [E5.3] adjustStock: inventory managers and admin can adjust; location-based restrictions apply
 exports.adjustStock = async (req, res) => {
   try {
-    // [E5.3] Role restriction: only master_inventory_manager or admin can manually adjust stock
+    // [E5.3] Role restriction: only inventory managers or admin can manually adjust stock
     if (
       req.user.role !== "admin" &&
-      req.user.role !== "master_inventory_manager"
+      req.user.role !== "master_inventory_manager" &&
+      req.user.role !== "location_inventory_manager"
     ) {
       return res.status(403).json({
         success: false,
-        message:
-          "Access denied. Only Master Inventory Managers can adjust stock.",
+        message: "Access denied. Only Inventory Managers can adjust stock.",
       });
     }
 
@@ -202,18 +203,64 @@ exports.adjustStock = async (req, res) => {
       }
     }
 
+    // [E5.3] Location-based permission check: master_inventory_manager defaults to main warehouse
+    if (req.user.role === "master_inventory_manager") {
+      // Resolve effective location for master IM:
+      // if assignedLocation is "All" or unset → they own the main warehouse
+      const effectiveLocation =
+        !req.user.assignedLocation || req.user.assignedLocation === "All"
+          ? null // will be resolved from DB below
+          : req.user.assignedLocation;
+
+      if (!effectiveLocation) {
+        // Look up the main warehouse name
+        const mainLoc = await Location.findOne({ isMainWarehouse: true });
+        const mainWarehouseName = mainLoc
+          ? mainLoc.name
+          : "Colombo Main Warehouse";
+        if (inventory.location !== mainWarehouseName) {
+          return res.status(403).json({
+            success: false,
+            message: `Access denied. You can only adjust stock at the main warehouse (${mainWarehouseName}).`,
+          });
+        }
+      } else if (inventory.location !== effectiveLocation) {
+        return res.status(403).json({
+          success: false,
+          message: `Access denied. You can only adjust stock at your assigned location (${effectiveLocation}).`,
+        });
+      }
+    }
+
+    // [E5.3] Location inventory managers can only edit their assigned location
+    if (req.user.role === "location_inventory_manager") {
+      if (!req.user.assignedLocation) {
+        return res.status(403).json({
+          success: false,
+          message: "No location assigned to your account.",
+        });
+      }
+      if (inventory.location !== req.user.assignedLocation) {
+        return res.status(403).json({
+          success: false,
+          message: `Access denied. You can only adjust stock at your assigned location (${req.user.assignedLocation}).`,
+        });
+      }
+    }
+
     // Apply adjustment using model methods to ensure history is recorded
     if (adjustmentAmount > 0) {
-      inventory.addStock(adjustmentAmount, reason || "Manual Adjustment");
+      inventory.addStock(
+        adjustmentAmount,
+        reason || "Manual Adjustment",
+        req.user._id,
+      );
     } else if (adjustmentAmount < 0) {
-      // deductStock expects positive amount to deduct, but we have negative adjustment
-      // However, looking at model: deductStock(quantity) -> available < quantity check
-      // and this.quantity -= quantity; this.adjustments.push({ quantity: -quantity })
-      // So deductStock expects POSITIVE quantity to remove.
       try {
         inventory.deductStock(
           Math.abs(adjustmentAmount),
           reason || "Manual Adjustment",
+          req.user._id,
         );
       } catch (err) {
         return res.status(400).json({
@@ -251,7 +298,14 @@ exports.adjustStock = async (req, res) => {
 // Get low stock alerts (E5.9)
 exports.getLowStockAlerts = async (req, res) => {
   try {
+    // Only return alerts for locations that are actively registered in the system
+    const activeLocations = await Location.find({ status: "Active" }).select(
+      "name",
+    );
+    const validLocationNames = activeLocations.map((l) => l.name);
+
     let query = {
+      location: { $in: validLocationNames },
       $expr: {
         $lte: [
           { $ifNull: ["$availableQuantity", "$quantity", 0] },

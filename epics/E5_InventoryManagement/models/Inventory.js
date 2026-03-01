@@ -121,27 +121,31 @@ inventorySchema.pre("save", function (next) {
 });
 
 // Method to deduct stock
-inventorySchema.methods.deductStock = function (quantity, reason = "Sale") {
+inventorySchema.methods.deductStock = function (
+  quantity,
+  reason = "Sale",
+  userId = null,
+) {
   if (this.availableQuantity < quantity) {
     throw new Error("Insufficient stock");
   }
   this.quantity -= quantity;
-  this.adjustments.push({
-    type: "Remove",
-    quantity: -quantity,
-    reason: reason,
-  });
+  const adj = { type: "Remove", quantity: -quantity, reason };
+  if (userId) adj.adjustedBy = userId;
+  this.adjustments.push(adj);
 };
 
 // Method to add stock
-inventorySchema.methods.addStock = function (quantity, reason = "Restock") {
+inventorySchema.methods.addStock = function (
+  quantity,
+  reason = "Restock",
+  userId = null,
+) {
   this.quantity += quantity;
   this.lastRestockDate = Date.now();
-  this.adjustments.push({
-    type: "Add",
-    quantity: quantity,
-    reason: reason,
-  });
+  const adj = { type: "Add", quantity, reason };
+  if (userId) adj.adjustedBy = userId;
+  this.adjustments.push(adj);
 };
 
 // Static method to sync only Main Branch stock to Product model (for Website display)

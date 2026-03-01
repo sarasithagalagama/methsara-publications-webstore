@@ -43,4 +43,45 @@ const inventoryService = {
   },
 };
 
+// [E5.4][E5.5] Stock Transfer Service — inter-branch transfer requests and approvals
+const stockTransferService = {
+  // [E5.4] Request a stock transfer between locations
+  requestTransfer: async ({
+    product,
+    fromLocation,
+    toLocation,
+    quantity,
+    reason,
+  }) => {
+    const response = await api.post("/stock-transfers/request", {
+      product,
+      fromLocation,
+      toLocation,
+      quantity,
+      reason,
+    });
+    return response.data;
+  },
+
+  // [E5.5] Approve or reject a pending transfer (master IM / admin / source location manager)
+  approveTransfer: async (transferId, action, notes = "") => {
+    const response = await api.put(`/stock-transfers/${transferId}/approve`, {
+      action,
+      notes,
+    });
+    return response.data;
+  },
+
+  // Get all transfers, optionally filtered by status and/or location
+  getAllTransfers: async ({ status, location } = {}) => {
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (location) params.set("location", location);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const response = await api.get(`/stock-transfers${query}`);
+    return response.data;
+  },
+};
+
+export { stockTransferService };
 export default inventoryService;

@@ -14,12 +14,15 @@ const {
   getTransactions,
   createTransaction,
   updateTransaction,
-  deleteTransaction,
+  archiveTransaction,
   payPurchaseOrder,
   generateFinancialPDF,
   generateFinancialCSV,
-} = require('../controllers/financialController');
-const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
+} = require("../controllers/financialController");
+const {
+  protect,
+  authorize,
+} = require("../../E1_UserAndRoleManagement/middleware/auth");
 
 // All routes require finance_manager or admin role
 router.use(protect);
@@ -35,7 +38,7 @@ router.post("/refunds/:orderId", processRefund); // E3.11 - Process refund
 router.get("/transactions", getTransactions);
 router.post("/transactions", createTransaction);
 router.put("/transactions/:id", updateTransaction);
-router.delete("/transactions/:id", deleteTransaction);
+router.patch("/transactions/:id/archive", archiveTransaction);
 
 // Purchase Order Payment
 router.put("/purchase-orders/:id/pay", payPurchaseOrder);

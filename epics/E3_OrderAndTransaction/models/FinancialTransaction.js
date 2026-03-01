@@ -43,6 +43,11 @@ const financialTransactionSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Soft-delete: archived transactions are hidden from views but never removed from DB
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

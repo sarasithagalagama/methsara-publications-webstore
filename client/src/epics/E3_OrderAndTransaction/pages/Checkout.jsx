@@ -221,6 +221,7 @@ const Checkout = () => {
         bankSlipUrl: formData.bankSlip,
         couponCode: appliedCoupon?.code,
         giftVoucherCode: appliedVoucher?.code,
+        taxRate, // [E3.9] pass VAT rate so backend stores it on the order
       };
 
       if (isGuest) {
@@ -259,12 +260,25 @@ const Checkout = () => {
 
   const deliveryFee = 350;
   const subtotal = cart?.totalAmount || 0;
-  const totalBeforeVoucher = subtotal - discount + deliveryFee;
 
+  // [E3.9] Tax from Finance Manager's Tax Configuration (JSON stored in localStorage)
+  const taxConfig = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("taxConfig") || "{}");
+    } catch {
+      return {};
+    }
+  })();
+  const taxRate = taxConfig.applyToInvoices
+    ? Math.max(0, parseFloat(taxConfig.vatRate || "0"))
+    : 0;
+  const taxAmount = Math.round((subtotal * taxRate) / 100);
+  const taxName = taxConfig.taxName || "VAT";
+
+  const totalBeforeVoucher = subtotal + taxAmount - discount + deliveryFee;
   const calculatedVoucherDiscount = appliedVoucher
     ? Math.min(appliedVoucher.balance, totalBeforeVoucher)
     : 0;
-
   const total = totalBeforeVoucher - calculatedVoucherDiscount;
 
   return (
@@ -706,6 +720,14 @@ const Checkout = () => {
                 <span>Shipping Fee</span>
                 <span>Rs. {deliveryFee.toLocaleString()}</span>
               </div>
+              {taxAmount > 0 && (
+                <div className="totals-row-modern">
+                  <span>
+                    {taxName} ({taxRate}%)
+                  </span>
+                  <span>Rs. {taxAmount.toLocaleString()}</span>
+                </div>
+              )}
               {discount > 0 && (
                 <div className="totals-row-modern discount-row-modern">
                   <span>Loyalty Promo</span>

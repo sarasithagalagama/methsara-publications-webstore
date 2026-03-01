@@ -33,7 +33,14 @@ const getFinancialDashboard = async (req, res) => {
 
     // [E3.9] FinancialTransaction income: custom transactions entered by finance_manager
     const txIncome = await FinancialTransaction.aggregate([
-      { $match: { ...dateFilter, isIncome: true, status: "Completed" } },
+      {
+        $match: {
+          ...dateFilter,
+          isIncome: true,
+          status: "Completed",
+          isArchived: { $ne: true },
+        },
+      },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
@@ -44,6 +51,7 @@ const getFinancialDashboard = async (req, res) => {
           ...dateFilter,
           isIncome: false,
           status: { $ne: "Cancelled" },
+          isArchived: { $ne: true },
         },
       },
       { $group: { _id: null, total: { $sum: "$amount" } } },
@@ -273,7 +281,7 @@ const processRefund = async (req, res) => {
 const getTransactions = async (req, res) => {
   try {
     const { type, startDate, endDate } = req.query;
-    const filter = {};
+    const filter = { isArchived: { $ne: true } }; // Exclude archived transactions
     if (type) filter.type = type;
     if (startDate && endDate) {
       filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
@@ -368,22 +376,21 @@ const updateTransaction = async (req, res) => {
   }
 };
 
-// CRUD: Delete Transaction
-const deleteTransaction = async (req, res) => {
+// Archive Transaction (soft delete — record is never removed from DB)
+const archiveTransaction = async (req, res) => {
   try {
     const transaction = await FinancialTransaction.findById(req.params.id);
     if (!transaction)
       return res.status(404).json({ success: false, message: "Not found" });
 
-    // Reverse balance update if Supplier Payment
-    if (transaction.type === "Supplier Payment") {
-      await Supplier.findByIdAndUpdate(transaction.relatedId, {
-        $inc: { outstandingBalance: transaction.amount },
-      });
-    }
+    if (transaction.isArchived)
+      return res
+        .status(400)
+        .json({ success: false, message: "Transaction is already archived" });
 
-    await transaction.deleteOne();
-    res.status(200).json({ success: true, message: "Deleted" });
+    transaction.isArchived = true;
+    await transaction.save();
+    res.status(200).json({ success: true, message: "Transaction archived" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -654,7 +661,7 @@ module.exports = {
   getTransactions,
   createTransaction,
   updateTransaction,
-  deleteTransaction,
+  archiveTransaction,
   payPurchaseOrder,
   generateFinancialPDF,
   generateFinancialCSV,

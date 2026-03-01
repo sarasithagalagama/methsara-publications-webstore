@@ -44,7 +44,7 @@ const AdminDashboard = () => {
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
-  const [lowStockCount, setLowStockCount] = useState(0);
+  const [stockAlerts, setStockAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statsData, setStatsData] = useState({
     revenue: [],
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
       }
 
       if (alertsRes.status === "fulfilled") {
-        setLowStockCount(alertsRes.value.data.alerts?.length || 0);
+        setStockAlerts(alertsRes.value.data.alerts || []);
       }
 
       const totalOrders = allOrders.length;
@@ -283,7 +283,7 @@ const AdminDashboard = () => {
       />
 
       {/* Stats Grid */}
-      <div className="dashboard-grid compact-grid dashboard-grid-4">
+      <div className="dashboard-grid compact-grid dashboard-grid-5">
         <StatCard
           icon={<FileSignature size={24} />}
           label="Pending Approvals"
@@ -323,10 +323,10 @@ const AdminDashboard = () => {
         <StatCard
           icon={<Bell size={24} />}
           label="Low Stock Alerts"
-          value={lowStockCount}
-          change={lowStockCount > 0 ? "Action Required" : "All Clear"}
-          trend={lowStockCount > 0 ? "down" : "neutral"}
-          variant={lowStockCount > 0 ? "danger" : "primary"}
+          value={stockAlerts.length}
+          change={stockAlerts.length > 0 ? "Action Required" : "All Clear"}
+          trend={stockAlerts.length > 0 ? "down" : "neutral"}
+          variant={stockAlerts.length > 0 ? "danger" : "primary"}
           className="stat-card-compact"
         />
       </div>
@@ -338,6 +338,96 @@ const AdminDashboard = () => {
             data={pendingApprovals}
             searchable={false}
             rowsPerPage={5}
+          />
+        </DashboardSection>
+      )}
+
+      {stockAlerts.length > 0 && (
+        <DashboardSection
+          title={`Low Stock Alerts (${stockAlerts.length})`}
+          action={
+            <Link to="/inventory-manager/alerts" className="card-action">
+              View All <ArrowRight size={16} />
+            </Link>
+          }
+        >
+          <DashboardTable
+            columns={[
+              {
+                header: "Product",
+                accessor: "product",
+                render: (alert) => (
+                  <div>
+                    <strong>
+                      {alert.product?.title || alert.productTitle || "Unknown"}
+                    </strong>
+                    {alert.product?.isbn && (
+                      <div className="text-xs text-muted">
+                        ISBN: {alert.product.isbn}
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                header: "Location",
+                accessor: "location",
+                render: (alert) => (
+                  <span className="status-badge active">{alert.location}</span>
+                ),
+              },
+              {
+                header: "Current Stock",
+                accessor: "currentStock",
+                render: (alert) => (
+                  <span
+                    style={{
+                      color:
+                        alert.currentStock === 0
+                          ? "var(--danger-color)"
+                          : "var(--warning-color)",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {alert.currentStock ?? alert.availableQuantity ?? 0} units
+                  </span>
+                ),
+              },
+              {
+                header: "Reorder Level",
+                accessor: "reorderLevel",
+                render: (alert) => (
+                  <span>
+                    {alert.reorderLevel ??
+                      alert.reorderPoint ??
+                      alert.lowStockThreshold ??
+                      0}{" "}
+                    units
+                  </span>
+                ),
+              },
+              {
+                header: "Status",
+                accessor: "status",
+                render: (alert) => {
+                  const stock =
+                    alert.currentStock ?? alert.availableQuantity ?? 0;
+                  return (
+                    <span
+                      className={`status-badge ${
+                        stock === 0 ? "inactive" : "pending"
+                      }`}
+                    >
+                      {stock === 0 ? "Out of Stock" : "Low Stock"}
+                    </span>
+                  );
+                },
+              },
+            ]}
+            data={stockAlerts.slice(0, 10)}
+            searchable={false}
+            rowsPerPage={10}
+            emptyMessage="No low stock alerts."
           />
         </DashboardSection>
       )}

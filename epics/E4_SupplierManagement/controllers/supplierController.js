@@ -92,7 +92,7 @@ exports.updateSupplier = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Supplier updated successfully",
-      supplier,
+      supplier: updatedSupplier,
     });
   } catch (error) {
     console.error("Update supplier error:", error);

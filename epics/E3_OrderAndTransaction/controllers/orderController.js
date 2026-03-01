@@ -26,7 +26,10 @@ exports.createOrder = async (req, res) => {
       couponCode,
       giftVoucherCode,
       fulfillmentLocation,
+      taxRate, // [E3.9] VAT/tax rate from Finance Manager's Tax Configuration (stored in client localStorage)
     } = req.body;
+
+    const appliedTaxRate = Math.max(0, parseFloat(taxRate) || 0);
 
     // [E5.7] Resolve fulfillment location — defaults to the branch flagged isMainWarehouse=true
     let finalLocation = fulfillmentLocation;
@@ -159,7 +162,14 @@ exports.createOrder = async (req, res) => {
       giftVoucherCode: appliedVoucherDoc ? appliedVoucherDoc.code : undefined,
       giftVoucherDiscount,
       deliveryFee,
-      total: subtotal - couponDiscount - giftVoucherDiscount + deliveryFee,
+      taxRate: appliedTaxRate,
+      // taxAmount and total are recalculated by the pre-save hook
+      total:
+        subtotal +
+        Math.round((subtotal * appliedTaxRate) / 100) -
+        couponDiscount -
+        giftVoucherDiscount +
+        deliveryFee,
       deliveryAddress,
       paymentMethod,
       bankSlipUrl,

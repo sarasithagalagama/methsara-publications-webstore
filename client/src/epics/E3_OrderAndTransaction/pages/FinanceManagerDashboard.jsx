@@ -71,11 +71,32 @@ const FinanceManagerDashboard = () => {
   // New Features State
   const [showReportModal, setShowReportModal] = useState(false);
   const [showTaxModal, setShowTaxModal] = useState(false);
-  // [E3.9] taxRate stored in localStorage so it persists across sessions without a DB field
-  const [taxRate, setTaxRate] = useState(() => {
-    return localStorage.getItem("taxRate") || "18";
+  // [E3.9] taxConfig persisted in localStorage — covers VAT rate, apply-to-invoices toggle, and exempt types
+  const [taxConfig, setTaxConfig] = useState(() => {
+    try {
+      const stored = localStorage.getItem("taxConfig");
+      return stored
+        ? JSON.parse(stored)
+        : {
+            vatRate: "18",
+            applyToInvoices: true,
+            applyToSalaries: false,
+            applyToSupplierPayments: false,
+            taxName: "VAT",
+            taxNumber: "",
+          };
+    } catch {
+      return {
+        vatRate: "18",
+        applyToInvoices: true,
+        applyToSalaries: false,
+        applyToSupplierPayments: false,
+        taxName: "VAT",
+        taxNumber: "",
+      };
+    }
   });
-  const [tempTaxRate, setTempTaxRate] = useState(taxRate);
+  const [tempTaxConfig, setTempTaxConfig] = useState(taxConfig);
   const [showSalaryModal, setShowSalaryModal] = useState(false);
   const [showSupplierModal, setShowSupplierModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
@@ -119,11 +140,16 @@ const FinanceManagerDashboard = () => {
 
   // Event Handlers
   const handleSaveTax = () => {
-    localStorage.setItem("taxRate", tempTaxRate);
-    setTaxRate(tempTaxRate);
+    const rate = parseFloat(tempTaxConfig.vatRate);
+    if (isNaN(rate) || rate < 0 || rate > 100) {
+      toast.error("VAT rate must be between 0 and 100.");
+      return;
+    }
+    const updated = { ...tempTaxConfig, vatRate: String(rate) };
+    localStorage.setItem("taxConfig", JSON.stringify(updated));
+    setTaxConfig(updated);
     setShowTaxModal(false);
-    setShowTaxModal(false);
-    toast.success("Tax rate updated successfully!");
+    toast.success("Tax configuration saved successfully!");
   };
 
   const scrollToTransactions = () => {
@@ -196,7 +222,7 @@ const FinanceManagerDashboard = () => {
         const initialSalaries = {};
         const initialBonuses = {};
         staffList.forEach((s) => {
-          initialSalaries[s._id] = s.salary || 45000;
+          initialSalaries[s._id] = s.salary != null ? s.salary : 0;
           initialBonuses[s._id] = "";
         });
         setSalaryInputs(initialSalaries);
@@ -506,38 +532,22 @@ const FinanceManagerDashboard = () => {
     }
   };
 
-  const handleDeleteTransaction = (id) => {
-    setConfirmState({
-      isOpen: true,
-      title: "Delete Transaction",
-      message: "Are you sure you want to delete this transaction record?",
-      confirmText: "Delete",
-      variant: "danger",
-      onConfirm: async () => {
-        closeConfirm();
-        try {
-          const token = localStorage.getItem("token");
-          await axios.delete(`/api/financial/transactions/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          fetchDashboardData();
-          toast.success("Transaction deleted successfully");
-        } catch (error) {
-          toast.error("Failed to delete transaction");
-        }
-      },
-    });
-  };
-
   const handleUpdateStaffSalary = (id) => {
     const salary = salaryInputs[id];
     const staffMember = staff.find((s) => s._id === id);
     if (!staffMember) return toast.error("Staff member not found");
 
+    const parsedSalary = parseFloat(salary);
+    if (!salary && salary !== 0)
+      return toast.error("Please enter a salary amount");
+    if (isNaN(parsedSalary))
+      return toast.error("Salary must be a valid number");
+    if (parsedSalary < 0) return toast.error("Salary cannot be negative");
+
     setConfirmState({
       isOpen: true,
       title: "Update Salary",
-      message: `Are you sure you want to update the base salary for ${staffMember.name} to Rs. ${parseFloat(salary).toLocaleString()}?`,
+      message: `Are you sure you want to update the base salary for ${staffMember.name} to Rs. ${parsedSalary.toLocaleString()}?`,
       confirmText: "Update Salary",
       variant: "primary",
       onConfirm: async () => {
@@ -949,13 +959,6 @@ const FinanceManagerDashboard = () => {
                             >
                               <Settings size={16} />
                             </button>
-                            <button
-                              className="btn-icon text-danger"
-                              title="Delete Transaction"
-                              onClick={() => handleDeleteTransaction(tx._id)}
-                            >
-                              <RotateCcw size={16} />
-                            </button>
                           </>
                         )}
                       </div>
@@ -1051,7 +1054,7 @@ const FinanceManagerDashboard = () => {
         <div
           className="dashboard-card action-card"
           onClick={() => {
-            setTempTaxRate(taxRate);
+            setTempTaxConfig(taxConfig);
             setShowTaxModal(true);
           }}
         >
@@ -1257,36 +1260,195 @@ const FinanceManagerDashboard = () => {
         </div>
       </Modal>
 
-      {/* Tax Settings Modal */}
+      {/* Tax Configuration Modal */}
       <Modal
         isOpen={showTaxModal}
         onClose={() => setShowTaxModal(false)}
         title="Tax Configuration"
+        size="md"
       >
-        <div className="tax-settings">
-          <Input
-            label="Default VAT Rate (%)"
-            type="number"
-            value={tempTaxRate}
-            onChange={(e) => setTempTaxRate(e.target.value)}
-          />
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+        >
+          {/* Header info */}
           <div
-            className="alert-box"
             style={{
-              background: "#fff3cd",
-              padding: "10px",
-              borderRadius: "6px",
-              fontSize: "0.9rem",
-              color: "#856404",
-              marginBottom: "1.5rem",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderRadius: "8px",
+              padding: "0.85rem 1rem",
+              fontSize: "0.875rem",
+              color: "#1e40af",
             }}
           >
-            Note: This setting will apply to all future manual invoice
-            calculations.
+            Tax settings are stored locally and applied to all future manual
+            invoice calculations.
           </div>
-          <Button variant="primary" className="w-100" onClick={handleSaveTax}>
-            Save Changes
-          </Button>
+
+          {/* Tax identity */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <Input
+              label="Tax Name"
+              type="text"
+              placeholder="e.g. VAT, GST"
+              value={tempTaxConfig.taxName}
+              onChange={(e) =>
+                setTempTaxConfig((p) => ({ ...p, taxName: e.target.value }))
+              }
+            />
+            <Input
+              label="Tax Registration Number (optional)"
+              type="text"
+              placeholder="e.g. VAT-123456"
+              value={tempTaxConfig.taxNumber}
+              onChange={(e) =>
+                setTempTaxConfig((p) => ({ ...p, taxNumber: e.target.value }))
+              }
+            />
+          </div>
+
+          {/* Rate */}
+          <Input
+            label="Default Tax Rate (%)"
+            type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            value={tempTaxConfig.vatRate}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v !== "" && (parseFloat(v) < 0 || parseFloat(v) > 100))
+                return;
+              setTempTaxConfig((p) => ({ ...p, vatRate: v }));
+            }}
+            helperText={`Tax amount on Rs. 10,000 → Rs. ${((10000 * (parseFloat(tempTaxConfig.vatRate) || 0)) / 100).toLocaleString()}`}
+          />
+
+          {/* Apply-to toggles */}
+          <div>
+            <p
+              style={{
+                fontWeight: "600",
+                fontSize: "0.875rem",
+                marginBottom: "0.6rem",
+                color: "#374151",
+              }}
+            >
+              Apply Tax To
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
+              {[
+                { key: "applyToInvoices", label: "Customer Invoices" },
+                { key: "applyToSalaries", label: "Salary Transactions" },
+                { key: "applyToSupplierPayments", label: "Supplier Payments" },
+              ].map(({ key, label }) => (
+                <label
+                  key={key}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.6rem",
+                    cursor: "pointer",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={tempTaxConfig[key]}
+                    onChange={(e) =>
+                      setTempTaxConfig((p) => ({
+                        ...p,
+                        [key]: e.target.checked,
+                      }))
+                    }
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      accentColor: "#3b82f6",
+                    }}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Preview */}
+          <div
+            style={{
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              padding: "0.85rem 1rem",
+            }}
+          >
+            <p
+              style={{
+                fontWeight: "600",
+                fontSize: "0.875rem",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Current Configuration Preview
+            </p>
+            <div
+              style={{
+                fontSize: "0.85rem",
+                color: "#4b5563",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+              }}
+            >
+              <span>
+                <strong>Tax Name:</strong> {tempTaxConfig.taxName || "—"}
+              </span>
+              <span>
+                <strong>Rate:</strong> {tempTaxConfig.vatRate}%
+              </span>
+              <span>
+                <strong>Reg. No.:</strong>{" "}
+                {tempTaxConfig.taxNumber || "Not set"}
+              </span>
+              <span>
+                <strong>Applied to:</strong>{" "}
+                {[
+                  tempTaxConfig.applyToInvoices && "Invoices",
+                  tempTaxConfig.applyToSalaries && "Salaries",
+                  tempTaxConfig.applyToSupplierPayments && "Supplier Payments",
+                ]
+                  .filter(Boolean)
+                  .join(", ") || "None"}
+              </span>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "0.75rem",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button variant="outline" onClick={() => setShowTaxModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSaveTax}>
+              Save Configuration
+            </Button>
+          </div>
         </div>
       </Modal>
 
@@ -1360,13 +1522,18 @@ const FinanceManagerDashboard = () => {
                             type="number"
                             className="form-input form-input-sm"
                             style={{ width: "100px" }}
+                            min="0"
+                            step="1"
                             value={salaryInputs[member._id] || ""}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              // Prevent negative values from being entered
+                              if (val !== "" && parseFloat(val) < 0) return;
                               setSalaryInputs({
                                 ...salaryInputs,
-                                [member._id]: e.target.value,
-                              })
-                            }
+                                [member._id]: val,
+                              });
+                            }}
                           />
                           <button
                             className="btn-icon"
@@ -1591,18 +1758,13 @@ const FinanceManagerDashboard = () => {
                     <div className="table-actions">
                       <button
                         className="btn-icon"
+                        title="Edit Transaction"
                         onClick={() => {
                           setEditingFinItem(tx);
                           setShowTransactionModal(true);
                         }}
                       >
                         <Settings size={16} />
-                      </button>
-                      <button
-                        className="btn-icon text-danger"
-                        onClick={() => handleDeleteTransaction(tx._id)}
-                      >
-                        <RotateCcw size={16} />
                       </button>
                     </div>
                   </td>
