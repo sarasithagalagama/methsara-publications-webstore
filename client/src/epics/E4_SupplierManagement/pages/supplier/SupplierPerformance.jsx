@@ -6,7 +6,7 @@
 // ============================================
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Star, Clock, CheckCircle } from "lucide-react";
 import StatCard from "../../../../components/dashboard/StatCard";
 import DashboardHeader from "../../../../components/dashboard/DashboardHeader";
 import SalesChart from "../../../../components/dashboard/charts/SalesChart";
@@ -20,7 +20,6 @@ const SupplierPerformance = () => {
   const [stats, setStats] = useState({
     onTimeDelivery: 0,
     qualityScore: 0,
-    returnRate: 0,
     totalOrders: 0,
   });
   const [performance, setPerformance] = useState([]);
@@ -37,13 +36,16 @@ const SupplierPerformance = () => {
     try {
       const data = await supplierService.getAnalytics();
       if (data.success) {
+        const avgQuality =
+          data.performance.length > 0
+            ? (
+                data.performance.reduce((acc, p) => acc + (p.rating || 0), 0) /
+                data.performance.length
+              ).toFixed(1)
+            : "N/A";
         setStats({
           onTimeDelivery: data.stats.avgOnTime,
-          qualityScore: (
-            data.performance.reduce((acc, p) => acc + p.rating, 0) /
-            data.performance.length
-          ).toFixed(1),
-          returnRate: 0.5, // Logic for returns not fully implemented in backend yet
+          qualityScore: avgQuality,
           totalOrders: data.stats.totalOrders,
         });
         setPerformance(data.performance);
@@ -73,28 +75,18 @@ const SupplierPerformance = () => {
         subtitle="Analytical insights into partner fulfillment quality"
       />
 
-      <div className="dashboard-grid dashboard-grid-4">
+      <div className="dashboard-grid dashboard-grid-3">
         <StatCard
           icon={<Clock size={24} />}
           label="On-Time Delivery"
           value={`${stats.onTimeDelivery}%`}
           variant="primary"
-          trend="up"
-          change="+2%"
         />
         <StatCard
           icon={<Star size={24} />}
           label="Quality Score"
           value={`${stats.qualityScore}/5`}
           variant="primary"
-        />
-        <StatCard
-          icon={<XCircle size={24} />}
-          label="Return Rate"
-          value={`${stats.returnRate}%`}
-          variant="warning"
-          trend="down"
-          change="-0.5%"
         />
         <StatCard
           icon={<CheckCircle size={24} />}
@@ -106,11 +98,22 @@ const SupplierPerformance = () => {
 
       <div className="dashboard-grid dashboard-grid-2">
         <div className="dashboard-card">
-          <h3>Delivery Timeliness (Last 6 Months)</h3>
-          <SalesChart
-            data={[88, 90, 85, 92, 94, 92]}
-            labels={["Jan", "Feb", "Mar", "Apr", "May", "Jun"]}
-          />
+          <h3>On-Time Delivery Rate by Partner (%)</h3>
+          {performance.length > 0 ? (
+            <SalesChart
+              data={performance.map((p) => parseFloat(p.onTimeRate.toFixed(1)))}
+              labels={performance.map((p) =>
+                p.name.length > 15 ? p.name.slice(0, 13) + "…" : p.name,
+              )}
+            />
+          ) : (
+            <p
+              className="text-muted"
+              style={{ padding: "2rem", textAlign: "center" }}
+            >
+              No delivery data available yet.
+            </p>
+          )}
         </div>
         <div className="dashboard-card">
           <h3>Defect Rate by Supplier</h3>

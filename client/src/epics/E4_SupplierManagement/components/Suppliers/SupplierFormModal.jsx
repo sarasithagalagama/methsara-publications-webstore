@@ -53,11 +53,11 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         else if (!emailRegex.test(value)) error = "Invalid email format";
         break;
       case "phone":
-        // Sri Lanka mobile regex: starts with +94 or 07, followed by 8 digits
-        const phoneRegex = /^(?:\+94|0)7\d{8}$/;
+        // Sri Lanka phone: mobile (07X) or landline (0XX) — 10 digits total, or +94 + 9 digits
+        const phoneRegex = /^(?:\+94|0)\d{9}$/;
         if (!value) error = "Phone number is required";
-        else if (!phoneRegex.test(value.replace(/\s/g, "")))
-          error = "Invalid SL Phone (e.g., 0712345678)";
+        else if (!phoneRegex.test(value.replace(/[\s-]/g, "")))
+          error = "Invalid SL Phone (e.g., 0712345678 or 0112345678)";
         break;
       case "businessRegistration":
         if (value && value.length < 3) error = "Invalid BR Number format";
@@ -302,6 +302,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 <option value="Material Supplier">Material Supplier</option>
                 <option value="Distributor">Distributor</option>
                 <option value="Bookshop">Bookshop</option>
+                <option value="Publisher">Publisher</option>
               </select>
             </div>
           </div>
@@ -507,6 +508,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 name="address.city"
                 value={formData.address.city}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className={
                   touched["address.city"] && errors["address.city"]
                     ? "form-select is-invalid"

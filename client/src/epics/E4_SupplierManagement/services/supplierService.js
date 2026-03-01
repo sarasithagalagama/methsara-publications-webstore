@@ -34,6 +34,21 @@ const supplierService = {
     return response.data;
   },
 
+  terminateSupplier: async (id) => {
+    const response = await api.put(`/suppliers/${id}/terminate`);
+    return response.data;
+  },
+
+  getTerminatedSuppliers: async () => {
+    const response = await api.get("/suppliers/terminated");
+    return response.data;
+  },
+
+  restoreSupplier: async (id) => {
+    const response = await api.put(`/suppliers/${id}/restore`);
+    return response.data;
+  },
+
   // [E4.6] Analytics: on-time delivery rate, quality score, total orders per supplier
   getAnalytics: async () => {
     const response = await api.get("/suppliers/analytics");

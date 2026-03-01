@@ -32,7 +32,7 @@ const supplierSchema = new mongoose.Schema({
   // [E4.1] category: classifies the supply partner type (impacts PO workflow and terms)
   category: {
     type: String,
-    enum: ["Material Supplier", "Distributor", "Bookshop"],
+    enum: ["Material Supplier", "Distributor", "Bookshop", "Publisher"],
     default: "Material Supplier",
     required: true,
   },

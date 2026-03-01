@@ -94,50 +94,42 @@ exports.approveTransfer = async (req, res) => {
     }
 
     if (action === "approve") {
-      // Check stock availability again
-      const sourceInventory = await Inventory.findOne({
+      // Deduct from source — use save() so pre/post hooks recalculate availableQuantity & sync Product.stock
+      const srcInventory = await Inventory.findOne({
         product: transfer.product,
         location: transfer.fromLocation,
       });
-
-      if (!sourceInventory || sourceInventory.quantity < transfer.quantity) {
+      if (!srcInventory || srcInventory.quantity < transfer.quantity) {
         return res
           .status(400)
           .json({ success: false, message: "Insufficient stock" });
       }
-
-      // Deduct from source
-      await Inventory.findOneAndUpdate(
-        { product: transfer.product, location: transfer.fromLocation },
-        {
-          $inc: { quantity: -transfer.quantity },
-          $push: {
-            history: {
-              type: "Transfer Out",
-              quantity: -transfer.quantity,
-              reason: `Transfer to ${transfer.toLocation}: ${transfer.transferNumber}`,
-              performedBy: req.user.id,
-            },
-          },
-        },
+      srcInventory.deductStock(
+        transfer.quantity,
+        `Transfer Out to ${transfer.toLocation}: ${transfer.transferNumber}`,
+        req.user.id,
       );
+      await srcInventory.save();
 
-      // Add to destination
-      await Inventory.findOneAndUpdate(
-        { product: transfer.product, location: transfer.toLocation },
-        {
-          $inc: { quantity: transfer.quantity },
-          $push: {
-            history: {
-              type: "Transfer In",
-              quantity: transfer.quantity,
-              reason: `Transfer from ${transfer.fromLocation}: ${transfer.transferNumber}`,
-              performedBy: req.user.id,
-            },
-          },
-        },
-        { upsert: true },
+      // Add to destination — use save() so pre/post hooks recalculate availableQuantity & sync Product.stock
+      let destInventory = await Inventory.findOne({
+        product: transfer.product,
+        location: transfer.toLocation,
+      });
+      if (!destInventory) {
+        destInventory = new Inventory({
+          product: transfer.product,
+          location: transfer.toLocation,
+          quantity: 0,
+          reservedQuantity: 0,
+        });
+      }
+      destInventory.addStock(
+        transfer.quantity,
+        `Transfer In from ${transfer.fromLocation}: ${transfer.transferNumber}`,
+        req.user.id,
       );
+      await destInventory.save();
 
       transfer.status = "Completed";
       transfer.completedDate = Date.now();

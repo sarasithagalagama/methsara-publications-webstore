@@ -134,6 +134,81 @@ exports.deleteSupplier = async (req, res) => {
   }
 };
 
+// [E4.1] getTerminatedSuppliers: returns all partners with isActive: false
+exports.getTerminatedSuppliers = async (req, res) => {
+  try {
+    const suppliers = await Supplier.find({ isActive: false });
+    res.status(200).json({
+      success: true,
+      count: suppliers.length,
+      suppliers,
+    });
+  } catch (error) {
+    console.error("Get terminated suppliers error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching terminated suppliers",
+      error: error.message,
+    });
+  }
+};
+
+// [E4.1] terminateSupplier: soft-terminates a partner (isActive: false); preserves PO history
+exports.terminateSupplier = async (req, res) => {
+  try {
+    const supplier = await Supplier.findByIdAndUpdate(
+      req.params.id,
+      { isActive: false },
+      { new: true },
+    );
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Partner terminated successfully",
+      supplier,
+    });
+  } catch (error) {
+    console.error("Terminate supplier error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error terminating supplier",
+      error: error.message,
+    });
+  }
+};
+
+// [E4.1] restoreSupplier: re-activates a terminated partner (isActive: true)
+exports.restoreSupplier = async (req, res) => {
+  try {
+    const supplier = await Supplier.findByIdAndUpdate(
+      req.params.id,
+      { isActive: true },
+      { new: true },
+    );
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Partner restored successfully",
+      supplier,
+    });
+  } catch (error) {
+    console.error("Restore supplier error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error restoring supplier",
+      error: error.message,
+    });
+  }
+};
+
 // Get Supplier Analytics (E4.6)
 exports.getSupplierAnalytics = async (req, res) => {
   try {

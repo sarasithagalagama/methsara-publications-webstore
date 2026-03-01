@@ -30,7 +30,6 @@ import {
   Send,
   PackageCheck,
   Search,
-  Printer,
   Trash2,
 } from "lucide-react";
 import StatCard from "../../../components/dashboard/StatCard";
@@ -359,12 +358,6 @@ const SupplierManagerDashboard = () => {
         title="Partner Management"
         subtitle="Manage Suppliers, Distributors, and Bookshops"
         actions={[
-          {
-            label: "Print Directory",
-            icon: <Printer size={18} />,
-            onClick: () => window.print(),
-            variant: "outline",
-          },
           {
             label: "Add Partner",
             icon: <Plus size={18} />,

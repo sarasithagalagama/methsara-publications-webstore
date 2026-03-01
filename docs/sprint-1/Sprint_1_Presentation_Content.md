@@ -1,19 +1,28 @@
 # Sprint 1 Presentation Script — ISP_G05
-**Methsara Publications Webstore** | March 1, 2026 | 30 min (5 slides · 20 min demo · 5 min Q&A)
+**Methsara Publications Webstore** | March 1, 2026 | 30 min (5 slides · 20 min demo · 2–3 min Q&A)
 
 ---
 
 > ## 📌 PRESENTER QUICK REFERENCE
 >
-> **Week 7 Requirements — must address during presentation & demo:**
+> **Presentation Assessment Criteria (from IE2091 Sprint 1 Guide):**
 >
-> | Requirement | How We Satisfy It |
-> |------------|-------------------|
-> | Present Sprint 0 components | All 6 epics built and live |
-> | Requirement Analysis per Epic | User stories + acceptance criteria (demo intro per epic) |
-> | System Design per Epic | Mongoose models + route architecture (shown per epic) |
-> | Implementation & Testing | Live Postman demo for each epic |
-> | ≥ 30% completion per Epic | All epics at 86–100% Sprint 1 completion (65–80% overall) |
+> | Assessment Area | How We Satisfy It |
+> |----------------|-------------------|
+> | Clear understanding of problem and vision | Business Model Canvas, pain points, measurable success metrics |
+> | Proper Sprint 1 planning | Sprint goal, 60 user stories, task allocation, DoD defined upfront |
+> | Alignment between backlog and implementation | RTM, every story maps to controller function + endpoint |
+> | Quality of working features | 56/60 stories fully tested; error handling, validation, HTTP status codes |
+> | Correct application of Agile practices | Scrum roles, sprint ceremonies, incremental delivery |
+> | Teamwork and coordination | Cross-epic integration, equal contribution (avg 93%), 2 bugs fixed collaboratively |
+> | Professional presentation delivery | Live demo + backup screenshots, equal speaker time, technical depth per member |
+>
+> **Demo requirement per member (PDF § System Demonstration Guidelines):**
+> 1. Demonstrate implemented feature
+> 2. Show complete UI functionality
+> 3. Show database integration
+> 4. Demonstrate validation (error handling, required fields)
+> 5. Show logical user flow from start to finish — aligned with user stories
 >
 > **Key viva answers:**
 > - *UI not polished?* → "Backend-first in Sprint 1 — all workflows functional. UI polish is Sprint 2's primary focus."
@@ -121,10 +130,16 @@
 
 ---
 ---
-## DEMO REFERENCE SECTION — Per-Epic Evidence (Week 7 Compliance)
-> **Each presenter uses this during the 20-min demo — Requirement Analysis → System Design → Live Demo → Testing**
+## DEMO REFERENCE SECTION — Per-Epic Evidence
+> **Each presenter follows the 5-step demo structure below during the 20-min slot (~3 min per epic)**
 
-> **Evaluator Requirement:** *"Requirement Analysis, System Design, Implementation and Testing must be completed per Epic. At least 30% per Epic."*
+> **System Demonstration Guidelines (IE2091 Sprint 1 Guide):**
+> Each group member must:
+> 1. Demonstrate their implemented feature
+> 2. Show complete UI functionality
+> 3. Show database integration
+> 4. Demonstrate validation (error handling, required fields, etc.)
+> 5. Show logical user flow from start to finish — aligned with user stories
 
 ### Minimum 30% Completion — Achievement Per Epic
 
@@ -331,15 +346,15 @@
 
 ### ON SLIDE:
 
-| Epic | Stories | Done | Status | Sprint 1 % | ≥ 30%? |
-|-------------|--------------|-----------|-------------|
-| **E1: User & Role Management** | 13 | 12 ✅ | 🔄 Email | 92% | ✅ |
-| **E2: Product Catalog** | 12 | 12 ✅ | — | 100% | ✅ |
-| **E3: Order & Transaction** | 11 | 10 ✅ | 🔄 CSV export | 91% | ✅ |
-| **E4: Supplier Management** | 7 | 6 ✅ | 🔄 Email | 86% | ✅ |
-| **E5: Inventory Management** | 10 | 9 ✅ | 🔄 Reports | 90% | ✅ |
-| **E6: Promotion & Loyalty** | 7 | 7 ✅ | — | 100% | ✅ |
-| **TOTAL** | **60** | **56 ✅ (93%)** | **4 🔄 (7%)** | **93%** | **✅ All** |
+| Epic | Planned User Stories | Completed | In Progress |
+|------|---------------------|-----------|-------------|
+| **E1: User & Role Management** | 13 | 12 ✅ | 1 🔄 (Email notifications) |
+| **E2: Product Catalog** | 12 | 12 ✅ | — |
+| **E3: Order & Transaction** | 11 | 10 ✅ | 1 🔄 (CSV export) |
+| **E4: Supplier Management** | 7 | 6 ✅ | 1 🔄 (Email notifications) |
+| **E5: Inventory Management** | 10 | 9 ✅ | 1 🔄 (Stock reports) |
+| **E6: Promotion & Loyalty** | 7 | 7 ✅ | — |
+| **TOTAL** | **60** | **56 ✅ (93%)** | **4 🔄 (7%)** |
 
 **In-progress items (backend complete — external dependency only):**
 - 🔄 Email notifications (E1, E4) — awaiting SMTP server credentials
@@ -518,10 +533,12 @@
 
 ---
 ---
-## SLIDE 5 — Challenges & Improvements
+## SLIDE 5 — Challenges and Improvements
 > **~1 min | Presented by: IT24100548 (Product Owner)**
 
 ### ON SLIDE:
+
+> *Slide 5 must cover: Technical challenges · Requirement clarifications · Improvements made · Lessons learned (IE2091 Guide)*
 
 **Technical Challenges**
 
@@ -708,7 +725,7 @@
 ---
 # 🖥️ DEMO SECTION — 20 Minutes
 > **Each member presents their epic: ~3 min each**
-> **Required per epic: Requirement → Design → Live Demo → Testing evidence**
+> **Required per epic (IE2091 Guide): (1) Feature demo · (2) UI functionality · (3) DB integration · (4) Validation · (5) Logical user flow**
 
 ## Demo Flows
 
@@ -764,7 +781,7 @@
 
 ---
 ## POST-DEMO Q&A PREPARATION
-> **(5 minutes | All members)**  
+> **(2–3 minutes | All members)**  
 > Below are viva Q&A answers — know these before presenting.
 
 ### Clear Understanding of Problem & Vision ✅
@@ -971,7 +988,7 @@ Every user story maps to functional code:
 - Clear structure following presentation guide
 - Consistent formatting across all slides
 - Visual aids prepared (screenshots, ER diagrams, architecture diagrams)
-- Time management: 5 min slides + 20 min demo + 5 min Q&A
+- Time management: 5 min slides + 20 min demo + 2–3 min Q&A
 
 **Technical Depth:**
 - Each member can explain:
@@ -1104,7 +1121,7 @@ All 6 team members will dedicate significant Sprint 2 time to UI polish:
 ### ✅ Proper Sprint 1 Planning
 - 60 user stories estimated and prioritized
 - 263 total story points across 4 sprints
-- Sprint 1: 67 story points (foundation & core features)
+- Sprint 1: 107 story points (foundation & core features)
 - Achieved 100% of Sprint 1 planned stories ✅
 
 ### ✅ Alignment Between Backlog & Implementation

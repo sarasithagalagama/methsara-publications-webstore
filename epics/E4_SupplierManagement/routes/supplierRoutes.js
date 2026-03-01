@@ -12,18 +12,27 @@ const {
   createSupplier,
   updateSupplier,
   deleteSupplier,
+  getTerminatedSuppliers,
+  terminateSupplier,
+  restoreSupplier,
   getSupplierAnalytics,
-} = require('../controllers/supplierController');
-const { protect, authorize } = require('../../E1_UserAndRoleManagement/middleware/auth');
+} = require("../controllers/supplierController");
+const {
+  protect,
+  authorize,
+} = require("../../E1_UserAndRoleManagement/middleware/auth");
 
 // All routes require supplier_manager or admin role
 router.use(protect);
 router.use(authorize("supplier_manager", "admin", "finance_manager"));
 
-router.get("/", getAllSuppliers); // E4.1 - List suppliers
+router.get("/", getAllSuppliers); // E4.1 - List active suppliers
+router.get("/terminated", getTerminatedSuppliers); // E4.1 - List terminated suppliers
 router.get("/analytics", getSupplierAnalytics); // E4.6 - Analytics
 router.post("/", createSupplier); // E4.1 - Create supplier
 router.put("/:id", updateSupplier); // E4.1 - Update supplier
-router.delete("/:id", deleteSupplier); // E4.1 - Delete supplier
+router.put("/:id/terminate", terminateSupplier); // E4.1 - Terminate supplier
+router.put("/:id/restore", restoreSupplier); // E4.1 - Restore terminated supplier
+router.delete("/:id", deleteSupplier); // E4.1 - Hard delete (admin only, kept for safety)
 
 module.exports = router;
