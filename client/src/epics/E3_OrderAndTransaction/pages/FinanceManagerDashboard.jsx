@@ -99,7 +99,7 @@ const FinanceManagerDashboard = () => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [allFinancialTransactions, setAllFinancialTransactions] = useState([]);
   const [editingFinItem, setEditingFinItem] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview"); // [E3.9] Tabs: overview (revenue), salaries (E3.11), suppliers (E4 integration)
+  const [activeTab, setActiveTab] = useState("payments"); // [E3.9] Tabs: payments (default), overview (revenue), salaries (E3.11), suppliers (E4 integration)
   const [showPOModal, setShowPOModal] = useState(false);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -638,6 +638,52 @@ const FinanceManagerDashboard = () => {
           },
         ]}
       />
+
+      {/* ── TAB NAVIGATION BAR ── */}
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          marginBottom: "20px",
+          borderBottom: "2px solid #e5e7eb",
+          paddingBottom: "0",
+        }}
+      >
+        {[
+          {
+            key: "payments",
+            label: "Payment Confirmation",
+            icon: <CreditCard size={15} />,
+          },
+          { key: "overview", label: "Overview", icon: <Activity size={15} /> },
+        ].map(({ key, label, icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 18px",
+              border: "none",
+              borderBottom:
+                activeTab === key
+                  ? "2px solid #3b82f6"
+                  : "2px solid transparent",
+              background: "none",
+              color: activeTab === key ? "#3b82f6" : "#6b7280",
+              fontWeight: activeTab === key ? 600 : 400,
+              fontSize: "0.9rem",
+              cursor: "pointer",
+              marginBottom: "-2px",
+              transition: "color 0.15s, border-color 0.15s",
+            }}
+          >
+            {icon}
+            {label}
+          </button>
+        ))}
+      </div>
 
       {/* Stats Grid */}
       <div className="dashboard-grid dashboard-grid-4">
