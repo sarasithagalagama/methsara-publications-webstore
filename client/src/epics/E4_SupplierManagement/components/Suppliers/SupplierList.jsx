@@ -10,6 +10,7 @@ import supplierService from "../../services/supplierService";
 import SupplierFormModal from "./SupplierFormModal";
 import ConfirmModal from "../../../../components/common/ConfirmModal";
 import StatusModal from "../../../../components/common/StatusModal";
+import toast from "react-hot-toast";
 import {
   Plus,
   Edit,
@@ -32,6 +33,7 @@ function SupplierList() {
   const [terminatedSuppliers, setTerminatedSuppliers] = useState([]);
   const [filteredTerminated, setFilteredTerminated] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("All"); // "All" | "Vendor" | "Customer"
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
@@ -103,7 +105,12 @@ function SupplierList() {
   const filterSuppliers = (tab) => {
     let filtered = suppliers;
 
-    // Tab filtering
+    // Supplier type filter first (Vendor / Customer)
+    if (typeFilter !== "All") {
+      filtered = filtered.filter((s) => s.supplierType === typeFilter);
+    }
+
+    // Category tab filtering
     if (tab !== "All") {
       filtered = filtered.filter((s) => s.category === tab);
     }
@@ -123,12 +130,29 @@ function SupplierList() {
     setFilteredSuppliers(filtered);
   };
 
+  // Re-filter when typeFilter changes
+  useEffect(() => {
+    filterSuppliers(activeTab);
+  }, [typeFilter]);
+
   const handleSave = async (data) => {
     try {
       if (editingSupplier) {
-        await supplierService.updateSupplier(editingSupplier._id, data);
+        const result = await supplierService.updateSupplier(
+          editingSupplier._id,
+          data,
+        );
+        if (result.pendingApproval) {
+          toast.success(
+            "Edit request submitted for Admin approval. Changes will take effect once approved.",
+            { duration: 4000 },
+          );
+        } else {
+          toast.success("Partner updated successfully");
+        }
       } else {
         await supplierService.createSupplier(data);
+        toast.success("Partner added successfully");
       }
       loadSuppliers();
       setShowModal(false);
@@ -210,6 +234,62 @@ function SupplierList() {
       />
 
       <div className="dashboard-controls" style={{ marginTop: "1rem" }}>
+        {/* Supplier Type Toggle */}
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+            flexWrap: "wrap",
+          }}
+        >
+          {["All", "Vendor", "Customer"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setTypeFilter(type)}
+              style={{
+                padding: "0.4rem 1rem",
+                borderRadius: "999px",
+                border: "2px solid",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "0.8rem",
+                borderColor:
+                  typeFilter === type
+                    ? type === "Vendor"
+                      ? "#ef4444"
+                      : type === "Customer"
+                        ? "#10b981"
+                        : "var(--primary-color)"
+                    : "var(--border-color)",
+                background:
+                  typeFilter === type
+                    ? type === "Vendor"
+                      ? "rgba(239,68,68,0.1)"
+                      : type === "Customer"
+                        ? "rgba(16,185,129,0.1)"
+                        : "rgba(184,134,11,0.1)"
+                    : "transparent",
+                color:
+                  typeFilter === type
+                    ? type === "Vendor"
+                      ? "#b91c1c"
+                      : type === "Customer"
+                        ? "#065f46"
+                        : "var(--primary-color)"
+                    : "var(--text-secondary)",
+                transition: "all 0.2s",
+              }}
+            >
+              {type === "All"
+                ? "All Types"
+                : type === "Vendor"
+                  ? "Vendors (We Pay Them)"
+                  : "Customers (They Pay Us)"}
+            </button>
+          ))}
+        </div>
+
         <div className="dashboard-tabs">
           {[
             "All",
@@ -340,6 +420,37 @@ function SupplierList() {
                     >
                       {supplier.category || "Supplier"}
                     </span>
+                    {supplier.supplierType && (
+                      <span
+                        className="badge"
+                        style={{
+                          marginLeft: "0.4rem",
+                          background:
+                            supplier.supplierType === "Vendor"
+                              ? "rgba(239,68,68,0.1)"
+                              : "rgba(16,185,129,0.1)",
+                          color:
+                            supplier.supplierType === "Vendor"
+                              ? "#b91c1c"
+                              : "#065f46",
+                        }}
+                      >
+                        {supplier.supplierType}
+                      </span>
+                    )}
+                    {supplier.hasDebt && (
+                      <span
+                        className="badge"
+                        style={{
+                          marginLeft: "0.4rem",
+                          background: "rgba(245,158,11,0.15)",
+                          color: "#92400e",
+                        }}
+                      >
+                        Debt: Rs.{" "}
+                        {(supplier.outstandingBalance || 0).toLocaleString()}
+                      </span>
+                    )}
                   </div>
                   <div className="card-actions no-print">
                     <button

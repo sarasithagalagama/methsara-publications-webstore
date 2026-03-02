@@ -269,95 +269,126 @@ toLocation:   { required: true }
 
 ---
 
-## 7. How to Change Colors (Frontend)
+## 7. User Stories
 
-Inventory pages are in `client/src/epics/E5_InventoryManagement/`.
-
-### Low Stock Alert Colors
-```jsx
-// Alert severity indicators
-const stockColor = (available, threshold) => {
-  if (available === 0)          return 'bg-red-100 text-red-700';    // Out of Stock
-  if (available <= threshold)   return 'bg-yellow-100 text-yellow-700'; // Low Stock
-  return 'bg-green-100 text-green-700';                              // In Stock
-};
-// Change these Tailwind classes to customize alert badge colors
-```
-
-### Stock Level Progress Bar
-```jsx
-<div className="bg-gray-200 rounded-full h-2">
-  <div
-    className="bg-green-500 h-2 rounded-full"
-    style={{ width: `${Math.min((available / capacity) * 100, 100)}%` }}
-  />
-</div>
-// Change bg-green-500 → bg-primary for consistent theme
-```
-
-### Transfer Status Colors
-```jsx
-const transferColors = {
-  Requested: 'bg-yellow-100 text-yellow-700',
-  Approved:  'bg-green-100 text-green-700',
-  Rejected:  'bg-red-100 text-red-700',
-  Completed: 'bg-blue-100 text-blue-700',
-};
-```
+| # | As a… | I want to… | So that… |
+|---|---|---|---|
+| US-5.1 | Master Inventory Manager | View the current stock levels for every product at every warehouse/branch location | I can see the complete inventory picture across the whole business |
+| US-5.2 | Master Inventory Manager | Manually adjust stock quantity at any location (add or subtract) | I can correct discrepancies or log write-offs immediately |
+| US-5.3 | Master Inventory Manager | View a dashboard showing total SKUs, total units, locations, low-stock count, and out-of-stock count | I get an instant health check of the inventory without running manual queries |
+| US-5.4 | Master Inventory Manager | View all stock movement history (who adjusted what, when, and why) | I have a full audit trail for accountability and reporting |
+| US-5.5 | Master Inventory Manager | Receive low-stock alerts for products that fall below their configured threshold | I can proactively reorder before stock runs out |
+| US-5.6 | Master Inventory Manager | Approve or reject a stock transfer between locations | Transfers go through a second review before stock physically moves |
+| US-5.7 | Master Inventory Manager | Create and manage warehouse/branch locations | New branches can be added to the system and assigned to managers |
+| US-5.8 | Location Inventory Manager | View the stock levels at my assigned location only | I can manage my local inventory without seeing or modifying other locations |
+| US-5.9 | Location Inventory Manager | Request a stock transfer from another location to mine | I can replenish my local stock without directly adjusting it |
+| US-5.10 | Location Inventory Manager | Submit a stock adjustment request (not direct update) | Changes to my local stock are reviewed by a master manager before taking effect |
+| US-5.11 | Admin | Run a full stock sync utility | Any data drift between product and inventory records is automatically corrected |
+| US-5.12 | E3 System (automatic) | Deduct stock when a customer order is placed | Available inventory reflects what can actually still be sold |
+| US-5.13 | Master Inventory Manager | Manually add stock for books received from printing/production | Book inventory is updated accurately after new stock arrives, since Vendor POs track raw materials not sellable books |
+| US-5.14 | E4 System (automatic) | Deduct stock when a Sales Order is marked as Dispatched | Bulk dispatches to distributors are accurately reflected in stock levels |
 
 ---
 
-## 8. Viva Q&A
+## 8. Frontend Implementation
 
-**Q1: Why are there three stock fields (`quantity`, `reservedStock`, `availableStock`) instead of just one?**  
-A: A single stock number would cause overselling. When a customer places an order, we need to hold those units (reservedStock) immediately so they cannot be sold to another customer — even before the order is shipped. `availableStock = quantity - reservedStock` gives the real number of units that can still be ordered. This three-field approach is standard in warehouse management systems.
+### Component Map
 
-**Q2: What does the compound unique index on `{ product, location }` prevent?**  
-A: It prevents creating two inventory records for the same product at the same location. Without it, a race condition could create duplicate inventory docs and lead to incorrect stock totals. With the index, MongoDB rejects the second insert at the database level.
+| Page / Component | File Path | What It Does |
+|---|---|---|
+| Inventory Dashboard | `client/src/epics/E5_InventoryManagement/pages/InventoryDashboard.jsx` | Stat cards: total SKUs, total units, low-stock count, out-of-stock count; shortcut to alerts |
+| Stock by Location | `client/src/epics/E5_InventoryManagement/pages/StockByLocation.jsx` | Select a location → table of all products at that location with quantity, reserved, available, and threshold indicators |
+| Low Stock Alerts | `client/src/epics/E5_InventoryManagement/pages/LowStockAlerts.jsx` | List of Inventory docs where availableStock ≤ lowStockThreshold; severity colour-coded; sorted by urgency |
+| Adjust Stock Modal | `client/src/epics/E5_InventoryManagement/components/AdjustStockModal.jsx` | Form to add or subtract stock; MIM submits directly; LIM submits for approval via ApprovalRequest |
+| Stock Movements | `client/src/epics/E5_InventoryManagement/pages/StockMovements.jsx` | Flattened adjustments history across all inventory docs; shows who made each change and the reason |
+| Location Manager | `client/src/epics/E5_InventoryManagement/pages/LocationManager.jsx` | CRUD table for warehouse/branch locations; main-warehouse flag toggle |
+| Stock Transfer Page | `client/src/epics/E5_InventoryManagement/pages/StockTransfers.jsx` | LIM: request transfer form; MIM: pending transfer list with approve/reject buttons |
 
-**Q3: What is the "Dynamic Sync" in `getStockByLocation`?**  
-A: When stock data is returned, the controller cross-checks that `product.stock` equals the sum of `availableStock` across all Inventory documents for that product. If a discrepancy is found (e.g., manual DB edit or sync failure), the Inventory document is updated to match the canonical `product.stock` value. This self-correcting behavior prevents data drift.
+### Data Flow — Stock Deduction (E3 Order)
 
-**Q4: Why can't a location inventory manager approve a transfer they requested?**  
-A: Separation of duties / four-eyes principle. If one person could both request and approve their own transfers, they could move stock to any location without oversight. The system requires that stock transfers be reviewed by a Master Inventory Manager or Admin — a different person.
-
-**Q5: What happens to the source stock when a transfer is REQUESTED?**  
-A: `availableStock` at the source is immediately decremented (units are held). This prevents the same units from being sold to a customer while they are "in transit" for a transfer. If the transfer is rejected, the held units are restored (`availableStock` incremented back).
-
-**Q6: How does the low stock alert system work?**  
-A: `getLowStockAlerts` queries:
-```javascript
-Inventory.find({ availableStock: { $lte: '$lowStockThreshold' } })
 ```
-Using MongoDB's expression query `$lte: '$lowStockThreshold'` compares the `availableStock` field against the `lowStockThreshold` **field on the same document** — no hardcoded threshold. This allows each product-location combination to have its own configured threshold.
-
-**Q7: What is the "self-healing main warehouse" in `getLocations`?**  
-A: The system requires exactly one location with `isMainWarehouse: true` because E4 Purchase Order receiving always stocks to the main warehouse. If this location disappears (e.g., accidentally deleted), the next `getLocations` call detects the missing record and auto-creates a default "Main Warehouse" document. This prevents the E4→E5 inventory sync from failing.
-
-**Q8: How does `adjustStock` use the maker-checker pattern?**  
-A: If the requester is a `location_inventory_manager`, the controller does NOT immediately update the Inventory document. Instead, it creates an `ApprovalRequest` document (E1 model) with the proposed adjustment. An admin or master inventory manager then reviews and approves it via `PUT /api/approvals/:id`. Only on approval does the actual stock adjustment occur. This prevents unauthorized stock manipulations.
-
-**Q9: What does the `adjustments` array in the Inventory model record?**  
-A: Every stock change (add, subtract, transfer in/out, order deduction) appends an entry to this array: type, quantity changed, reason text, who made the change (`adjustedBy`), and when (`adjustedAt`). This is a full audit trail. `getStockMovements` flattens these arrays across all inventory documents to show a complete history.
-
-**Q10: How does stock deduction work when a customer places an order (E3 integration)?**  
-A: When E3 `createOrder` runs, it calls E5 inventory logic for each ordered item:
-```javascript
-await Inventory.findOneAndUpdate(
-  { product: item.productId, location: mainWarehouseId },
-  { $inc: { reservedStock: item.quantity, availableStock: -item.quantity } }
-);
+Customer places order (E3 createOrder)
+         │
+         ▼
+For each item in the order:
+  Inventory.findOneAndUpdate(
+    { product: item.productId, location: mainWarehouseId },
+    { $inc: { reservedStock: +qty, availableStock: -qty } }
+  )
+  Appends adjustment: { type: 'order_deduction', quantity: qty, reason: 'Customer order #...' }
+         │
+         ▼
+AvailableStock decreases immediately — item can no longer be ordered by others
+When order ships → quantity also decrements, reservedStock decrements
 ```
-The `adjustments` array also gets a new entry with `type: 'order_deduction'`. If the order is cancelled later, these amounts are reversed.
 
-**Q11: Why is `syncAllStock` needed if automatic deductions are already tracked?**  
-A: In a distributed system with multiple concurrent requests, edge cases can cause drift. For example: a server crash mid-transaction, a manual database fix, or a bug in the previous version. `syncAllStock` is a recovery utility — it authoritatively recalculates all inventory totals from order history and corrects any discrepancies. It should be run during maintenance windows, not in normal operation.
+### Data Flow — Stock Addition (Manual / E5 Adjust)
 
-**Q12: How does `createLocation` ensure only one main warehouse exists?**  
-A: Before saving:
-```javascript
-if (req.body.isMainWarehouse) {
-  await Location.updateMany({}, { $set: { isMainWarehouse: false } });
-}
 ```
-This clears the `isMainWarehouse` flag from ALL existing locations before setting it on the new one. This guarantees the uniqueness constraint at the application level.
+Note: Vendor Purchase Orders (E4) track raw materials and services — NOT sellable book inventory.
+Inventory for books is added manually via the Inventory Management module.
+
+Master Inventory Manager opens Adjust Stock modal
+         │
+         ▼
+POST /api/inventory/adjust  { product, location, quantity, type: 'Add', reason }
+  Server:
+  ├── validates user role (MIM = direct; LIM = creates ApprovalRequest)
+  ├── increments inventory.quantity and recalculates availableQuantity
+  └── appends adjustment record with adjustedBy and timestamp
+         │
+         ▼
+New stock is immediately available for customer orders and sales orders
+```
+
+### Data Flow — Stock Transfer Request / Approval
+
+```
+Location Manager fills transfer request form
+  From: [their assigned location]  To: [destination]  Product: [X]  Qty: [N]
+         │
+         ▼
+POST /api/stock-transfers/request
+  Server:
+  ├── checks availableStock at source ≥ N
+  ├── creates StockTransfer doc (status: Requested)
+  └── decrements availableStock at source (units held)
+         │
+         ▼
+Master Manager sees request in Stock Transfers page
+         │
+   ┌─────┴─────┐
+Approve        Reject
+   │               │
+   ▼               ▼
+quantity moves  held stock
+to destination  restored at source
+```
+
+### Three Stock Fields Explained
+
+Every `Inventory` doc tracks three numbers for a product at a location:
+
+```
+quantity        = total physical units present at this location
+reservedStock   = units held for pending orders + pending transfers (cannot be sold)
+availableStock  = quantity - reservedStock  (what customers/orders can actually get)
+```
+
+Example:
+```
+Quantity: 100  |  Reserved: 15  |  Available: 85
+                    ↑                   ↑
+              (10 in E3 orders    (what the store can still sell)
+               5 in transit transfer)
+```
+
+### Role Access Summary
+
+| Action | MIM / Admin | LIM |
+|---|---|---|
+| View stock at any location | Yes | No (own location only) |
+| Direct stock adjustment | Yes (immediate) | No (creates ApprovalRequest) |
+| Approve stock transfers | Yes | No |
+| Request stock transfer | Yes | Yes |
+| Create/delete locations | Yes | No |

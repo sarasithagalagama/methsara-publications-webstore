@@ -21,10 +21,17 @@ const purchaseOrderSchema = new mongoose.Schema(
     },
     items: [
       {
+        // [E4.2] itemName: free-text description of what is being ordered from the vendor
+        // (raw materials, printing supplies, print jobs, etc. — NOT our product catalog)
+        itemName: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        // Optional: link to a Product if ordering a reprint of a specific book
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
-          required: true,
         },
         quantity: {
           type: Number,

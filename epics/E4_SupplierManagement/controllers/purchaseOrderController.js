@@ -6,13 +6,29 @@
 // ============================================
 
 const PurchaseOrder = require("../models/PurchaseOrder");
-const Product = require("../../E2_ProductCatalog/models/Product");
-const Inventory = require("../../E5_InventoryManagement/models/Inventory");
+const Supplier = require("../models/Supplier");
 
 // [E4.2] createPurchaseOrder: calculates item totals, generates poNumber, initialises statusHistory
 exports.createPurchaseOrder = async (req, res) => {
   try {
     const { supplier, items, expectedDeliveryDate, location, notes } = req.body;
+
+    // Validate supplier exists and is a Vendor
+    const supplierDoc = await Supplier.findById(supplier);
+    if (!supplierDoc) {
+      return res.status(404).json({
+        success: false,
+        message: "Supplier not found",
+      });
+    }
+
+    if (supplierDoc.supplierType !== "Vendor") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Purchase orders can only be created for Vendors (Material Suppliers). Use Sales Orders for Customers.",
+      });
+    }
 
     // [E4.2] Calculate line-item totalPrice and sum to get order totalAmount
     let totalAmount = 0;
@@ -50,7 +66,14 @@ exports.createPurchaseOrder = async (req, res) => {
       ],
     });
 
-    await purchaseOrder.populate("supplier items.product");
+    // Update supplier's outstanding balance (we owe them money)
+    supplierDoc.outstandingBalance += totalAmount;
+    supplierDoc.hasDebt = true;
+    supplierDoc.totalOrders += 1;
+    supplierDoc.totalValue += totalAmount;
+    await supplierDoc.save();
+
+    await purchaseOrder.populate("supplier");
 
     res.status(201).json({
       success: true,
@@ -77,7 +100,7 @@ exports.getAllPurchaseOrders = async (req, res) => {
     if (location) filter.location = location;
 
     const purchaseOrders = await PurchaseOrder.find(filter)
-      .populate("supplier createdBy items.product")
+      .populate("supplier createdBy")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -113,41 +136,15 @@ exports.updatePOStatus = async (req, res) => {
       notes,
     });
 
-    // If status is Received or Dispatched, update inventory
-    if (status === "Received" || status === "Dispatched") {
+    // If status is Received, mark the delivery date
+    // Note: Vendor POs contain raw materials/supplies, not sellable book inventory.
+    // Inventory is updated manually via the Inventory Management module (E5).
+    if (status === "Received") {
       po.actualDeliveryDate = Date.now();
-
-      await po.populate("supplier");
-      const isOutward =
-        po.supplier &&
-        (po.supplier.category === "Distributor" ||
-          po.supplier.category === "Bookshop");
-
-      // Update inventory for each item (E5.6)
-      for (const item of po.items) {
-        await Inventory.findOneAndUpdate(
-          { product: item.product, location: po.location },
-          {
-            $inc: { quantity: isOutward ? -item.quantity : item.quantity },
-            $push: {
-              adjustments: {
-                type: isOutward ? "Remove" : "Add",
-                quantity: isOutward ? -item.quantity : item.quantity,
-                reason: isOutward
-                  ? `Dispatched to ${po.supplier.name}`
-                  : `PO ${po.poNumber} received`,
-                adjustedBy: req.user.id,
-                timestamp: Date.now(),
-              },
-            },
-          },
-          { upsert: true },
-        );
-      }
     }
 
     await po.save();
-    await po.populate("supplier items.product");
+    await po.populate("supplier");
 
     res.status(200).json({
       success: true,
@@ -168,7 +165,7 @@ exports.getPurchaseOrder = async (req, res) => {
     const { id } = req.params;
 
     const po = await PurchaseOrder.findById(id).populate(
-      "supplier createdBy items.product statusHistory.changedBy",
+      "supplier createdBy statusHistory.changedBy",
     );
 
     if (!po) {
@@ -283,7 +280,7 @@ exports.verifyDelivery = async (req, res) => {
 
     // Update PO items with received quantities
     po.items = items.map((item) => ({
-      product: item.product._id || item.product,
+      itemName: item.itemName,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       totalPrice: item.receivedQty * item.unitPrice,
@@ -302,36 +299,11 @@ exports.verifyDelivery = async (req, res) => {
       notes: "Delivery verified and items received",
     });
 
-    // Update Inventory (similar to updatePOStatus but uses verified quantities)
-    // We already have logic in updatePOStatus, but here we explicitly mark it as Received
-    // The current updatePOStatus logic triggers on Received.
-    // However, it uses po.items which we just updated.
-
-    // To ensure consistency, we'll re-populate and save,
-    // but the inventory logic in PO controller is a bit redundant if we do it here too.
-    // Let's rely on the existing logic if we can, or just implement it here for clarity.
-
-    for (const item of po.items) {
-      await Inventory.findOneAndUpdate(
-        { product: item.product, location: po.location },
-        {
-          $inc: { quantity: item.receivedQty || item.quantity },
-          $push: {
-            adjustments: {
-              type: "Add",
-              quantity: item.receivedQty || item.quantity,
-              reason: `PO ${po.poNumber} verified and received`,
-              adjustedBy: req.user.id,
-              timestamp: Date.now(),
-            },
-          },
-        },
-        { upsert: true },
-      );
-    }
+    // Note: Vendor PO items are raw materials/supplies.
+    // Book inventory is managed separately in the Inventory Management module (E5).
 
     await po.save();
-    await po.populate("supplier items.product");
+    await po.populate("supplier");
 
     res.status(200).json({
       success: true,

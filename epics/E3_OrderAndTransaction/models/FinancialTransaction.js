@@ -11,7 +11,14 @@ const financialTransactionSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["Salary", "Supplier Payment", "Refund", "Bonus", "Other"],
+      enum: [
+        "Salary",
+        "Supplier Payment",
+        "Refund",
+        "Bonus",
+        "Customer Collection",
+        "Other",
+      ],
       required: true,
     },
     amount: {

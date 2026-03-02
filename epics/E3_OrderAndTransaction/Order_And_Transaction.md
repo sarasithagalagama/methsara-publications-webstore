@@ -92,16 +92,17 @@ Customer checks out → createOrder() → Cart cleared
 
 | Function | Purpose | Auth |
 |---|---|---|
-| `getFinancialDashboard(req, res)` | Returns KPIs: total revenue, total expenses, net profit, revenue chart data (daily/weekly/monthly breakdown), top selling products by revenue. | Finance Mgr / Admin |
-| `getTransactions(req, res)` | Paginated, filterable list of all FinancialTransaction records (filter: type, date range, status). | Finance Mgr / Admin |
-| `createTransaction(req, res)` | Manually create a transaction (e.g., log an expense like rent, utilities). | Finance Mgr / Admin |
-| `updateTransaction(req, res)` | Edit a manually created transaction. Cannot edit auto-generated order transactions. | Finance Mgr / Admin |
-| `deleteTransaction(req, res)` | Delete a manual transaction. Protected — cannot delete auto-generated ones. | Finance Mgr / Admin |
-| `generateInvoice(req, res)` | Generate a PDF invoice for a specific order (PDFKit). Returns downloadable PDF. | Finance Mgr / Admin |
-| `processRefund(req, res)` | Mark an order as refunded, create a negative FinancialTransaction, update order payment status. | Finance Mgr / Admin |
-| `generateFinancialPDF(req, res)` | Export full financial report as PDF for a date range. | Finance Mgr / Admin |
-| `generateFinancialCSV(req, res)` | Export all transactions as CSV file. | Finance Mgr / Admin |
-| `payPurchaseOrder(req, res)` | Record payment for a supplier Purchase Order (E4). Creates an expense FinancialTransaction. | Finance Mgr / Admin |
+| `getFinancialDashboard(req, res)` | Returns KPIs: total revenue (Orders + FinancialTransactions), total expenses, net income, daily revenue trend (last 30 days), growth % vs prior 30 days. | Finance Mgr / Admin |
+| `getTransactions(req, res)` | Filterable list of all non-archived FinancialTransaction records (filter: type, date range). | Finance Mgr / Admin |
+| `getTransaction(req, res)` | Get a single FinancialTransaction by ID. | Finance Mgr / Admin |
+| `createTransaction(req, res)` | Manually create a transaction (e.g., Salary, Other expense). For type "Supplier Payment" also decrements supplier `outstandingBalance`. | Finance Mgr / Admin |
+| `updateTransaction(req, res)` | Edit a transaction. Non-admin edits route through maker-checker (ApprovalRequest). Admin edits applied immediately. Adjusts supplier balance if Supplier Payment amount changed. | Finance Mgr / Admin |
+| `archiveTransaction(req, res)` | Soft-archive a transaction (`isArchived: true`). Record is preserved in DB but hidden from all views. | Finance Mgr / Admin |
+| `generateInvoice(req, res)` | Generate invoice data for a specific order. Returns structured JSON (invoice number, customer, items, totals). | Finance Mgr / Admin |
+| `processRefund(req, res)` | Mark an order as "Refunded", create a `Refund` FinancialTransaction (isIncome: false), update order status. | Finance Mgr / Admin |
+| `generateFinancialPDF(req, res)` | Export full financial statement as PDF (PDFKit). Aggregates revenue from Orders + FinancialTransactions, expenses categorized by type. | Finance Mgr / Admin |
+| `generateFinancialCSV(req, res)` | Export all FinancialTransaction records as CSV file (json2csv). | Finance Mgr / Admin |
+| `payPurchaseOrder(req, res)` | Mark a received vendor PO as paid. Creates a "Supplier Payment" FinancialTransaction (isIncome: false). Reduces vendor `outstandingBalance` and updates `totalPaid`. | Finance Mgr / Admin |
 
 ---
 
@@ -133,16 +134,17 @@ Customer checks out → createOrder() → Cart cleared
 
 | Method | Endpoint | Auth | Role | Description |
 |---|---|---|---|---|
-| GET | `/dashboard` | Yes | Finance Mgr / Admin | KPIs and charts |
-| GET | `/invoices/:orderId` | Yes | Finance Mgr / Admin | Download PDF invoice |
-| GET | `/reports/pdf` | Yes | Finance Mgr / Admin | Full PDF report |
-| GET | `/reports/csv` | Yes | Finance Mgr / Admin | CSV export |
-| POST | `/refunds/:orderId` | Yes | Finance Mgr / Admin | Process refund |
-| GET | `/transactions` | Yes | Finance Mgr / Admin | All transactions |
+| GET | `/dashboard` | Yes | Finance Mgr / Admin | KPIs and daily trend chart |
+| GET | `/invoices/:orderId` | Yes | Finance Mgr / Admin | Generate invoice JSON |
+| GET | `/reports/pdf` | Yes | Finance Mgr / Admin | Download PDF financial statement |
+| GET | `/reports/csv` | Yes | Finance Mgr / Admin | Download CSV of all transactions |
+| POST | `/refunds/:orderId` | Yes | Finance Mgr / Admin | Process refund (marks order as Refunded) |
+| GET | `/transactions` | Yes | Finance Mgr / Admin | All non-archived transactions |
+| GET | `/transactions/:id` | Yes | Finance Mgr / Admin | Single transaction by ID |
 | POST | `/transactions` | Yes | Finance Mgr / Admin | Create manual transaction |
-| PUT | `/transactions/:id` | Yes | Finance Mgr / Admin | Update transaction |
-| DELETE | `/transactions/:id` | Yes | Finance Mgr / Admin | Delete transaction |
-| PUT | `/purchase-orders/:id/pay` | Yes | Finance Mgr / Admin | Pay purchase order |
+| PUT | `/transactions/:id` | Yes | Finance Mgr / Admin | Update transaction (non-admins: maker-checker) |
+| PATCH | `/transactions/:id/archive` | Yes | Finance Mgr / Admin | Soft-archive transaction (hidden, not deleted) |
+| PUT | `/purchase-orders/:id/pay` | Yes | Finance Mgr / Admin | Pay PO — creates FinancialTransaction + reduces vendor balance |
 
 ---
 
@@ -212,25 +214,35 @@ Customer checks out → createOrder() → Cart cleared
 ```
 {
   _id: ObjectId,
-  type: String (enum: order | refund | expense | supplier_payment | manual),
+  type: String (enum: "Salary" | "Supplier Payment" | "Refund" | "Bonus" | "Customer Collection" | "Other"),
   description: String,
-  amount: Number (required, > 0),
-  isIncome: Boolean  ← true=revenue, false=expense
-  referenceId: ObjectId (ref: Order or PurchaseOrder),
-  referenceModel: String (refPath),
-  status: String (enum: pending | completed | cancelled),
-  createdBy: ObjectId (ref: User),
-  date: Date,
-  category: String (enum: sales | refund | expense | utilities | etc.),
-  createdAt: Date
+  amount: Number (required),
+  isIncome: Boolean  ← true=revenue (e.g. Customer Collection), false=expense (Supplier Payment, Salary, Refund)
+  relatedId: ObjectId  ← SupplierID (Supplier Payment/Customer Collection), OrderID (Refund), UserID (Salary)
+  status: String (enum: "Pending" | "Completed" | "Failed" | "Cancelled", default: "Completed"),
+  processedBy: ObjectId (ref: User, required),
+  date: Date (default: Date.now),
+  isArchived: Boolean (default: false)  ← soft-delete; archived records are preserved in DB but hidden from views
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
+
+**Transaction Types:**
+| Type | isIncome | Auto-created by | When |
+|---|---|---|---|
+| `Supplier Payment` | false (expense) | E3 `payPurchaseOrder` or E4 `recordPaymentToVendor` | Finance Manager pays a vendor PO or records manual vendor payment |
+| `Customer Collection` | true (income) | E4 `recordPaymentForSO` or `recordPaymentFromCustomer` | Customer pays for a Sales Order or direct collection recorded |
+| `Refund` | false (expense) | E3 `processRefund` | Finance Manager processes an order refund |
+| `Salary` | false (expense) | Finance Manager manual | Payroll entries |
+| `Bonus` | false (expense) | Finance Manager manual | Performance bonus entries |
+| `Other` | either | Finance Manager manual | Miscellaneous income or expense |
 
 **Relationships:**
 - `orders.user` → `users` (E1)
 - `orders.items.product` → `products` (E2) or `voucherproducts` (E6)
 - `carts.user` → `users` (E1)
-- `financialtransactions.referenceId` → `orders` or `purchaseorders` (E4)
+- `financialtransactions.relatedId` → `users` (Salary), `suppliers` (E4 Supplier Payment/Customer Collection), `orders` (Refund)
 
 **Indexes:**
 - `cart.user` — unique index (one cart per user)
@@ -252,8 +264,10 @@ items: { required: true }  // minimum 1 item validated in controller
 
 ### Mongoose Schema (FinancialTransaction.js)
 ```javascript
-amount: { required: true, min: [0.01, 'Amount must be positive'] }
-type:   { enum: ['order','refund','expense','supplier_payment','manual'] }
+amount: { required: true }
+type:   { enum: ['Salary','Supplier Payment','Refund','Bonus','Customer Collection','Other'], required: true }
+status: { enum: ['Pending','Completed','Failed','Cancelled'], default: 'Completed' }
+processedBy: { required: true, ref: 'User' }
 ```
 
 ### Controller-Level Validations (orderController.js)
@@ -269,89 +283,132 @@ type:   { enum: ['order','refund','expense','supplier_payment','manual'] }
 
 ---
 
-## 7. How to Change Colors (Frontend)
+## 7. User Stories
 
-Cart and order pages are in `client/src/epics/E3_OrderAndTransaction/`.
-
-### Cart Badge (item count in navbar)
-Find the cart icon component and change the badge color:
-```jsx
-<span className="bg-red-500 text-white rounded-full">
-// change bg-red-500 → bg-primary to match your theme
-```
-
-### Order Status Colors
-Find the order status badge/pill component:
-```jsx
-// Map status to Tailwind color
-const statusColors = {
-  pending:    'bg-yellow-100 text-yellow-800',
-  processing: 'bg-blue-100 text-blue-800',
-  shipped:    'bg-indigo-100 text-indigo-800',
-  delivered:  'bg-green-100 text-green-800',
-  cancelled:  'bg-red-100 text-red-800',
-};
-// Change any of these Tailwind classes to customize
-```
-
-### Financial Dashboard Charts
-Charts use a library (e.g., Chart.js / Recharts). Find the chart config:
-```javascript
-// Change bar/line colors in chart dataset config
-backgroundColor: '#3B82F6',   // Tailwind blue-500
-borderColor:     '#1D4ED8',   // Tailwind blue-700
-```
+| # | As a… | I want to… | So that… |
+|---|---|---|---|
+| US-3.1 | Customer | Add products to my shopping cart | I can continue browsing and purchase multiple items at once |
+| US-3.2 | Customer | See live prices in my cart (refreshed from current product prices) | I always see the accurate price even if it changed since I added the item |
+| US-3.3 | Customer | Place an order from my cart with my delivery address and payment method | I can complete my purchase and receive the books I need |
+| US-3.4 | Guest | Place an order without creating an account | I can make a quick purchase without registration |
+| US-3.5 | Customer | Apply a coupon code or gift voucher at checkout | I can use my discount or credit to reduce the total I pay |
+| US-3.6 | Customer | View my full order history with status updates | I can track what I ordered and whether it has been shipped or delivered |
+| US-3.7 | Customer | View a single order's details, items, and pricing breakdown | I can verify what was charged and what discounts were applied |
+| US-3.8 | Admin | View all orders with filters by status, date, and payment method | I can monitor the store's sales activity and quickly find specific orders |
+| US-3.9 | Admin / Inventory Manager | Update an order's delivery status (pending → processing → shipped → delivered) | Customers receive accurate delivery updates |
+| US-3.10 | Finance Manager | Update an order's payment status (pending → paid → refunded) | The financial ledger reflects the actual payment state |
+| US-3.11 | Finance Manager | View the financial dashboard with revenue KPIs and charts | I can monitor daily/weekly/monthly revenue, expenses, and net profit |
+| US-3.12 | Finance Manager | Export transactions as a PDF or CSV report for a date range | I can provide financial summaries to management and for audits |
+| US-3.13 | Finance Manager | Process a refund on a completed order | The customer's payment is reversed and the ledger is updated automatically |
+| US-3.14 | Finance Manager | Manually log an expense transaction (rent, utilities, salaries) | All business costs are captured in the financial ledger |
+| US-3.15 | Finance Manager | Generate and download a PDF invoice for any order | I can send official invoices to customers or bulk buyers |
 
 ---
 
-## 8. Viva Q&A
+## 8. Frontend Implementation
 
-**Q1: Why does `getCart` refresh prices from the database every time?**  
-A: To prevent a price inconsistency scenario. If a customer adds an item at LKR 1000 and the product manager later changes the price to LKR 1200, the customer's cached cart price would be wrong. By re-fetching from the `Product` collection on every `getCart` call, we ensure the customer always sees the current price before checkout.
+### Component Map
 
-**Q2: How does guest checkout work technically?**  
-A: The `/api/orders` endpoint uses the `optionalProtect` middleware instead of `protect`. If no JWT is in the `Authorization` header, `req.user` remains `null` and the middleware passes through. In `createOrder`, if `req.user` is null, the order is created with `user: null` and `guestInfo` (name, email, phone) from the request body. Guest orders can still be tracked by the guest's email.
+| Page / Component | File Path | What It Does |
+|---|---|---|
+| Cart Page | `client/src/epics/E3_OrderAndTransaction/pages/Cart.jsx` | Displays cart items with live prices; quantity controls; remove buttons; displays subtotal |
+| Checkout Page | `client/src/epics/E3_OrderAndTransaction/pages/Checkout.jsx` | Delivery address form; payment method selector; coupon/voucher code input; order total breakdown; Place Order button |
+| Order Confirmation | `client/src/epics/E3_OrderAndTransaction/pages/OrderConfirmation.jsx` | Success screen showing order number, items, total, and estimated delivery |
+| My Orders Page | `client/src/epics/E3_OrderAndTransaction/pages/MyOrders.jsx` | Customer's order list sorted by date; status badges; link to order detail |
+| Order Detail Page | `client/src/epics/E3_OrderAndTransaction/pages/OrderDetail.jsx` | Full order breakdown: items, individual discounts, coupon/voucher applied, final total, status timeline |
+| Admin Orders Table | `client/src/epics/E3_OrderAndTransaction/pages/AllOrders.jsx` | Paginated table with status/date/payment filters; inline status update dropdowns |
+| Financial Dashboard | `client/src/epics/E3_OrderAndTransaction/pages/FinancialDashboard.jsx` | KPI cards (revenue, expenses, net profit); daily revenue chart; top-selling products by revenue |
+| Transactions Table | `client/src/epics/E3_OrderAndTransaction/pages/Transactions.jsx` | Filterable, paginated list of all `FinancialTransaction` records; manual entry form |
+| Reports Page | `client/src/epics/E3_OrderAndTransaction/pages/Reports.jsx` | Date-range picker; Download PDF / Download CSV buttons; triggers report generation endpoints |
+| Cart Icon (Navbar) | `client/src/components/common/CartIcon.jsx` | Shows item count badge; updates in real-time when items are added/removed |
 
-**Q3: Why is the price snapshotted in the order instead of referencing the Product's price?**  
-A: If we stored only a reference to the product, and the product's price changed or the product was deleted, looking up an old order would show the wrong price or fail entirely. The snapshot preserves the exact commercial record of what the customer was charged. This is standard e-commerce practice and is also required for accurate financial reporting.
+### Data Flow — Add to Cart → Checkout → Order
 
-**Q4: How does the order creation interact with the inventory system (E5)?**  
-A: Inside `createOrder`, after validating items and discounts, the controller calls the E5 inventory update logic (either importing the function directly or via internal service). It increments `reservedStock` and decrements `availableStock` for each product at the relevant warehouse. If any stock deduction fails (insufficient stock), the entire order creation is rolled back.
-
-**Q5: What is the `refPath` feature used in Order and Cart models?**  
-A: `refPath` is a Mongoose feature for polymorphic references. `items.productType` stores either `'Product'` or `'VoucherProduct'`, and Mongoose uses this value to determine which collection to query when `.populate()` is called on `items.product`. This allows a single order to contain both regular books and gift voucher products.
-
-**Q6: How are financial transactions created automatically?**  
-A: Inside `createOrder`, after the order document is saved, `createTransaction` logic runs automatically to create a `FinancialTransaction` with `type: 'order'`, `isIncome: true`, and `amount: order.totalAmount`. This means every sale is automatically recorded in the financial ledger without requiring manual finance manager input.
-
-**Q7: How does the refund process work?**  
-A: `processRefund(orderId)` does three things: (1) creates a new `FinancialTransaction` with `type: 'refund'`, `isIncome: false`, `amount: order.totalAmount`; (2) updates the `Order.paymentStatus` to `'refunded'`; (3) updates the `Order.status` to `'cancelled'`. Stock is NOT automatically re-added on refund — a separate inventory adjustment would need to be made via E5.
-
-**Q8: What does the financial dashboard return and how is it calculated?**  
-A: It uses MongoDB aggregation pipelines. For example:
-```javascript
-FinancialTransaction.aggregate([
-  { $match: { date: { $gte: startDate }, isIncome: true } },
-  { $group: { _id: null, totalRevenue: { $sum: '$amount' } } }
-])
 ```
-Net profit = sum of all `isIncome: true` amounts minus sum of all `isIncome: false` amounts in the period.
+1. Customer clicks "Add to Cart" on ProductDetail
+         │
+         ▼
+   POST /api/cart/add  { productId, quantity }
+   Server: validates stock, adds/increments item
+         │
+         ▼
+2. Customer views Cart page
+   GET /api/cart
+   Server: re-fetches current product prices, recalculates total
+         │
+         ▼
+3. Customer enters address, selects payment, applies coupon
+   Frontend calls POST /api/coupons/validate (preview only)
+         │
+         ▼
+4. Customer clicks "Place Order"
+   POST /api/orders { shippingAddress, paymentMethod, couponCode, giftVoucherCode }
+         │
+         ▼
+   createOrder():
+     ├── validates each product (exists, not archived)
+     ├── checks stock (E5 inventory)
+     ├── applies campaign discount per item
+     ├── validates + applies coupon (E6) → increments usageCount
+     ├── validates + deducts gift voucher balance (E6)
+     ├── decrements inventory (E5: reservedStock++)
+     ├── creates Order document
+     ├── creates FinancialTransaction (type: 'order', isIncome: true)
+     └── clears Cart
+         │
+         ▼
+5. Response: { order, orderNumber, totalAmount }
+   Frontend redirects to /order-confirmation/:orderNumber
+```
 
-**Q9: How does the CSV export work?**  
-A: `generateFinancialCSV` queries all `FinancialTransaction` records in the date range, formats them as an array of objects, and uses the `csv-writer` (or similar) library to convert to CSV format. The response header is set to `Content-Type: text/csv` and `Content-Disposition: attachment; filename=report.csv` to trigger a browser download.
+### Data Flow — Financial Report Generation
 
-**Q10: What order status transitions are allowed?**  
-A: The controller validates transitions:
-- `pending` → `processing` or `cancelled`
-- `processing` → `shipped` or `cancelled`
-- `shipped` → `delivered`
-- `delivered` → (final, no further change)
-- `cancelled` → (final, no further change)
+```
+Finance Manager selects date range on Reports page
+         │
+         ▼
+Click "Download PDF"
+   GET /api/financial/reports/pdf?startDate=...&endDate=...
+         │
+         ▼
+Server queries FinancialTransaction collection for date range
+Generates PDF using PDFKit
+Sets headers: Content-Type: application/pdf, Content-Disposition: attachment
+         │
+         ▼
+Browser triggers file download
+```
 
-Attempting to set `delivered` → `pending` returns a 400 error with "Invalid status transition".
+### Guest Checkout Flow
 
-**Q11: Why does the cart have a `unique` index on `user`?**  
-A: Each customer should have exactly one active cart. A unique index on `user` ensures this at the database level. When `addToCart` is called, it uses `Cart.findOneAndUpdate({ user: req.user._id }, ..., { upsert: true })` — creating a cart if one doesn't exist, updating if it does. Without the unique index, race conditions could create multiple carts for the same user.
+```
+Guest visits site (no JWT in localStorage)
+         │
+         ▼
+Checkout page: shows extra fields (name, email, phone)
+         │
+         ▼
+POST /api/orders { guestInfo: { name, email, phone }, items, ... }
+  (optionalProtect middleware: req.user = null, no error)
+         │
+         ▼
+Order created with user: null, guestInfo populated
+Guest can track order by email reference
+```
 
-**Q12: How does the coupon discount combine with the campaign discount?**  
-A: They are applied sequentially. First, the Campaign discount is applied per-item (each item's price is reduced by the campaign percentage before being added to the subtotal). Then the coupon discount is applied to the post-campaign subtotal total (either a flat amount or percentage with a `maxDiscount` cap). Finally, the gift voucher amount is deducted from the remaining total. All three discount amounts are stored separately in the order document for transparency.
+### Financial Transaction Auto-Creation
+
+Every time an order is successfully placed, a `FinancialTransaction` is automatically created — **no finance manager action needed**:
+```javascript
+// Inside createOrder() after Order.save():
+await FinancialTransaction.create({
+  type: "order",
+  isIncome: true,
+  amount: order.totalAmount,
+  referenceId: order._id,
+  referenceModel: "Order",
+  description: `Order ${order.orderNumber}`,
+  date: new Date()
+});
+```
+This keeps the financial ledger always in sync with sales without manual data entry.

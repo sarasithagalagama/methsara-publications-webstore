@@ -277,6 +277,28 @@ const processRefund = async (req, res) => {
   }
 };
 
+// CRUD: Get single transaction by ID
+const getTransaction = async (req, res) => {
+  try {
+    const transaction = await FinancialTransaction.findById(
+      req.params.id,
+    ).populate("processedBy", "name");
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
+    res.status(200).json({ success: true, transaction });
+  } catch (error) {
+    console.error("Get transaction error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching transaction",
+      error: error.message,
+    });
+  }
+};
+
 // CRUD: Get all transactions (Salary, Supplier Payments, Refunds)
 const getTransactions = async (req, res) => {
   try {
@@ -289,11 +311,7 @@ const getTransactions = async (req, res) => {
 
     const transactions = await FinancialTransaction.find(filter)
       .sort({ date: -1 })
-      .populate("processedBy", "name")
-      .populate({
-        path: "relatedId",
-        refPath: "type", // Note: This needs careful handling if type is not the model name
-      });
+      .populate("processedBy", "name");
 
     res.status(200).json({ success: true, transactions });
   } catch (error) {
@@ -408,10 +426,10 @@ const payPurchaseOrder = async (req, res) => {
         .json({ success: false, message: "Purchase order not found" });
     }
 
-    if (po.status !== "Received" && po.status !== "Dispatched") {
+    if (po.status !== "Received") {
       return res.status(400).json({
         success: false,
-        message: "Can only process payments for fulfilled orders",
+        message: "Can only process payments for received orders",
       });
     }
 
@@ -421,7 +439,16 @@ const payPurchaseOrder = async (req, res) => {
         .json({ success: false, message: "Order already paid" });
     }
 
-    // Update PO status
+    // Validate supplier is a Vendor (Purchase Orders are only for Vendors)
+    if (po.supplier && po.supplier.supplierType !== "Vendor") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Purchase orders should only be for Vendors. Use Sales Orders for Customers.",
+      });
+    }
+
+    // Update PO payment status
     po.paymentStatus = "Paid";
     po.statusHistory.push({
       status: po.status,
@@ -431,32 +458,32 @@ const payPurchaseOrder = async (req, res) => {
 
     await po.save();
 
-    const isCollection =
-      po.supplier &&
-      (po.supplier.category === "Distributor" ||
-        po.supplier.category === "Bookshop");
-
-    // Create financial transaction
+    // Create financial transaction (EXPENSE - we pay the vendor)
     await FinancialTransaction.create({
-      type: isCollection ? "Partner Collection" : "Supplier Payment",
+      type: "Supplier Payment",
       amount: po.totalAmount,
       relatedId: po.supplier._id,
-      description: isCollection
-        ? `Payment collected from ${po.supplier.name} for Order #${po.poNumber}`
-        : `Payment for Purchase Order #${po.poNumber}`,
+      description: `Payment to vendor ${po.supplier.name} for PO #${po.poNumber}`,
       processedBy: req.user.id,
       date: Date.now(),
-      isIncome: isCollection,
+      isIncome: false, // This is an expense (we pay out)
     });
 
-    // Also update supplier balance
+    // Update supplier's outstanding balance (reduce what we owe them)
     await Supplier.findByIdAndUpdate(po.supplier._id, {
-      $inc: { outstandingBalance: -po.totalAmount },
+      $inc: {
+        outstandingBalance: -po.totalAmount,
+        totalPaid: po.totalAmount,
+      },
+      $set: {
+        lastPaymentDate: Date.now(),
+        hasDebt: po.supplier.outstandingBalance - po.totalAmount > 0,
+      },
     });
 
     res.status(200).json({
       success: true,
-      message: "Purchase order paid successfully",
+      message: "Purchase order payment processed successfully",
       purchaseOrder: po,
     });
   } catch (error) {
@@ -659,6 +686,7 @@ module.exports = {
   generateInvoice,
   processRefund,
   getTransactions,
+  getTransaction,
   createTransaction,
   updateTransaction,
   archiveTransaction,

@@ -12,6 +12,7 @@ const {
   generateInvoice,
   processRefund,
   getTransactions,
+  getTransaction,
   createTransaction,
   updateTransaction,
   archiveTransaction,
@@ -36,6 +37,7 @@ router.post("/refunds/:orderId", processRefund); // E3.11 - Process refund
 
 // CRUD: Transactions
 router.get("/transactions", getTransactions);
+router.get("/transactions/:id", getTransaction);
 router.post("/transactions", createTransaction);
 router.put("/transactions/:id", updateTransaction);
 router.patch("/transactions/:id/archive", archiveTransaction);

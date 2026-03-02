@@ -243,84 +243,111 @@ comment: { required: true, minlength: 10 }
 
 ---
 
-## 7. How to Change Colors (Frontend)
+## 7. User Stories
 
-The product listing, product detail, and review pages are in `client/src/epics/E2_ProductCatalog/`.
-
-### Step 1 — Tailwind Config
-Edit `client/tailwind.config.js` to change brand colors used across E2 components:
-```javascript
-theme: {
-  extend: {
-    colors: {
-      primary: '#2563EB',      // product cards, buttons
-      accent:  '#F59E0B',      // star ratings (currently yellow-400)
-      badge:   '#10B981',      // "Verified Purchase" badge (green)
-      danger:  '#EF4444',      // out of stock label
-    }
-  }
-}
-```
-
-### Step 2 — Star Rating Colors
-Find the star rating component and change:
-```jsx
-// Change star color
-<Star className="text-yellow-400" />   // to any Tailwind color
-<Star className="text-accent" />       // after adding to config
-```
-
-### Step 3 — Product Card
-Find `ProductCard.jsx` (or similar) and update background/border:
-```jsx
-<div className="bg-white border border-gray-200 rounded-lg ...">
-// change bg-white → bg-slate-50, border-gray-200 → border-primary etc.
-```
+| # | As a… | I want to… | So that… |
+|---|---|---|---|
+| US-2.1 | Customer | Browse all products with search by title, author, or ISBN | I can quickly find the books I am looking for |
+| US-2.2 | Customer | Filter products by grade, category, exam type, price range, and language | I see only the publications relevant to my education level |
+| US-2.3 | Customer | View a product's full details (description, images, specs, reviews) | I have enough information to decide whether to purchase |
+| US-2.4 | Customer | See campaign-discounted prices automatically on product listings | I know the current sale price without entering any code |
+| US-2.5 | Customer | Submit a star rating and review for a product I have purchased | I can share my feedback with other buyers |
+| US-2.6 | Customer | Mark another customer's review as helpful | I can signal which reviews are most useful to others |
+| US-2.7 | Product Manager | Create a new product with title, author, ISBN, price, grade, category, and images | New publications appear in the store for customers to browse and purchase |
+| US-2.8 | Product Manager | Update any product field (price, stock, description, images) | Listings stay accurate as publishing details change |
+| US-2.9 | Product Manager | Archive a product that is no longer available | It disappears from public browsing without losing historical order data |
+| US-2.10 | Product Manager | Unarchive a previously archived product | I can re-list a publication when it becomes available again |
+| US-2.11 | Product Manager | Create, rename, and delete product categories | The catalog stays organized and relevant categories are maintained |
+| US-2.12 | Product Manager | Moderate customer reviews (approve or hide) | Inappropriate or spam reviews do not appear on product pages |
+| US-2.13 | Product Manager | View per-product analytics (sales count, views, review stats) | I can identify top-performing and underperforming titles |
 
 ---
 
-## 8. Viva Q&A
+## 8. Frontend Implementation
 
-**Q1: What is a soft delete and why use it for products?**  
-A: A soft delete sets a flag (`isArchived: true`) instead of removing the document from the database. This is important for data integrity — if a product was part of past orders, deleting it would break order history records. Archived products are hidden from public listings but remain queryable for admin reporting.
+### Component Map
 
-**Q2: How does the Campaign discount overlay work without changing the database price?**  
-A: In `getProducts` and `getProduct`, after fetching the product, the controller calls `Campaign.getDiscountedPrice(product)`. This is a static method on the `Campaign` model that queries active campaigns and returns the lowest applicable price. The discounted price is added to the response object as `discountedPrice` without modifying the `price` stored in MongoDB. This keeps historical pricing intact.
+| Page / Component | File Path | What It Does |
+|---|---|---|
+| Product Listing Page | `client/src/epics/E2_ProductCatalog/pages/ProductList.jsx` | Grid of product cards with search bar, filter sidebar (grade, category, price), sort dropdown, and pagination |
+| Product Detail Page | `client/src/epics/E2_ProductCatalog/pages/ProductDetail.jsx` | Full product info, image gallery, campaign discount badge, Add to Cart button, review list |
+| Product Card | `client/src/epics/E2_ProductCatalog/components/ProductCard.jsx` | Reusable card showing thumbnail, title, price (with discounted price if applicable), rating stars |
+| Review Section | `client/src/epics/E2_ProductCatalog/components/ReviewSection.jsx` | Lists approved reviews; submit-review form for verified purchasers; helpful vote toggle |
+| Product Manager Dashboard | `client/src/epics/E2_ProductCatalog/pages/ProductManagerDashboard.jsx` | Stats overview: total products, categories, low-stock items, recent reviews pending moderation |
+| Product Form | `client/src/epics/E2_ProductCatalog/components/ProductForm.jsx` | Create/edit form with all fields; image upload via `POST /api/upload/product-image`; Multer handles the file |
+| Category Manager | `client/src/epics/E2_ProductCatalog/components/CategoryManager.jsx` | Lists all categories with product count; create/rename/delete actions |
 
-**Q3: Why is ISBN marked `sparse: true` in the unique index?**  
-A: Normal `unique` indexes treat `null` values as equal, which would prevent having more than one product without an ISBN. The `sparse: true` option tells MongoDB to only include documents that have the field in the index — documents where ISBN is `null` or absent are excluded from the uniqueness check.
+### Data Flow — Product Browse
 
-**Q4: How does verified purchase work?**  
-A: When a customer submits a review, the controller queries the `Order` collection for any order by that user that contains the product ID and has a `status` of `delivered` or `completed`. If found, `isVerifiedPurchase: true` is set on the review document. This prevents fake reviews from people who never bought the product.
-
-**Q5: How does product image upload work?**  
-A: Multer middleware intercepts the `multipart/form-data` request on `POST /api/upload/product-image`. It validates the file type (images only) and size (max 5MB), then saves it to the `uploads/` folder with a unique generated filename. The server returns the URL path, which is then stored in `Product.images[]`.
-
-**Q6: How is the average rating maintained?**  
-A: Every time a review is created, the controller runs an aggregation query on the `Review` collection: `Review.aggregate([{ $match: { product: productId } }, { $group: { _id: null, average: { $avg: '$rating' }, count: { $sum: 1 } } }])`. The result updates `product.averageRating` and `product.numReviews`. This ensures the rating is always accurate.
-
-**Q7: Why are reviews stored in a separate collection instead of embedded in Product?**  
-A: MongoDB documents have a 16MB size limit. If reviews were embedded, a product with thousands of reviews would hit this limit. Separate collection also allows independent querying, pagination, and moderation of reviews without loading the entire product document.
-
-**Q8: What does the `getRelatedProducts` function use to find related products?**  
-A: It queries for products where `category` matches the current product's category AND `grade` matches. It excludes the current product (`_id: { $ne: productId }`) and limits results to 4. This is based on subject relevance — students browsing a Grade 10 Science book should see other Grade 10 Science resources.
-
-**Q9: How does the search work in `getProducts`?**  
-A: If a `search` query parameter is provided, the controller builds a MongoDB `$or` query:
-```javascript
-{ $or: [
-  { title: { $regex: search, $options: 'i' } },
-  { author: { $regex: search, $options: 'i' } },
-  { ISBN: { $regex: search, $options: 'i' } }
-]}
 ```
-`$options: 'i'` makes it case-insensitive. Regex search is used here since full-text search (`$text`) requires a text index, which would need to be added to the schema for better performance at scale.
+Customer visits /products
+         │
+         ▼
+ProductList mounts → GET /api/products?page=1&limit=12&grade=...
+         │
+         ▼
+Server: applies filters, overlays Campaign discounts, paginates
+         │
+         ▼
+Response: { products: [...], totalCount, totalPages }
+         │
+         ▼
+Renders ProductCard grid
+Each card shows:
+  - product.price          (original)
+  - product.discountedPrice (if campaign active, shown in red with strikethrough)
+```
 
-**Q10: What is the difference between `deleteProduct` and `archiveProduct`?**  
-A: `deleteProduct` permanently removes the document from MongoDB — it cannot be recovered. `archiveProduct` sets `isArchived: true` — the product disappears from public view but remains in the database and can be restored. Use archive for products that may be re-listed; use delete only for products created by mistake.
+### Data Flow — Create Product (Manager)
 
-**Q11: How does pagination work in `getProducts`?**  
-A: The client sends `?page=1&limit=12`. The controller calculates `skip = (page - 1) * limit`. Mongoose query: `.skip(skip).limit(limit)`. A separate `Product.countDocuments(filter)` query returns the total matching product count, which the frontend uses to render page navigation.
+```
+Manager fills Product Form
+         │
+  ┌──────┴──────┐
+Upload image?   No image?
+  │                │
+POST /api/upload/product-image
+  │ (Multer saves file, returns URL)
+  └──────┬──────┘
+         │
+POST /api/products { title, price, category, images: [url], ... }
+         │
+         ▼
+Product saved to MongoDB → appears in public listing
+```
 
-**Q12: How does the `helpful` vote system work?**  
-A: The `Review.helpfulVotes` field is an array of User ObjectIds. `toggleReviewHelpful` checks if `req.user._id` is already in the array. If yes, it removes it (`$pull`); if no, it adds it (`$addToSet`). `$addToSet` prevents the same user from being added twice.
+### Data Flow — Submit Review
+
+```
+Customer views ProductDetail (after purchasing)
+         │
+         ▼
+Review form submitted → POST /api/products/:id/reviews
+         │
+         ▼
+Controller checks: Order.find({ user, items.product: productId, status: 'delivered' })
+         │
+   ┌─────┴─────┐
+  Found?      Not found?
+   │               │
+isVerifiedPurchase: true   isVerifiedPurchase: false
+   │               │
+Saved to Review collection
+         │
+         ▼
+product.averageRating + numReviews recalculated via aggregation
+```
+
+### Where Campaign Discounts Show
+
+Campaign discount overlay runs **server-side** in `getProducts` and `getProduct`. The frontend does not need any special logic — it simply checks:
+```javascript
+// ProductCard.jsx
+{product.discountedPrice && product.discountedPrice < product.price ? (
+  <>
+    <span className="line-through text-gray-400">Rs. {product.price}</span>
+    <span className="text-red-600 font-bold">Rs. {product.discountedPrice}</span>
+  </>
+) : (
+  <span>Rs. {product.price}</span>
+)}

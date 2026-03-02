@@ -14,7 +14,6 @@ import {
   ShoppingCart,
   CreditCard,
   TrendingUp,
-  Download,
   PieChart,
   Eye,
   FileText,
@@ -28,7 +27,6 @@ import {
   AlertCircle,
   XCircle,
   ClipboardList,
-  FileSpreadsheet,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import StatCard from "../../../components/dashboard/StatCard";
@@ -69,7 +67,6 @@ const FinanceManagerDashboard = () => {
   const [suppliers, setSuppliers] = useState([]);
 
   // New Features State
-  const [showReportModal, setShowReportModal] = useState(false);
   const [showTaxModal, setShowTaxModal] = useState(false);
   // [E3.9] taxConfig persisted in localStorage — covers VAT rate, apply-to-invoices toggle, and exempt types
   const [taxConfig, setTaxConfig] = useState(() => {
@@ -162,9 +159,7 @@ const FinanceManagerDashboard = () => {
     fetchDashboardData();
 
     // Check URL query or path to open specific sections
-    if (location.pathname.includes("/finance-manager/reports")) {
-      setShowReportModal(true);
-    } else if (location.pathname.includes("/finance-manager/transactions")) {
+    if (location.pathname.includes("/finance-manager/transactions")) {
       setTimeout(() => scrollToTransactions(), 500);
     } else if (location.pathname.includes("/finance-manager/payroll")) {
       setShowSalaryModal(true);
@@ -366,53 +361,6 @@ const FinanceManagerDashboard = () => {
     });
   };
 
-  const handleDownloadPDF = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("/api/financial/reports/pdf", {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        `Financial_Statement_${new Date().toISOString().split("T")[0]}.pdf`,
-      );
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      link.remove();
-      toast.success("PDF report downloaded successfully");
-    } catch (error) {
-      console.error("Download PDF error:", error);
-      toast.error("Failed to download PDF report");
-    }
-  };
-
-  const handleDownloadCSV = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("/api/financial/reports/csv", {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "Financial_Transactions.csv");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      link.remove();
-      toast.success("CSV export downloaded successfully");
-    } catch (error) {
-      console.error("Download CSV error:", error);
-      toast.error("Failed to download CSV export");
-    }
-  };
-
   const handleProcessRefund = (orderId) => {
     setConfirmState({
       isOpen: true,
@@ -506,29 +454,36 @@ const FinanceManagerDashboard = () => {
 
     try {
       const supplier = suppliers.find((s) => s._id === supplierId);
-      const isIncome =
-        supplier &&
-        (supplier.category === "Distributor" ||
-          supplier.category === "Bookshop");
+      // Vendors: we PAY them → expense (isIncome=false)
+      // Customers: they PAY us → income (isIncome=true)
+      const isCustomer = supplier?.supplierType === "Customer";
+      const isIncome = isCustomer;
+      const txType = isCustomer ? "Customer Collection" : "Vendor Payment";
+      const description = isCustomer
+        ? `Payment received from ${supplier.name}`
+        : `Payment made to vendor ${supplier.name}`;
 
       const token = localStorage.getItem("token");
       await axios.post(
         "/api/financial/transactions",
         {
-          type: "Supplier Payment",
+          type: txType,
           amount: parseFloat(amount),
           relatedId: supplierId,
-          description: `Account settlement for ${supplier.name}`,
+          description,
           isIncome,
         },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("Supplier payment recorded successfully");
-      // Clear input
+      toast.success(
+        isCustomer
+          ? "Payment collection recorded successfully"
+          : "Vendor payment recorded successfully",
+      );
       setSettleInputs((prev) => ({ ...prev, [supplierId]: "" }));
       fetchDashboardData();
     } catch (error) {
-      toast.error("Failed to record supplier payment");
+      toast.error("Failed to record settlement");
     }
   };
 
@@ -672,12 +627,6 @@ const FinanceManagerDashboard = () => {
         title="Finance Manager Dashboard"
         subtitle="Overview of financial performance"
         actions={[
-          {
-            label: "Download Report",
-            icon: <Download size={18} />,
-            onClick: () => setShowReportModal(true),
-            variant: "primary",
-          },
           {
             label: "Analytics",
             icon: <PieChart size={18} />,
@@ -995,17 +944,7 @@ const FinanceManagerDashboard = () => {
           <p>Track and settle vendor accounts</p>
           <span className="action-link">Settle Payments →</span>
         </div>
-        <div
-          className="dashboard-card action-card"
-          onClick={() => setShowReportModal(true)}
-        >
-          <div className="action-icon">
-            <PieChart size={24} />
-          </div>
-          <h3>Financial Reports</h3>
-          <p>Generate detailed financial statements</p>
-          <span className="action-link">View Reports →</span>
-        </div>
+
         <div
           className="dashboard-card action-card"
           onClick={() => {
@@ -1070,195 +1009,6 @@ const FinanceManagerDashboard = () => {
       {selectedOrder && (
         <Invoice order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       )}
-
-      {/* Financial Reports Modal - Professional Version */}
-      <Modal
-        isOpen={showReportModal}
-        onClose={() => setShowReportModal(false)}
-        title="Official Financial Statement"
-        className="modal-wide"
-      >
-        <div className="professional-report-container">
-          <div className="report-sheet">
-            <div className="professional-report">
-              <header className="report-header">
-                <div className="company-branding">
-                  <h1 className="company-name">METHŠARA PUBLICATIONS</h1>
-                  <p className="company-tagline">
-                    Quality Educational Resources Since 2005
-                  </p>
-                </div>
-                <div className="report-meta">
-                  <div className="meta-item">
-                    <span className="meta-label">Document:</span>
-                    <span className="meta-value">Financial Summary</span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Date Generated:</span>
-                    <span className="meta-value">
-                      {new Date().toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Author:</span>
-                    <span className="meta-value">
-                      Finance Manager Dashboard
-                    </span>
-                  </div>
-                </div>
-              </header>
-
-              <section className="report-section">
-                <h2 className="section-title">Revenue Analysis</h2>
-                <div className="report-stats-grid">
-                  <div className="report-stat-item">
-                    <label>Gross Revenue</label>
-                    <div className="report-stat-value">
-                      Rs. {stats.totalRevenue.toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="report-stat-item">
-                    <label>Order Count</label>
-                    <div className="report-stat-value">
-                      {stats.transactions}
-                    </div>
-                  </div>
-                  <div className="report-stat-item">
-                    <label>MoM Growth</label>
-                    <div
-                      className={`report-stat-value ${stats.growth >= 0 ? "growth-positive" : "growth-negative"}`}
-                    >
-                      {stats.growth > 0 ? "+" : ""}
-                      {stats.growth}%
-                    </div>
-                  </div>
-                  <div className="report-stat-item">
-                    <label>Avg. Order Value</label>
-                    <div className="report-stat-value">
-                      Rs.{" "}
-                      {stats.transactions > 0
-                        ? (
-                            stats.totalRevenue / stats.transactions
-                          ).toLocaleString(undefined, {
-                            maximumFractionDigits: 2,
-                          })
-                        : "0.00"}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section className="report-section">
-                <h2 className="section-title">Expense Summary</h2>
-                <div className="expense-details">
-                  <div className="expense-row">
-                    <span>Staff Salaries (Base)</span>
-                    <span>
-                      Rs.{" "}
-                      {allFinancialTransactions
-                        .filter((t) => t.type === "Salary")
-                        .reduce((s, c) => s + c.amount, 0)
-                        .toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="expense-row">
-                    <span>Performance Bonuses</span>
-                    <span>
-                      Rs.{" "}
-                      {allFinancialTransactions
-                        .filter((t) => t.type === "Bonus")
-                        .reduce((s, c) => s + c.amount, 0)
-                        .toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="expense-row">
-                    <span>Supplier Settlements</span>
-                    <span>
-                      Rs.{" "}
-                      {allFinancialTransactions
-                        .filter((t) => t.type === "Supplier Payment")
-                        .reduce((s, c) => s + c.amount, 0)
-                        .toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="expense-row">
-                    <span>Customer Refunds</span>
-                    <span>
-                      Rs.{" "}
-                      {allFinancialTransactions
-                        .filter((t) => t.type === "Refund")
-                        .reduce((s, c) => s + c.amount, 0)
-                        .toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="expense-row">
-                    <span>Other Operating Expenses</span>
-                    <span>
-                      Rs.{" "}
-                      {allFinancialTransactions
-                        .filter((t) => t.type === "Other")
-                        .reduce((s, c) => s + c.amount, 0)
-                        .toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="expense-row total-row">
-                    <span>TOTAL EXPENDITURE</span>
-                    <span>Rs. {stats.totalExpenses.toLocaleString()}</span>
-                  </div>
-                </div>
-              </section>
-
-              <section className="report-section summary-box">
-                <div className="net-income-header">
-                  <h3>Net Profit / Loss</h3>
-                  <div
-                    className={`net-income-value ${stats.netIncome >= 0 ? "positive" : "negative"}`}
-                  >
-                    Rs. {stats.netIncome.toLocaleString()}
-                  </div>
-                </div>
-              </section>
-
-              <footer className="report-footer">
-                <div className="signature-area">
-                  <div className="signature-line">
-                    <p>Prepared By</p>
-                    <div className="line"></div>
-                    <p>Digital Finance System</p>
-                  </div>
-                  <div className="signature-line">
-                    <p>Authorized By</p>
-                    <div className="line"></div>
-                    <p>Managing Director</p>
-                  </div>
-                </div>
-                <p className="confidential-tag">
-                  CONFIDENTIAL BUSINESS DOCUMENT - FOR INTERNAL USE ONLY
-                </p>
-              </footer>
-            </div>
-          </div>
-
-          <div className="report-actions no-print">
-            <button className="btn btn-primary" onClick={handleDownloadPDF}>
-              <Download size={16} /> Download PDF Statement
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={handleDownloadCSV}
-              style={{ marginLeft: "10px" }}
-            >
-              <FileSpreadsheet size={16} /> Export CSV Data
-            </button>
-            <button
-              className="btn btn-outline"
-              onClick={() => setShowReportModal(false)}
-            >
-              Close Review
-            </button>
-          </div>
-        </div>
-      </Modal>
 
       {/* Tax Configuration Modal */}
       <Modal
@@ -1594,63 +1344,136 @@ const FinanceManagerDashboard = () => {
       <Modal
         isOpen={showSupplierModal}
         onClose={() => setShowSupplierModal(false)}
-        title="Supplier Account Settlement"
+        title="Account Settlement"
+        size="lg"
       >
         <div className="supplier-management">
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Supplier</th>
-                  <th>Outstanding</th>
-                  <th>Terms</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {suppliers.map((supplier) => (
-                  <tr key={supplier._id}>
-                    <td>
-                      <strong>{supplier.name}</strong>
-                      <div style={{ fontSize: "0.8rem", color: "#666" }}>
-                        {supplier.contactPerson}
-                      </div>
-                    </td>
-                    <td style={{ color: "#ef4444", fontWeight: "bold" }}>
-                      Rs. {(supplier.outstandingBalance || 0).toLocaleString()}
-                    </td>
-                    <td>{supplier.paymentTerms}</td>
-                    <td>
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
-                        <input
-                          type="number"
-                          placeholder="Amount"
-                          value={settleInputs[supplier._id] || ""}
-                          onChange={(e) =>
-                            setSettleInputs({
-                              ...settleInputs,
-                              [supplier._id]: e.target.value,
-                            })
-                          }
-                          className="form-input form-input-sm"
-                          style={{ width: "100px" }}
-                        />
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={() => handleSettleSupplier(supplier._id)}
-                        >
-                          Settle
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {suppliers.length === 0 && (
-              <p className="text-center p-4">No supplier records found.</p>
-            )}
-          </div>
+          {/* ── Section 1: Vendor Payables (WE pay them) ── */}
+          {(() => {
+            const vendors = suppliers.filter(
+              (s) => s.supplierType === "Vendor",
+            );
+            return (
+              <div style={{ marginBottom: "2rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    marginBottom: "0.75rem",
+                    padding: "0.5rem 0.75rem",
+                    background: "rgba(239,68,68,0.07)",
+                    borderRadius: "8px",
+                    borderLeft: "4px solid #ef4444",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "0.8rem",
+                      fontWeight: 700,
+                      color: "#ef4444",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    Vendor Payables — We Owe Them
+                  </span>
+                </div>
+                {vendors.length === 0 ? (
+                  <p
+                    style={{
+                      color: "var(--text-muted)",
+                      fontSize: "0.9rem",
+                      padding: "0.5rem 0",
+                    }}
+                  >
+                    No vendor payable records.
+                  </p>
+                ) : (
+                  <div className="table-container">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Vendor</th>
+                          <th>Outstanding (We Owe)</th>
+                          <th>Terms</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendors.map((supplier) => (
+                          <tr key={supplier._id}>
+                            <td>
+                              <strong>{supplier.name}</strong>
+                              <div
+                                style={{ fontSize: "0.8rem", color: "#666" }}
+                              >
+                                {supplier.contactPerson}
+                              </div>
+                              <span
+                                style={{
+                                  fontSize: "0.75rem",
+                                  padding: "1px 6px",
+                                  borderRadius: "4px",
+                                  background: "rgba(239,68,68,0.1)",
+                                  color: "#ef4444",
+                                }}
+                              >
+                                {supplier.category}
+                              </span>
+                            </td>
+                            <td
+                              style={{ color: "#ef4444", fontWeight: "bold" }}
+                            >
+                              Rs.{" "}
+                              {(
+                                supplier.outstandingBalance || 0
+                              ).toLocaleString()}
+                            </td>
+                            <td>{supplier.paymentTerms}</td>
+                            <td>
+                              <div style={{ display: "flex", gap: "0.5rem" }}>
+                                <input
+                                  type="number"
+                                  placeholder="Amount"
+                                  value={settleInputs[supplier._id] || ""}
+                                  onChange={(e) =>
+                                    setSettleInputs({
+                                      ...settleInputs,
+                                      [supplier._id]: e.target.value,
+                                    })
+                                  }
+                                  className="form-input form-input-sm"
+                                  style={{ width: "110px" }}
+                                />
+                                <button
+                                  className="btn btn-sm"
+                                  style={{
+                                    background: "#ef4444",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "6px",
+                                    padding: "0.35rem 0.75rem",
+                                    cursor: "pointer",
+                                    fontWeight: 600,
+                                  }}
+                                  onClick={() =>
+                                    handleSettleSupplier(supplier._id)
+                                  }
+                                >
+                                  Pay Vendor
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </Modal>
 
@@ -1740,7 +1563,7 @@ const FinanceManagerDashboard = () => {
                   <td>{new Date(tx.date).toLocaleDateString()}</td>
                   <td>
                     <span
-                      className={`status-badge ${tx.type === "Salary" ? "info" : tx.type === "Refund" ? "warning" : tx.type === "Bonus" ? "gold" : "success"}`}
+                      className={`status-badge ${tx.type === "Salary" ? "info" : tx.type === "Refund" ? "warning" : tx.type === "Bonus" ? "gold" : tx.type === "Customer Collection" ? "success" : tx.type === "Supplier Payment" ? "error" : "primary"}`}
                     >
                       {tx.type}
                     </span>
@@ -1947,7 +1770,7 @@ const FinanceManagerDashboard = () => {
               <span
                 style={{ color: "#fff", fontWeight: 600, fontSize: "1rem" }}
               >
-                🧾 Bank Deposit Slip
+                Bank Deposit Slip
               </span>
               <div style={{ display: "flex", gap: "10px" }}>
                 <a

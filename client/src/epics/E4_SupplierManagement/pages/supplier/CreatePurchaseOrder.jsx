@@ -5,26 +5,32 @@
 // Purpose: CreatePurchaseOrder page component
 // ============================================
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ArrowLeft, Plus, Trash2, Save, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Save,
+  AlertCircle,
+  ShoppingBag,
+} from "lucide-react";
 import DashboardHeader from "../../../../components/dashboard/DashboardHeader";
 import StatusModal from "../../../../components/common/StatusModal";
 import "../../../../components/dashboard/dashboard.css";
 
 const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   // State Variables
   const [suppliers, setSuppliers] = useState([]);
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     supplier: "",
+    location: "Main Warehouse",
     expectedDeliveryDate: "",
     notes: "",
-    items: [{ product: "", quantity: 1, unitPrice: 0 }],
+    items: [{ itemName: "", quantity: 1, unitPrice: 0 }],
   });
   const [formErrors, setFormErrors] = useState({});
   const [statusModal, setStatusModal] = useState({
@@ -40,44 +46,20 @@ const CreatePurchaseOrder = () => {
     fetchData();
   }, []);
 
-  // [E4.5] Pre-fill from navigation state (e.g. from Low Stock Alerts page — E5.9 links here with product pre-selected)
-  useEffect(() => {
-    if (!loading && products.length > 0 && location.state?.product) {
-      const prefilledProduct = products.find(
-        (p) => p._id === location.state.product,
-      );
-      if (prefilledProduct) {
-        setFormData((prev) => ({
-          ...prev,
-          items: [
-            {
-              product: prefilledProduct._id,
-              quantity: 1,
-              unitPrice: prefilledProduct.price || 0,
-            },
-          ],
-        }));
-      }
-    }
-  }, [loading, products, location.state]);
-
   // Event Handlers
-  // [E4.2] Parallel fetch of suppliers and products for the PO form dropdowns
+  // [E4.2] Fetch vendors for the PO form dropdown
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-
-      const [suppliersRes, productsRes] = await Promise.all([
-        axios.get("/api/suppliers", config),
-        axios.get("/api/products?limit=100", config), // Fetching products for dropdown
-      ]);
-
+      const suppliersRes = await axios.get(
+        "/api/suppliers?supplierType=Vendor",
+        config,
+      );
       setSuppliers(suppliersRes.data.suppliers || []);
-      setProducts(productsRes.data.products || []);
-      setLoading(false);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching vendors:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -91,7 +73,7 @@ const CreatePurchaseOrder = () => {
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { product: "", quantity: 1, unitPrice: 0 }],
+      items: [...formData.items, { itemName: "", quantity: 1, unitPrice: 0 }],
     });
   };
 
@@ -111,7 +93,7 @@ const CreatePurchaseOrder = () => {
   // [E4.3] Validates supplier selection, delivery date, and all line items before API call
   const validateForm = () => {
     const errors = {};
-    if (!formData.supplier) errors.supplier = "Please select a supplier";
+    if (!formData.supplier) errors.supplier = "Please select a vendor";
 
     if (formData.expectedDeliveryDate) {
       const today = new Date();
@@ -124,30 +106,19 @@ const CreatePurchaseOrder = () => {
     if (!formData.items || formData.items.length === 0) {
       errors.items = "At least one item is required";
     } else {
-      let itemErrors = false;
-      const productIds = new Set();
-      let hasDuplicates = false;
+      let hasBlank = false;
+      let hasBadQty = false;
+      let hasBadPrice = false;
 
       formData.items.forEach((item) => {
-        if (!item.product) itemErrors = true;
-        if (item.quantity < 1) itemErrors = true;
-        if (item.unitPrice < 0) itemErrors = true;
-
-        if (item.product) {
-          if (productIds.has(item.product)) {
-            hasDuplicates = true;
-          }
-          productIds.add(item.product);
-        }
+        if (!item.itemName || !item.itemName.trim()) hasBlank = true;
+        if (item.quantity < 1) hasBadQty = true;
+        if (item.unitPrice < 0) hasBadPrice = true;
       });
 
-      if (itemErrors) {
-        errors.items =
-          "All items must have a product selected, quantity >= 1, and valid price";
-      } else if (hasDuplicates) {
-        errors.items =
-          "Duplicate products selected. Please combine them into one line item.";
-      }
+      if (hasBlank) errors.items = "All items must have a description";
+      else if (hasBadQty) errors.items = "Quantity must be at least 1";
+      else if (hasBadPrice) errors.items = "Unit price cannot be negative";
     }
 
     setFormErrors(errors);
@@ -161,8 +132,7 @@ const CreatePurchaseOrder = () => {
 
     try {
       const token = localStorage.getItem("token");
-      // Use 'Warehouse' as a default more descriptive name than 'Main'
-      const payload = { ...formData, location: "Warehouse" };
+      const payload = { ...formData };
 
       await axios.post("/api/purchase-orders", payload, {
         headers: { Authorization: `Bearer ${token}` },
@@ -201,14 +171,35 @@ const CreatePurchaseOrder = () => {
     <div className="dashboard-container">
       <DashboardHeader
         title="Create Purchase Order"
-        subtitle="Generate a new procurement request for a partner"
+        subtitle="Order books and materials from a registered Vendor"
       />
 
       <div className="dashboard-card">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            marginBottom: "1.5rem",
+            padding: "0.75rem 1rem",
+            background: "rgba(59,130,246,0.08)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid #93c5fd",
+            color: "#1e40af",
+            fontSize: "0.88rem",
+          }}
+        >
+          <ShoppingBag size={18} />
+          Purchase Orders are for <strong>Vendors</strong> (printers, paper
+          suppliers, etc.) from whom we buy raw materials and supplies. Describe
+          items freely — they are not linked to our book catalog.
+        </div>
+
         <form onSubmit={handleSubmit}>
+          {/* Row 1: Vendor */}
           <div className="form-row">
             <div className="form-group">
-              <label>Select Supplier *</label>
+              <label>Select Vendor *</label>
               <select
                 value={formData.supplier}
                 onChange={(e) =>
@@ -218,17 +209,26 @@ const CreatePurchaseOrder = () => {
                   formErrors.supplier ? "is-invalid" : ""
                 }`}
               >
-                <option value="">Choose Supplier...</option>
+                <option value="">Choose Vendor...</option>
                 {suppliers.map((s) => (
                   <option key={s._id} value={s._id}>
-                    {s.name}
+                    {s.name} — {s.category}
                   </option>
                 ))}
               </select>
               {formErrors.supplier && (
                 <div className="error-message">{formErrors.supplier}</div>
               )}
+              {suppliers.length === 0 && (
+                <div className="error-message" style={{ marginTop: "0.25rem" }}>
+                  No vendors found. Add a partner with type "Vendor" first.
+                </div>
+              )}
             </div>
+          </div>
+
+          {/* Row 2: Expected Delivery Date */}
+          <div className="form-row">
             <div className="form-group">
               <label>Expected Delivery Date (Optional)</label>
               <input
@@ -249,6 +249,7 @@ const CreatePurchaseOrder = () => {
                 <div className="error-message">{formErrors.date}</div>
               )}
             </div>
+            <div className="form-group" />
           </div>
 
           <div className="form-section">
@@ -272,7 +273,7 @@ const CreatePurchaseOrder = () => {
             <table className="items-table">
               <thead>
                 <tr>
-                  <th>Product</th>
+                  <th>Item Description</th>
                   <th>Quantity</th>
                   <th>Unit Price (Rs.)</th>
                   <th>Total (Rs.)</th>
@@ -283,29 +284,16 @@ const CreatePurchaseOrder = () => {
                 {formData.items.map((item, index) => (
                   <tr key={index}>
                     <td>
-                      <select
+                      <input
+                        type="text"
                         required
-                        value={item.product}
+                        value={item.itemName}
                         onChange={(e) =>
-                          handleItemChange(index, "product", e.target.value)
+                          handleItemChange(index, "itemName", e.target.value)
                         }
                         className="form-control"
-                      >
-                        <option value="">Select Product...</option>
-                        {products
-                          .filter(
-                            (p) =>
-                              !formData.supplier ||
-                              p.supplier === formData.supplier ||
-                              (p.supplier &&
-                                p.supplier._id === formData.supplier),
-                          )
-                          .map((p) => (
-                            <option key={p._id} value={p._id}>
-                              {p.title}
-                            </option>
-                          ))}
-                      </select>
+                        placeholder="e.g. A4 Paper 80gsm, HP Ink, Print Job..."
+                      />
                     </td>
                     <td>
                       <input

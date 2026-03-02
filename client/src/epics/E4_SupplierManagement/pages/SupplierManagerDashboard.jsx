@@ -31,6 +31,8 @@ import {
   PackageCheck,
   Search,
   Trash2,
+  ShoppingBag,
+  TrendingDown,
 } from "lucide-react";
 import StatCard from "../../../components/dashboard/StatCard";
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
@@ -662,6 +664,32 @@ const SupplierManagerDashboard = () => {
             className="action-link"
           >
             Create PO <ArrowRight size={16} />
+          </Link>
+        </div>
+        <div className="dashboard-card action-card">
+          <div
+            className="action-icon"
+            style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}
+          >
+            <ShoppingBag size={24} />
+          </div>
+          <h3>Sales Orders</h3>
+          <p>Manage bulk orders from Distributors &amp; Bookshops</p>
+          <Link to="/supplier-manager/sales-orders" className="action-link">
+            View Sales Orders <ArrowRight size={16} />
+          </Link>
+        </div>
+        <div className="dashboard-card action-card">
+          <div
+            className="action-icon"
+            style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}
+          >
+            <TrendingDown size={24} />
+          </div>
+          <h3>Debt Tracker</h3>
+          <p>Monitor payables to Vendors and receivables from Customers</p>
+          <Link to="/supplier-manager/debt-tracker" className="action-link">
+            Track Debts <ArrowRight size={16} />
           </Link>
         </div>
         <div className="dashboard-card action-card">

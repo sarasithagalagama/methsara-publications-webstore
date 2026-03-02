@@ -334,127 +334,120 @@ balance: { min: [0, 'Balance cannot be negative'] }
 
 ---
 
-## 7. How to Change Colors (Frontend)
+## 7. User Stories
 
-Promotion pages are in `client/src/epics/E6_PromotionAndLoyalty/`.
-
-### Promotional Banner Colors
-```jsx
-// Homepage campaign banner
-<div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-lg">
-  <h2>Sale! 20% off all Grade 10 books</h2>
-</div>
-// Change from-purple-600 and to-indigo-600 to customize gradient
-```
-
-### Coupon Success / Error State Colors
-```jsx
-// When coupon is valid
-<div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded">
-  ✓ Coupon applied! You save LKR 500
-</div>
-
-// When coupon is invalid
-<div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded">
-  ✗ Coupon expired or invalid
-</div>
-// Change bg-green-50, border-green-200, text-green-700 etc. to your palette
-```
-
-### Gift Voucher Card Design
-```jsx
-<div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 text-white shadow-xl">
-  <span className="text-3xl font-bold">LKR 1,000</span>
-  <p>Gift Voucher</p>
-  <p className="font-mono text-sm opacity-75">GV-A3F92C1B</p>
-</div>
-// Modify the gradient colors to create different voucher card designs
-```
-
-### Global Tailwind Config
-```javascript
-// client/tailwind.config.js
-theme: {
-  extend: {
-    colors: {
-      promo:   '#7C3AED',  // Purple — used for sale badges and campaign banners
-      voucher: '#F59E0B',  // Amber — used for gift voucher cards
-    }
-  }
-}
-```
+| # | As a… | I want to… | So that… |
+|---|---|---|---|
+| US-6.1 | Marketing Manager | Create a discount campaign for a specific grade or category with a date range | All matching products automatically show the discounted price during the campaign period without any customer action |
+| US-6.2 | Marketing Manager | View all active and past campaigns with start/end dates and discount values | I can track what promotions are currently running and plan future ones |
+| US-6.3 | Marketing Manager | Create a coupon code with a discount type (percentage or fixed), usage limit, minimum order amount, and applicable grades | Customers can enter the code at checkout to receive the defined discount |
+| US-6.4 | Marketing Manager | View coupon usage statistics (how many times used, total discount given) | I can measure the effectiveness of each coupon promotion |
+| US-6.5 | Marketing Manager | Create a gift voucher with a face value and expiry date | Customers can purchase and redeem the voucher as store credit |
+| US-6.6 | Marketing Manager | View all gift vouchers with their remaining balances and usage history | I can monitor voucher liability and detect any misuse |
+| US-6.7 | Marketing Manager | Add voucher denomination products to the store catalog (e.g., LKR 500 Gift Card) | Customers can purchase vouchers as gifts or personal store credit |
+| US-6.8 | Customer | Enter a coupon code at checkout and see the discount previewed before placing the order | I know exactly how much I will save before committing to the purchase |
+| US-6.9 | Customer | Enter a gift voucher code at checkout and have the balance deducted from my total | I can use my store credit to pay for books |
+| US-6.10 | Customer | See campaign-discounted prices on product listings and detail pages without entering any code | I automatically benefit from active promotions when browsing |
+| US-6.11 | Customer | Use a gift voucher partially (without needing to use the full balance at once) | I can spend my voucher credit across multiple orders |
 
 ---
 
-## 8. Viva Q&A
+## 8. Frontend Implementation
 
-**Q1: What is the difference between a Coupon, a Campaign, and a Gift Voucher?**  
-A: These are three different promotion mechanisms:
-- **Campaign** — automatic, no code needed. Admin sets a date range and discount percentage for a grade/category. Products automatically show discounted prices. No customer action required.
-- **Coupon** — code-based. The customer enters a specific code at checkout (e.g., `SUMMER20`). One-time or limited-use. The system validates and applies the discount.
-- **Gift Voucher** — balance-based. A customer purchases an LKR-denominated voucher (a credit). They use the voucher code at checkout and the amount is deducted from their voucher balance, which can be used across multiple orders (partial use supported).
+### Component Map
 
-**Q2: How does the Campaign discount apply automatically without any customer action?**  
-A: The `Campaign` model has a static method `getDiscountedPrice(product)`. Every time E2's `getProducts` or `getProduct` is called, this static method queries the `Campaign` collection for any active campaigns covering the product's grade or category. If found, it calculates and returns the discounted price. The field `discountedPrice` is added to the API response, and the frontend displays it. The original `product.price` in MongoDB is never changed.
+| Page / Component | File Path | What It Does |
+|---|---|---|
+| Marketing Dashboard | `client/src/epics/E6_PromotionAndLoyalty/pages/MarketingDashboard.jsx` | Overview: active campaigns, total coupons issued, total discount given, voucher liability summary |
+| Campaign Manager | `client/src/epics/E6_PromotionAndLoyalty/pages/CampaignManager.jsx` | CRUD table for campaigns; create/edit form with grade and category targeting, date range picker, discount type/value |
+| Coupon Manager | `client/src/epics/E6_PromotionAndLoyalty/pages/CouponManager.jsx` | CRUD table for coupons; create form with all fields; usage count and status badge per row |
+| Gift Voucher Manager | `client/src/epics/E6_PromotionAndLoyalty/pages/GiftVoucherManager.jsx` | Table of all voucher instances with code, value, balance, expiry; link to usage history per voucher |
+| Voucher Products Page | `client/src/epics/E6_PromotionAndLoyalty/pages/VoucherProducts.jsx` | Catalog of purchasable gift card denominations; create/update/delete entries |
+| Analytics Page | `client/src/epics/E6_PromotionAndLoyalty/pages/MarketingAnalytics.jsx` | Charts: coupon usage over time, top coupons by savings, campaign reach, total discount distributed |
+| Coupon Input (Checkout) | `client/src/epics/E3_OrderAndTransaction/components/CouponInput.jsx` | Text input for coupon code; calls `/validate` on blur to show inline savings preview; code passed to createOrder on submit |
+| Voucher Input (Checkout) | `client/src/epics/E3_OrderAndTransaction/components/VoucherInput.jsx` | Text input for GV code; calls `/gift-vouchers/validate` to show remaining balance; passed to createOrder |
 
-**Q3: Why are `/validate` and `/apply` separate endpoints?**  
-A: UX and data integrity. The customer enters their coupon code and the frontend immediately calls `/validate` to give them feedback ("Your code is valid! You save LKR 300") without committing anything. This preview is read-only. Only when the customer clicks "Place Order" does `/apply` run (as part of `createOrder`), which actually increments `usageCount`. This prevents a coupon from being "used up" if the customer decides not to complete the order.
+### Data Flow — Campaign Discount (Automatic)
 
-**Q4: How does the `maxDiscount` cap work for percentage coupons?**  
-A: For high-value orders, an uncapped percentage discount could be too large. `maxDiscount` limits this:
 ```
-Order total:     LKR 10,000
-Coupon:          20% off, maxDiscount: LKR 1,000
-Raw discount:    LKR 2,000 (20% of 10,000)
-Capped discount: LKR 1,000 (hit the maxDiscount ceiling)
-Final total:     LKR 9,000
+Marketing Manager creates a Campaign:
+  POST /api/coupons/campaigns
+  { name, discountType, discountValue, startDate, endDate, applicableGrades, applicableCategories }
+         │
+         ▼
+  Saved to 'campaigns' collection
+         │
+         ▼
+Customer browses products:
+  GET /api/products
+         │
+         ▼
+  For each product, server calls:
+    Campaign.getDiscountedPrice(product)
+      → queries campaigns where isActive=true, today between startDate-endDate,
+        grade or category matches
+      → returns best (largest) discount
+         │
+         ▼
+  Product in response includes: { price: 500, discountedPrice: 400 }
+  (original price unchanged in MongoDB)
+         │
+         ▼
+Frontend ProductCard shows:
+  ~~Rs. 500~~  Rs. 400  (strikethrough + red reduced price)
 ```
-Without the cap, the store would lose LKR 2,000 on a large order.
 
-**Q5: How is a gift voucher code generated uniquely?**  
-A: A Mongoose pre-save hook generates the code before the document is saved:
-```javascript
-const random = crypto.randomBytes(4).toString('hex').toUpperCase();
-this.code = `GV-${random}`;
+### Data Flow — Coupon at Checkout
+
 ```
-`crypto.randomBytes(4)` generates 4 cryptographically random bytes = 8 hexadecimal characters. Combined with the `GV-` prefix, this gives 16^8 = ~4.3 billion possible codes. A unique index on `code` catches the extremely rare collision at the DB level, and a retry loop regenerates if collision occurs.
-
-**Q6: What happens when a gift voucher's balance runs out?**  
-A: When the voucher balance reaches zero, `isActive` is automatically set to `false`. The next `validateVoucher` call will return "Voucher balance is empty". The `usageHistory` array records every deduction, preserving a full audit trail of how the voucher was used.
-
-**Q7: How does `applicableGrades` on a coupon work?**  
-A: `applicableGrades` is an array of grade strings (e.g., `['Grade 10', 'Grade 11', 'O/L']`). If the array is empty, the coupon applies to any order. If populated, at least one product in the cart must have a `grade` that is in this array. The validation query:
-```javascript
-const hasApplicableItem = cartItems.some(item =>
-  coupon.applicableGrades.includes(item.product.grade)
-);
+Customer types coupon code in CouponInput
+         │
+         ▼
+POST /api/coupons/validate  { code, orderTotal, items }
+  Server runs 6-step check (exists, active, not expired, usage limit, min order, grade match)
+         │
+   ┌─────┴─────┐
+ Valid?       Invalid?
+   │               │
+Shows: "You save Rs. X"   Shows inline error message
+Stores discount in state
+         │
+         ▼
+Customer clicks Place Order
+  POST /api/orders  { ..., couponCode: "SUMMER20" }
+  Server calls applyCoupon internally:
+    ├── runs same 6 checks again (re-validates)
+    ├── calculates final discount
+    ├── increments coupon.usageCount
+    └── adds req.user._id to coupon.usedBy
 ```
 
-**Q8: Why does the `Campaign.getDiscountedPrice()` return "best discount" instead of stacking all campaigns?**  
-A: Stacking multiple campaigns would create unpredictable discounts and could result in products being sold at a loss. The "best discount" approach gives the customer the maximum single benefit available while keeping the business's pricing controlled. If you wanted cumulative discounts, you'd need to add business rules about which campaigns can combine.
+### Data Flow — Gift Voucher Partial Use
 
-**Q9: What is a `VoucherProduct` and why is it separate from `GiftVoucher`?**  
-A: `VoucherProduct` is the catalog item that appears in the store for customers to purchase (e.g., "LKR 1,000 Gift Card" for LKR 950). Think of it as the product listing. `GiftVoucher` is the actual voucher instance with a unique code and balance — created when a customer successfully purchases a `VoucherProduct`. This separation follows the product/instance pattern: one `VoucherProduct` definition can result in many `GiftVoucher` instances.
-
-**Q10: How does the `getMarketingAnalytics` function work?**  
-A: It aggregates data across multiple collections:
-- From `Coupon`: `{ $group: { _id: null, totalDiscountGiven: { $sum: { $multiply: ['$usageCount', '$discountValue'] } } } }`
-- From `Campaign`: counts active vs expired campaigns, estimates reach by querying products in applicable grades
-- Returns: total savings given to customers, most popular coupon codes, campaign performance metrics
-
-**Q11: How are promotions applied together when a customer uses both a coupon and a campaign discount?**  
-A: They apply to different amounts:
-1. **Campaign discount** — applied per-item, BEFORE subtotal. Each item's unit price is reduced by the campaign percentage
-2. **Coupon discount** — applied to the post-campaign subtotal (a flat amount or percentage of the reduced subtotal)
-3. **Gift voucher** — deducted last, from the grand total after both discounts
-
-All three discount amounts are stored separately in the `Order` document (`couponDiscount`, `voucherDiscount`, `campaignDiscount`) so the financial team can see exactly how revenue was affected by each promotion type.
-
-**Q12: What prevents a coupon from being used by the same user twice?**  
-A: The `usedBy` array stores user IDs of everyone who has used the coupon. In `validateCoupon`:
-```javascript
-if (coupon.usedBy.includes(req.user._id.toString())) {
-  return res.status(400).json({ message: 'You have already used this coupon' });
-}
 ```
-When `applyCoupon` runs, the user's ID is added: `coupon.usedBy.push(req.user._id)`. The combination of `usageLimit` (total uses across all users) and `usedBy` tracking (per-user prevention) gives full usage control.
+Customer enters GV-A3F92C1B in VoucherInput
+         │
+         ▼
+POST /api/gift-vouchers/validate  { code, amount: orderTotal }
+  Server: checks isActive, balance >= amount, not expired
+  Returns: { valid: true, balance: 750, code }
+         │
+         ▼
+Customer places order (total: Rs. 400, voucher balance: Rs. 750)
+  createOrder deducts Rs. 400:
+    voucher.balance = 350  (Rs. 350 remains for future orders)
+    voucher.usageHistory.push({ amount: 400, orderId })
+    if (balance === 0) voucher.isActive = false
+         │
+         ▼
+Voucher still active with Rs. 350 remaining
+Customer can use it again on next order
+```
+
+### Three Promotion Types — Summary
+
+| Type | Trigger | Code needed? | Stored in | Affects DB price? |
+|---|---|---|---|---|
+| Campaign | Automatic (date range) | No | `campaigns` | No (overlay only) |
+| Coupon | Customer enters code | Yes | `coupons` | No (discount tracked in `Order.couponDiscount`) |
+| Gift Voucher | Customer enters code | Yes (GV-XXXX) | `giftvouchers` | No (balance deducted from `GiftVoucher.balance`) |

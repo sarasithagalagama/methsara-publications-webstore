@@ -14,6 +14,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   // State Variables
   const [formData, setFormData] = useState({
     name: "",
+    supplierType: "Vendor",
     category: "Material Supplier",
     contactPerson: "",
     email: "",
@@ -79,9 +80,23 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         if (value && !postalRegex.test(value))
           error = "Postal code must be 5 digits";
         break;
+      case "bankDetails.bankName":
+        if (value && !/^[a-zA-Z\s.-]+$/.test(value))
+          error = "Bank name should contain only letters";
+        break;
+      case "bankDetails.branchName":
+        if (value && !/^[a-zA-Z\s.-]+$/.test(value))
+          error = "Branch name should contain only letters";
+        break;
       case "bankDetails.accountNumber":
         if (value && (value.length < 8 || value.length > 20))
           error = "Account number should be 8-20 digits";
+        break;
+      case "bankDetails.accountName":
+        if (value && !/^[a-zA-Z\s.-]+$/.test(value))
+          error = "Account holder name should contain only letters";
+        else if (value && value.trim().length < 2)
+          error = "Account holder name is too short";
         break;
       default:
         break;
@@ -99,6 +114,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       if (initialData) {
         setFormData({
           ...initialData,
+          supplierType: initialData.supplierType || "Vendor",
           address: initialData.address || {
             street: "",
             city: "",
@@ -114,6 +130,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       } else {
         setFormData({
           name: "",
+          supplierType: "Vendor",
           category: "Material Supplier",
           contactPerson: "",
           email: "",
@@ -144,6 +161,14 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       value = value.replace(/[^a-zA-Z\s.-]/g, ""); // Prevent numbers and special chars
     } else if (name === "phone" || name === "bankDetails.accountNumber") {
       value = value.replace(/[^\d+]/g, ""); // Allow only digits and plus (for phone)
+      if (name === "phone") value = value.slice(0, 12); // SL: max 10 digits local (07X...) or 12 intl (+94...)
+      if (name === "bankDetails.accountNumber") value = value.slice(0, 20); // Max 20 digits
+    } else if (
+      name === "bankDetails.bankName" ||
+      name === "bankDetails.branchName" ||
+      name === "bankDetails.accountName"
+    ) {
+      value = value.replace(/[^a-zA-Z\s.-]/g, ""); // Letters, spaces, dots, hyphens only
     } else if (name === "creditLimit") {
       value = value === "" ? 0 : parseFloat(value);
     } else if (name === "businessRegistration" || name === "taxId") {
@@ -206,6 +231,7 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     // Reset all form state when closing
     setFormData({
       name: "",
+      supplierType: "Vendor",
       category: "Material Supplier",
       contactPerson: "",
       email: "",
@@ -292,18 +318,84 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               )}
             </div>
             <div className="form-group half">
-              <label>Partner Type</label>
+              <label>Business Relationship *</label>
+              <select
+                name="supplierType"
+                value={formData.supplierType}
+                onChange={(e) => {
+                  handleChange(e);
+                  // Auto-set category based on type
+                  if (e.target.value === "Vendor") {
+                    setFormData((prev) => ({
+                      ...prev,
+                      supplierType: e.target.value,
+                      category: "Material Supplier",
+                    }));
+                  } else {
+                    setFormData((prev) => ({
+                      ...prev,
+                      supplierType: e.target.value,
+                      category: "Distributor",
+                    }));
+                  }
+                }}
+                className="form-input"
+              >
+                <option value="Vendor">
+                  Vendor – They supply to us (we pay them)
+                </option>
+                <option value="Customer">
+                  Customer – They buy from us (they pay us)
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group half">
+              <label>Category</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
                 className="form-input"
               >
-                <option value="Material Supplier">Material Supplier</option>
-                <option value="Distributor">Distributor</option>
-                <option value="Bookshop">Bookshop</option>
-                <option value="Publisher">Publisher</option>
+                {formData.supplierType === "Vendor" ? (
+                  <>
+                    <option value="Material Supplier">Material Supplier</option>
+                    <option value="Publisher">Publisher</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Distributor">Distributor</option>
+                    <option value="Bookshop">Bookshop</option>
+                  </>
+                )}
               </select>
+            </div>
+            <div
+              className="form-group half"
+              style={{ display: "flex", alignItems: "flex-end" }}
+            >
+              <div
+                style={{
+                  padding: "0.75rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  background:
+                    formData.supplierType === "Vendor"
+                      ? "rgba(239,68,68,0.08)"
+                      : "rgba(16,185,129,0.08)",
+                  border: `1px solid ${formData.supplierType === "Vendor" ? "#fca5a5" : "#6ee7b7"}`,
+                  fontSize: "0.85rem",
+                  color:
+                    formData.supplierType === "Vendor" ? "#b91c1c" : "#065f46",
+                  width: "100%",
+                }}
+              >
+                {formData.supplierType === "Vendor"
+                  ? "Vendor: Outstanding balance = what WE owe THEM"
+                  : "Customer: Outstanding balance = what THEY owe US"}
+              </div>
             </div>
           </div>
 
@@ -329,11 +421,13 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
             <div className="form-group half">
               <label>Phone (SL Mobile) *</label>
               <input
+                type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder="07XXXXXXXX"
+                maxLength={12}
                 className={
                   touched.phone && errors.phone
                     ? "form-input is-invalid"
@@ -447,9 +541,21 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 name="bankDetails.bankName"
                 value={formData.bankDetails.bankName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="e.g. Bank of Ceylon"
-                className="form-input"
+                className={
+                  touched["bankDetails.bankName"] &&
+                  errors["bankDetails.bankName"]
+                    ? "form-input is-invalid"
+                    : "form-input"
+                }
               />
+              {touched["bankDetails.bankName"] &&
+                errors["bankDetails.bankName"] && (
+                  <span className="form-error">
+                    {errors["bankDetails.bankName"]}
+                  </span>
+                )}
             </div>
             <div className="form-group half">
               <label>Branch Name</label>
@@ -457,9 +563,21 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 name="bankDetails.branchName"
                 value={formData.bankDetails.branchName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="e.g. Colombo Main"
-                className="form-input"
+                className={
+                  touched["bankDetails.branchName"] &&
+                  errors["bankDetails.branchName"]
+                    ? "form-input is-invalid"
+                    : "form-input"
+                }
               />
+              {touched["bankDetails.branchName"] &&
+                errors["bankDetails.branchName"] && (
+                  <span className="form-error">
+                    {errors["bankDetails.branchName"]}
+                  </span>
+                )}
             </div>
           </div>
           <div className="form-row">
@@ -470,6 +588,8 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 value={formData.bankDetails.accountNumber}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                placeholder="8-20 digits"
+                maxLength={20}
                 className={
                   touched["bankDetails.accountNumber"] &&
                   errors["bankDetails.accountNumber"]
@@ -490,9 +610,21 @@ const SupplierFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 name="bankDetails.accountName"
                 value={formData.bankDetails.accountName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="As in passbook"
-                className="form-input"
+                className={
+                  touched["bankDetails.accountName"] &&
+                  errors["bankDetails.accountName"]
+                    ? "form-input is-invalid"
+                    : "form-input"
+                }
               />
+              {touched["bankDetails.accountName"] &&
+                errors["bankDetails.accountName"] && (
+                  <span className="form-error">
+                    {errors["bankDetails.accountName"]}
+                  </span>
+                )}
             </div>
           </div>
         </div>

@@ -29,7 +29,17 @@ const supplierSchema = new mongoose.Schema({
     required: [true, "Phone is required"],
   },
 
-  // [E4.1] category: classifies the supply partner type (impacts PO workflow and terms)
+  // [E4.1] supplierType: distinguishes between vendors (we pay) and customers (they pay us)
+  supplierType: {
+    type: String,
+    enum: ["Vendor", "Customer"],
+    required: true,
+    default: "Vendor",
+  },
+
+  // [E4.1] category: classifies the partner type
+  // Vendors: Material Supplier (printers, paper suppliers, etc.)
+  // Customers: Distributor, Bookshop (they buy bulk from us)
   category: {
     type: String,
     enum: ["Material Supplier", "Distributor", "Bookshop", "Publisher"],
@@ -77,7 +87,9 @@ const supplierSchema = new mongoose.Schema({
     branchName: String,
     accountNumber: String,
   },
-  // [E4.5] outstandingBalance: increases on each PO, decreases when finance logs payment
+  // [E4.5] outstandingBalance:
+  // For Vendors (supplierType='Vendor'): Amount WE owe THEM (payables)
+  // For Customers (supplierType='Customer'): Amount THEY owe US (receivables)
   outstandingBalance: {
     type: Number,
     default: 0,
@@ -85,6 +97,15 @@ const supplierSchema = new mongoose.Schema({
   totalPaid: {
     type: Number,
     default: 0,
+  },
+
+  // For tracking debt status
+  hasDebt: {
+    type: Boolean,
+    default: false,
+  },
+  lastPaymentDate: {
+    type: Date,
   },
 
   // Status
