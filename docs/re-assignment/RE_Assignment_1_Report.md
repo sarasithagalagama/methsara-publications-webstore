@@ -495,276 +495,98 @@ Based on our elicitation activities, we made the following assumptions:
 ### 8.2 Detailed Use Case Scenarios
 
 #### Scenario 1: Customer Registration and Email Verification
-**Use Case ID:** UC-001  
-**Actor:** Customer (Student/Parent/Teacher)  
-**Preconditions:** User has internet access and valid email address  
-**Trigger:** User clicks "Register" button on homepage
 
-**Main Flow:**
-1. User navigates to registration page
-2. User enters personal details:
-   - Full Name: "Kasun Perera"
-   - Email: "kasun.perera@email.com"
-   - Phone: "+94771234567"
-   - Password: "SecurePass123"
-   - Confirm Password: "SecurePass123"
-3. User clicks "Register" button
-4. System validates input data:
-   - Email format is valid
-   - Password meets strength requirements (8+ chars, uppercase, lowercase, number)
-   - Phone number is valid Sri Lankan format
-   - Email is not already registered
-5. System creates account in "Inactive" status
-6. System sends verification email to "kasun.perera@email.com" with unique verification link
-7. System displays message: "Registration successful! Please check your email to verify your account."
-8. User opens email and clicks verification link
-9. System validates verification token
-10. System activates account (status changes to "Active")
-11. System displays: "Email verified successfully! You can now login."
-12. User is redirected to login page
-
-**Postconditions:** 
-- New customer account exists in Active status
-- User can login with credentials
-- Welcome email is sent
-
-**Alternative Flows:**
-- **A1:** Email already exists → System displays "This email is already registered. Please login or use password reset."
-- **A2:** Weak password → System displays "Password must be at least 8 characters with uppercase, lowercase, and numbers."
-- **A3:** Verification link expired (>24 hours) → System displays "Verification link expired. Please request a new one."
+| Field | Details |
+|-------|---------|
+| **Use Case ID** | UC-001 |
+| **Use Case Name** | Customer Registration and Email Verification |
+| **Written by** | Galagama S.T (IT24100548) |
+| **Actor(s)** | Customer (Student / Parent / Teacher) |
+| **Preconditions** | User has internet access and a valid email address |
+| **Trigger** | User clicks the "Register" button on the homepage |
+| **Main Flow** | 1. User navigates to the registration page.<br/>2. User enters personal details: Full Name: "Kasun Perera", Email: "kasun.perera@email.com", Phone: "+94771234567", Password: "SecurePass123", Confirm Password: "SecurePass123".<br/>3. User clicks "Register".<br/>4. System validates: email format, password strength (8+ chars, upper, lower, digit), Sri Lankan phone format, and email uniqueness.<br/>5. System creates account with status "Inactive".<br/>6. System sends a verification email to "kasun.perera@email.com" containing a unique verification link.<br/>7. System displays: *"Registration successful! Please check your email to verify your account."*<br/>8. User opens email and clicks the verification link.<br/>9. System validates the verification token.<br/>10. System activates the account (status → "Active").<br/>11. System displays: *"Email verified successfully! You can now login."*<br/>12. User is redirected to the login page. |
+| **Postconditions** | - New customer account exists with "Active" status.<br/>- User can log in with registered credentials.<br/>- Welcome email is sent to the user. |
+| **Alternative Flows** | **A1:** Email already exists → System displays: *"This email is already registered. Please login or use password reset."*<br/>**A2:** Weak password → System displays: *"Password must be at least 8 characters with uppercase, lowercase, and numbers."*<br/>**A3:** Verification link expired (>24 hours) → System displays: *"Verification link expired. Please request a new one."* |
 
 ---
 
 #### Scenario 2: Product Search and Filtering by Grade and Subject
-**Use Case ID:** UC-002  
-**Actor:** Customer (Student)  
-**Preconditions:** User is on the webstore homepage  
-**Trigger:** User wants to find Mathematics books for Grade 10
 
-**Main Flow:**
-1. User enters "Mathematics" in the search box
-2. System displays all products containing "Mathematics" (47 results found)
-3. User applies filters:
-   - Grade: "Grade 10"
-   - Subject: "Mathematics"
-4. System refines results to show only Grade 10 Mathematics products (12 results)
-5. User sorts results by "Price: Low to High"
-6. System reorders products in ascending price order
-7. User clicks on "Grade 10 Mathematics Revision Guide - 2024"
-8. System displays detailed product page with:
-   - Product images (3 images available)
-   - Description and specifications
-   - Price: Rs. 850.00
-   - Stock status: "In Stock (Main Branch: 45, Balangoda: 12, Kottawa: 8)"
-   - Customer reviews (4.5 stars, 23 reviews)
-   - Related products
-
-**Postconditions:** 
-- User has found desired product
-- Product details are displayed accurately
-- User can proceed to add to cart
-
-**Alternative Flows:**
-- **A1:** No results found → System displays "No products found matching your criteria. Try different filters."
-- **A2:** Out of stock → System displays "Currently out of stock. Click 'Notify Me' to receive email when available."
+| Field | Details |
+|-------|---------|
+| **Use Case ID** | UC-002 |
+| **Use Case Name** | Product Search and Filtering by Grade and Subject |
+| **Written by** | Appuhami H A P L (IT24101314) |
+| **Actor(s)** | Customer (Student) |
+| **Preconditions** | User is on the webstore homepage |
+| **Trigger** | User wants to find Mathematics books for Grade 10 |
+| **Main Flow** | 1. User enters "Mathematics" in the search box.<br/>2. System displays all matching products (47 results found).<br/>3. User applies filters — Grade: "Grade 10", Subject: "Mathematics".<br/>4. System refines results to 12 Grade 10 Mathematics products.<br/>5. User sorts results by "Price: Low to High".<br/>6. System reorders products in ascending price order.<br/>7. User clicks on "Grade 10 Mathematics Revision Guide - 2024".<br/>8. System displays the detailed product page including: 3 product images, description and specifications, Price: Rs. 850.00, Stock status: "In Stock (Main: 45, Balangoda: 12, Kottawa: 8)", Customer reviews (4.5 stars, 23 reviews), and related products. |
+| **Postconditions** | - User has found the desired product.<br/>- Product details are displayed accurately.<br/>- User can proceed to add the product to cart. |
+| **Alternative Flows** | **A1:** No results found → System displays: *"No products found matching your criteria. Try different filters."*<br/>**A2:** Product out of stock → System displays: *"Currently out of stock. Click 'Notify Me' to receive an email when available."* |
 
 ---
 
 #### Scenario 3: Complete Purchase with Cash on Delivery
-**Use Case ID:** UC-003  
-**Actor:** Customer (Parent)  
-**Preconditions:** User is logged in and has items in cart  
-**Trigger:** User clicks "Proceed to Checkout"
 
-**Main Flow:**
-1. User has 3 items in cart (Total: Rs. 2,450.00)
-2. User clicks "Proceed to Checkout"
-3. System displays checkout page with:
-   - Order summary (3 items, subtotal Rs. 2,450.00)
-   - Delivery address selection
-   - Payment method selection
-4. User selects delivery address: "No. 45, Galle Road, Colombo 03"
-5. User selects payment method: "Cash on Delivery (COD)"
-6. User enters coupon code: "EXAM2024" (10% discount)
-7. System validates coupon:
-   - Coupon is valid and active
-   - Minimum purchase requirement met (Rs. 2,000)
-   - Usage limit not exceeded
-8. System applies discount: Rs. 245.00
-9. System displays updated total:
-   - Subtotal: Rs. 2,450.00
-   - Discount (EXAM2024): -Rs. 245.00
-   - Delivery Fee: Rs. 300.00
-   - **Total: Rs. 2,505.00**
-10. User clicks "Place Order"
-11. System validates stock availability for all items
-12. System creates order (Order ID: #MP-2024-00123)
-13. System deducts stock from Main Branch inventory
-14. System sends order confirmation email
-15. System displays: "Order placed successfully! Order ID: #MP-2024-00123. You will pay Rs. 2,505.00 upon delivery."
-
-**Postconditions:** 
-- Order exists in "Pending" status
-- Stock is deducted from inventory
-- Customer receives confirmation email
-- Order appears in customer's order history
-
-**Alternative Flows:**
-- **A1:** Item out of stock during checkout → System displays "Sorry, [Product Name] is no longer available. Please remove it from your cart."
-- **A2:** Invalid coupon → System displays "Coupon code is invalid or expired."
-- **A3:** Coupon minimum not met → System displays "Minimum purchase of Rs. 2,000 required for this coupon."
+| Field | Details |
+|-------|---------|
+| **Use Case ID** | UC-003 |
+| **Use Case Name** | Complete Purchase with Cash on Delivery |
+| **Written by** | Jayasinghe D.B.P (IT24100191) |
+| **Actor(s)** | Customer (Parent) |
+| **Preconditions** | User is logged in and has items in the shopping cart |
+| **Trigger** | User clicks "Proceed to Checkout" |
+| **Main Flow** | 1. User has 3 items in cart (Subtotal: Rs. 2,450.00) and clicks "Proceed to Checkout".<br/>2. System displays checkout page with order summary, delivery address selector, and payment method selector.<br/>3. User selects delivery address: "No. 45, Galle Road, Colombo 03".<br/>4. User selects payment method: "Cash on Delivery (COD)".<br/>5. User enters coupon code: "EXAM2024".<br/>6. System validates coupon: active status ✓, minimum purchase met (Rs. 2,450 ≥ Rs. 2,000) ✓, usage limit not exceeded ✓.<br/>7. System applies 10% discount (Rs. 245.00) and displays updated total — Subtotal: Rs. 2,450.00 / Discount: −Rs. 245.00 / Delivery Fee: Rs. 300.00 / **Total: Rs. 2,505.00**.<br/>8. User clicks "Place Order".<br/>9. System validates stock availability for all items.<br/>10. System creates order (Order ID: #MP-2024-00123) and deducts stock from Main Branch inventory.<br/>11. System sends order confirmation email.<br/>12. System displays: *"Order placed successfully! Order ID: #MP-2024-00123. You will pay Rs. 2,505.00 upon delivery."* |
+| **Postconditions** | - Order exists with "Pending" status.<br/>- Stock is deducted from Main Branch inventory.<br/>- Customer receives an order confirmation email.<br/>- Order appears in the customer's order history. |
+| **Alternative Flows** | **A1:** Item out of stock at checkout → System displays: *"Sorry, [Product Name] is no longer available. Please remove it from your cart."*<br/>**A2:** Invalid coupon → System displays: *"Coupon code is invalid or expired."*<br/>**A3:** Minimum purchase not met → System displays: *"Minimum purchase of Rs. 2,000 required for this coupon."* |
 
 ---
 
 #### Scenario 4: Inter-Branch Stock Transfer Request and Approval
-**Use Case ID:** UC-004  
-**Actor:** Location-Specific Inventory Manager (Balangoda), Location-Specific Inventory Manager (Main Branch)  
-**Preconditions:** Both managers are logged in with appropriate permissions  
-**Trigger:** Balangoda branch is low on a popular product
 
-**Main Flow:**
-1. **Balangoda Inventory Manager** logs in and navigates to "Stock Levels"
-2. Manager notices "Grade 11 Science Textbook" stock is low (3 units remaining, threshold: 10)
-3. Manager receives low stock alert notification
-4. Manager clicks "Request Transfer"
-5. System displays transfer request form
-6. Manager fills in details:
-   - Product: "Grade 11 Science Textbook"
-   - Quantity Requested: 20 units
-   - From Location: "Main Branch" (has 65 units available)
-   - To Location: "Balangoda Branch"
-   - Reason: "Low stock - high demand period"
-   - Priority: "High"
-7. Manager clicks "Submit Request"
-8. System creates transfer request (Transfer ID: #TR-2024-00045, Status: "Pending Approval")
-9. System sends notification to Main Branch Inventory Manager
-10. **Main Branch Inventory Manager** logs in and sees pending transfer request
-11. Manager reviews request details and checks Main Branch stock (65 units available)
-12. Manager clicks "Approve Transfer"
-13. System updates transfer status to "Approved"
-14. System deducts 20 units from Main Branch inventory (65 → 45)
-15. System adds 20 units to Balangoda Branch inventory (3 → 23)
-16. System logs stock movement with timestamp and user details
-17. System sends confirmation notifications to both managers
-18. System displays: "Transfer approved successfully. Stock updated."
-
-**Postconditions:** 
-- Transfer record exists with "Approved" status
-- Stock levels updated at both locations
-- Stock movement audit trail is complete
-- Both managers receive confirmation
-
-**Alternative Flows:**
-- **A1:** Insufficient stock at source → System displays "Main Branch only has 15 units available. Please adjust quantity."
-- **A2:** Manager rejects transfer → System updates status to "Rejected" and notifies requester with rejection reason
-- **A3:** Transfer cancelled before approval → System restores original stock levels
+| Field | Details |
+|-------|---------|
+| **Use Case ID** | UC-004 |
+| **Use Case Name** | Inter-Branch Stock Transfer Request and Approval |
+| **Written by** | Gawrawa G H Y (IT24100799) |
+| **Actor(s)** | Location Inventory Manager – Balangoda Branch (Requester); Location Inventory Manager – Main Branch (Approver) |
+| **Preconditions** | Both managers are logged in with appropriate permissions |
+| **Trigger** | Balangoda branch stock for a popular product falls below the minimum threshold |
+| **Main Flow** | 1. Balangoda Inventory Manager navigates to "Stock Levels" and notices "Grade 11 Science Textbook" is low (3 units; threshold: 10).<br/>2. Manager receives a low-stock alert notification.<br/>3. Manager clicks "Request Transfer" and fills in the form — Product: "Grade 11 Science Textbook", Quantity: 20 units, From: Main Branch (65 units available), To: Balangoda Branch, Reason: "Low stock – high demand period", Priority: High.<br/>4. Manager clicks "Submit Request".<br/>5. System creates transfer request (Transfer ID: #TR-2024-00045, Status: "Pending Approval") and notifies Main Branch Inventory Manager.<br/>6. Main Branch Inventory Manager reviews the request and confirms available stock (65 units).<br/>7. Manager clicks "Approve Transfer".<br/>8. System updates transfer status to "Approved".<br/>9. System deducts 20 units from Main Branch (65 → 45) and adds 20 units to Balangoda Branch (3 → 23).<br/>10. System logs stock movement with timestamp and user details.<br/>11. System sends confirmation notifications to both managers and displays: *"Transfer approved successfully. Stock updated."* |
+| **Postconditions** | - Transfer record exists with "Approved" status.<br/>- Stock levels updated accurately at both branch locations.<br/>- Complete stock movement audit trail recorded.<br/>- Both managers receive confirmation notifications. |
+| **Alternative Flows** | **A1:** Insufficient stock at source → System displays: *"Main Branch only has X units available. Please adjust the quantity."*<br/>**A2:** Approver rejects transfer → System updates status to "Rejected" and notifies the requester with a rejection reason.<br/>**A3:** Transfer cancelled before approval → System restores original stock levels and closes the request. |
 
 ---
 
 #### Scenario 5: Create Purchase Order and Receive Stock
-**Use Case ID:** UC-005  
-**Actor:** Supplier Manager, Location-Specific Inventory Manager (Main Branch)  
-**Preconditions:** Supplier Manager is logged in, supplier profiles exist  
-**Trigger:** Need to restock popular items from supplier
 
-**Main Flow:**
-1. **Supplier Manager** logs in and navigates to "Purchase Orders"
-2. Manager clicks "Create New PO"
-3. System displays PO creation form
-4. Manager selects supplier: "ABC Printers (Pvt) Ltd"
-5. Manager adds products to PO:
-   - Product 1: "Grade 10 Mathematics Textbook" - Quantity: 100, Unit Price: Rs. 450
-   - Product 2: "Grade 10 Science Textbook" - Quantity: 80, Unit Price: Rs. 520
-6. System calculates PO total: Rs. 86,600.00
-7. Manager sets:
-   - Expected Delivery Date: 2024-03-15
-   - Delivery Location: "Main Branch"
-   - Payment Terms: "Net 30"
-   - Notes: "Urgent restock for exam season"
-8. Manager clicks "Create PO"
-9. System generates PO (PO ID: #PO-2024-00078, Status: "Draft")
-10. Manager reviews PO and clicks "Send to Supplier"
-11. System updates status to "Sent"
-12. System sends PO via email to supplier (supplier@abcprinters.lk)
-13. System displays: "PO sent successfully to ABC Printers"
-14. [2 weeks later] Supplier delivers stock to Main Branch
-15. **Main Branch Inventory Manager** logs in and navigates to "Receive Stock"
-16. Manager selects PO #PO-2024-00078
-17. Manager verifies delivered quantities:
-   - Grade 10 Mathematics Textbook: 100 units ✓
-   - Grade 10 Science Textbook: 80 units ✓
-18. Manager clicks "Confirm Receipt"
-19. System updates PO status to "Received"
-20. System adds stock to Main Branch inventory:
-   - Grade 10 Mathematics Textbook: +100 units
-   - Grade 10 Science Textbook: +80 units
-21. System logs stock receipt with PO reference
-22. System notifies Supplier Manager and Finance Manager
-23. System displays: "Stock received and inventory updated successfully"
-
-**Postconditions:** 
-- PO status is "Received"
-- Stock levels increased at Main Branch
-- Stock movement logged with PO reference
-- Finance Manager notified for payment processing
-
-**Alternative Flows:**
-- **A1:** Partial delivery → Manager enters actual received quantities, system updates PO to "Partially Received"
-- **A2:** Damaged goods → Manager adjusts quantity, adds notes about damage, system creates damage report
-- **A3:** Delivery delayed → Manager updates expected delivery date, system sends notification to stakeholders
+| Field | Details |
+|-------|---------|
+| **Use Case ID** | UC-005 |
+| **Use Case Name** | Create Purchase Order and Receive Stock |
+| **Written by** | Bandara N W C D (IT24100264) |
+| **Actor(s)** | Supplier Manager; Location Inventory Manager – Main Branch |
+| **Preconditions** | Supplier Manager is logged in; at least one supplier profile exists in the system |
+| **Trigger** | Popular items need restocking from a supplier |
+| **Main Flow** | 1. Supplier Manager navigates to "Purchase Orders" and clicks "Create New PO".<br/>2. Manager selects supplier: "ABC Printers (Pvt) Ltd".<br/>3. Manager adds products — Product 1: "Grade 10 Mathematics Textbook", Qty: 100, Unit Price: Rs. 450; Product 2: "Grade 10 Science Textbook", Qty: 80, Unit Price: Rs. 520.<br/>4. System calculates PO total: Rs. 86,600.00.<br/>5. Manager sets Delivery Date: 2024-03-15, Delivery Location: Main Branch, Payment Terms: Net 30, Notes: "Urgent restock for exam season" and clicks "Create PO".<br/>6. System generates PO (PO ID: #PO-2024-00078, Status: "Draft").<br/>7. Manager reviews and clicks "Send to Supplier".<br/>8. System updates status to "Sent" and emails PO to supplier@abcprinters.lk. System displays: *"PO sent successfully to ABC Printers."*<br/>9. [Two weeks later] Supplier delivers stock to Main Branch.<br/>10. Main Branch Inventory Manager navigates to "Receive Stock" and selects PO #PO-2024-00078.<br/>11. Manager verifies delivered quantities: Grade 10 Mathematics Textbook: 100 units ✓, Grade 10 Science Textbook: 80 units ✓.<br/>12. Manager clicks "Confirm Receipt".<br/>13. System updates PO status to "Received", adds stock to Main Branch inventory (+100 and +80 units), logs the receipt with PO reference, and notifies the Supplier Manager and Finance Manager.<br/>14. System displays: *"Stock received and inventory updated successfully."* |
+| **Postconditions** | - PO status is "Received".<br/>- Main Branch stock levels increased by received quantities.<br/>- Stock movement logged with PO reference and timestamp.<br/>- Finance Manager notified to initiate supplier payment processing. |
+| **Alternative Flows** | **A1:** Partial delivery → Manager enters actual received quantities; system updates PO status to "Partially Received".<br/>**A2:** Damaged goods received → Manager notes damage and adjusts quantity; system generates a damage report.<br/>**A3:** Delivery delayed → Manager updates expected delivery date; system notifies relevant stakeholders. |
 
 ---
 
 #### Scenario 6: Create and Apply Discount Coupon
-**Use Case ID:** UC-006  
-**Actor:** Marketing Manager, Customer  
-**Preconditions:** Marketing Manager is logged in  
-**Trigger:** Upcoming exam season promotional campaign
 
-**Main Flow:**
-1. **Marketing Manager** logs in and navigates to "Promotions"
-2. Manager clicks "Create New Coupon"
-3. System displays coupon creation form
-4. Manager fills in details:
-   - Coupon Code: "EXAM2024"
-   - Discount Type: "Percentage"
-   - Discount Value: 10%
-   - Minimum Purchase: Rs. 2,000
-   - Valid From: 2024-03-01
-   - Valid Until: 2024-03-31
-   - Usage Limit: 500 uses
-   - Per User Limit: 1 use
-   - Applicable Categories: "All"
-   - Status: "Active"
-5. Manager clicks "Create Coupon"
-6. System validates coupon code is unique
-7. System creates coupon and displays: "Coupon EXAM2024 created successfully"
-8. [Later] **Customer** adds items worth Rs. 2,450 to cart
-9. Customer proceeds to checkout
-10. Customer enters coupon code "EXAM2024"
-11. System validates coupon:
-    - Code exists and is active ✓
-    - Current date is within validity period ✓
-    - Cart total meets minimum purchase (Rs. 2,450 ≥ Rs. 2,000) ✓
-    - Customer has not used this coupon before ✓
-    - Total usage limit not exceeded (45/500 uses) ✓
-12. System applies 10% discount: Rs. 245.00
-13. System displays updated total with discount breakdown
-14. Customer completes order
-15. System increments coupon usage count (45 → 46)
-16. System records coupon usage in customer's history
-
-**Postconditions:** 
-- Coupon usage count incremented
-- Discount applied to order
-- Customer cannot reuse the same coupon
-- Marketing Manager can track coupon performance
-
-**Alternative Flows:**
-- **A1:** Coupon expired → System displays "This coupon has expired"
-- **A2:** Minimum purchase not met → System displays "Add Rs. X more to use this coupon (minimum Rs. 2,000)"
-- **A3:** Already used by customer → System displays "You have already used this coupon"
-- **A4:** Usage limit reached → System displays "This coupon is no longer available"
+| Field | Details |
+|-------|---------|
+| **Use Case ID** | UC-006 |
+| **Use Case Name** | Create and Apply Discount Coupon |
+| **Written by** | Perera M.U.E (IT24101266) |
+| **Actor(s)** | Marketing Manager (coupon creation); Customer (coupon application at checkout) |
+| **Preconditions** | Marketing Manager is logged in; system is active |
+| **Trigger** | Upcoming exam season promotional campaign requires a discount coupon |
+| **Main Flow** | 1. Marketing Manager navigates to "Promotions" and clicks "Create New Coupon".<br/>2. Manager fills in coupon details — Code: "EXAM2024", Discount: 10% (Percentage), Minimum Purchase: Rs. 2,000, Valid: 2024-03-01 to 2024-03-31, Usage Limit: 500 uses, Per User Limit: 1 use, Categories: All, Status: Active.<br/>3. Manager clicks "Create Coupon".<br/>4. System validates that the coupon code is unique, creates the coupon, and displays: *"Coupon EXAM2024 created successfully."*<br/>5. [Later] Customer adds items worth Rs. 2,450 to cart and proceeds to checkout.<br/>6. Customer enters coupon code "EXAM2024".<br/>7. System validates coupon: code active ✓, within validity period ✓, cart total ≥ Rs. 2,000 ✓, customer has not used it before ✓, usage limit not exceeded (45/500) ✓.<br/>8. System applies 10% discount (Rs. 245.00) and displays the updated order total with a full discount breakdown.<br/>9. Customer completes the order.<br/>10. System increments coupon usage count (45 → 46) and records usage in the customer's history. |
+| **Postconditions** | - Coupon usage count is incremented by 1.<br/>- Discount is correctly applied to the completed order.<br/>- Customer is blocked from reusing the same coupon.<br/>- Marketing Manager can view updated coupon performance analytics. |
+| **Alternative Flows** | **A1:** Coupon expired → System displays: *"This coupon has expired."*<br/>**A2:** Minimum purchase not met → System displays: *"Add Rs. X more to use this coupon (minimum Rs. 2,000)."*<br/>**A3:** Coupon already used by this customer → System displays: *"You have already used this coupon."*<br/>**A4:** Total usage limit reached → System displays: *"This coupon is no longer available."* |
 
 ---
 

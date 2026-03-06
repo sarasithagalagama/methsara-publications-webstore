@@ -1,5 +1,5 @@
 ﻿# Sprint 1 Presentation — ISP_G05
-**Methsara Publications Webstore** | March 1, 2026
+**Methsara Publications Webstore** | March 2, 2026
 
 ---
 
@@ -51,15 +51,17 @@
 
 ### Selected High-Priority User Stories
 
-| Member | Epic | User Stories | Hours |
-|--------|------|--------------|-------|
-| IT24100548 | E1 | 13 | 35 h |
-| IT24101314 | E2 | 12 | 32 h |
-| IT24100191 | E3 | 11 | 38 h |
-| IT24100799 | E4 | 7 | 28 h |
-| IT24100264 | E5 | 10 | 34 h |
-| IT24101266 | E6 | 7 | 30 h |
-| **Total** | | **60 stories / 107 pts** | **197 h** |
+| Member | Epic | User Stories | Story Points | Hours |
+|--------|------|--------------|-------------|-------|
+| IT24100548 | E1 | 13 | 21 pts | 35 h |
+| IT24101314 | E2 | 12 | 20 pts | 32 h |
+| IT24100191 | E3 | 11 | 24 pts | 38 h |
+| IT24100799 | E4 | 7 | 16 pts | 28 h |
+| IT24100264 | E5 | 10 | 18 pts | 34 h |
+| IT24101266 | E6 | 7 | 15 pts | 30 h |
+| **Total** | | **60 stories** | **114 pts** | **197 h** |
+
+> *Note: Sprint 1 scope was expanded beyond the initial backlog assignment — high-priority stories from later sprints were pulled forward to maximise delivery in the available capacity.*
 
 ### Definition of Done Applied in Sprint 1
 - Acceptance criteria met
@@ -77,45 +79,57 @@
 
 | Epic Planned | User Stories | Completed | In Progress |
 |--------------|--------------|-----------|-------------|
-| E1: User & Role Management | 13 | 12 | 1 (E1.1 - Email verification pending SMTP) |
-| E2: Product Catalog | 12 | 12 | 0 |
-| E3: Order & Transaction | 11 | 11 | 0 |
-| E4: Supplier Management | 7 | 6 | 1 (E4.4 - Email POs pending SMTP) |
-| E5: Inventory Management | 10 | 9 | 1 (E5.10 - Report export pending) |
-| E6: Promotion & Loyalty | 7 | 7 | 0 |
-| **TOTAL** | **60** | **57 (95%)** | **3 (5%)** |
+| E1: User & Role Management | 13 | 11 | 2 (E1.1 - Email verification pending SMTP; E1.7 - Password reset email delivery pending SMTP) |
+| E2: Product Catalog | 12 | 10 | 2 (E2.2 - Multi-image cloud storage upload integration; E2.7 - Product sort & pagination UI refinement) |
+| E3: Order & Transaction | 11 | 9 | 2 (E3.9 - Financial dashboard frontend charts; E3.10 - PDF invoice template design pending) |
+| E4: Supplier Management | 7 | 5 | 2 (E4.4 - Email POs pending SMTP; E4.5 - Product–supplier linking UI) |
+| E5: Inventory Management | 10 | 8 | 2 (E5.10 - Stock report export formatting pending; E5.7 - Branch location management UI) |
+| E6: Promotion & Loyalty | 7 | 5 | 2 (E6.4 - Gift voucher purchase flow; E6.5 - Seasonal campaign scheduling UI) |
+| **TOTAL** | **60** | **48 (80%)** | **12 (20%)** |
 
 ### Each Member Summary:
 
 **E1 - User & Role Management (IT24100548)**
-- **Completed:** Registration, login, JWT authentication, 8-role RBAC, profile management, password reset, session management, maker-checker approval workflow
-- **Status:** 12/13 stories complete, all core functionality working
-- **Pending:** Email verification (waiting for SMTP credentials)
+- **Completed:** Registration, login, JWT authentication, 8-role RBAC, profile management, session management, maker-checker approval workflow, forced password change on first login, account deactivation, staff role assignment, admin search/view accounts
+- **Status:** 11/13 stories complete, all core functionality working
+- **In Progress:**
+  - E1.1 — Email verification: code complete, awaiting SMTP credentials for delivery
+  - E1.7 — Password reset via email: reset-token logic done, email dispatch blocked by SMTP
 
 **E2 - Product Catalog (IT24101314)**
-- **Completed:** Product CRUD, image uploads, search & filter, categories, reviews, ratings, verified purchase system, product archiving
-- **Status:** 12/12 stories complete (100%)
-- **Pending:** None
+- **Completed:** Product CRUD, category management, search & filter by name/SKU/grade/subject/price, detailed product view, review & rating system, verified purchase validation, product archiving, product analytics
+- **Status:** 10/12 stories complete
+- **In Progress:**
+  - E2.2 — Multi-image upload: single-image upload working; cloud storage (S3/Cloudinary) integration for multiple images in progress
+  - E2.7 — Product sorting UI: backend sort endpoints ready; frontend sort/pagination controls under development
 
 **E3 - Order & Transaction (IT24100191)**
-- **Completed:** Shopping cart, order processing, payment integration, invoice generation, financial dashboard, transaction tracking, refund processing
-- **Status:** 11/11 stories complete (100%)
-- **Pending:** None
+- **Completed:** Shopping cart, order processing, COD & bank transfer checkout, order status tracking, admin order status updates, coupon discount application, guest checkout, order history, transaction tracking, refund processing
+- **Status:** 9/11 stories complete
+- **In Progress:**
+  - E3.9 — Financial dashboard: revenue data API complete; frontend chart components (Chart.js integration) still in development
+  - E3.10 — Invoice generation: invoice data model and endpoint done; PDF template design and rendering (PDFKit) pending
 
 **E4 - Supplier Management (IT24100799)**
-- **Completed:** Supplier CRUD, verification system, purchase order creation with auto-numbering, PO status workflow, delivery verification, supplier analytics
-- **Status:** 6/7 stories complete
-- **Pending:** Email PO to supplier (waiting for SMTP credentials)
+- **Completed:** Supplier CRUD, supplier verification system, purchase order creation with auto-numbering, PO status workflow, delivery verification against POs
+- **Status:** 5/7 stories complete
+- **In Progress:**
+  - E4.4 — Email POs to suppliers: PDF generation ready; SMTP email dispatch awaiting credentials
+  - E4.5 — Product–supplier linking: data model relationship defined; linking UI and filtering by supplier in progress
 
 **E5 - Inventory Management (IT24100264)**
-- **Completed:** Multi-location inventory tracking, stock adjustments, location management, stock transfers with approval, low stock alerts, product-inventory sync
-- **Status:** 9/10 stories complete
-- **Pending:** Stock report export (data API ready, export formatting pending)
+- **Completed:** Multi-location inventory tracking, stock adjustments (damage/loss), stock transfers with approval workflow, low stock alerts, automatic stock deduction on order placement, product-inventory sync
+- **Status:** 8/10 stories complete
+- **In Progress:**
+  - E5.10 — Stock report export: data aggregation API ready; CSV/Excel export formatting and download endpoint pending
+  - E5.7 — Branch location management UI: backend CRUD for locations complete; frontend admin panel for managing warehouse locations in progress
 
 **E6 - Promotion & Loyalty (IT24101266)**
-- **Completed:** Coupon system with validation, marketing campaigns, gift vouchers, usage limits, grade-level targeting, redemption tracking, analytics
-- **Status:** 7/7 stories complete (100%)
-- **Pending:** None
+- **Completed:** Coupon system with validation rules, coupon validity dates, usage limit enforcement, coupon usage tracking, redemption tracking, analytics dashboard
+- **Status:** 5/7 stories complete
+- **In Progress:**
+  - E6.4 — Gift vouchers: voucher model and generation logic done; purchase flow, balance tracking, and redemption at checkout in progress
+  - E6.5 — Seasonal campaigns: campaign data model and admin creation endpoint ready; campaign scheduling, activation triggers, and frontend campaign listing UI in progress
 
 ---
 
@@ -137,7 +151,7 @@
 
 4. **SMTP Configuration Blocker**
    - Challenge: Email features blocked by missing production SMTP credentials
-   - Impact: 2 stories (E1.1, E4.4) remain incomplete but code is ready
+   - Impact: 3 stories (E1.1, E1.7, E4.4) remain in progress — code and logic are complete, only email delivery is blocked
 
 ### Requirement Clarifications & Adjustments
 
