@@ -1,58 +1,111 @@
-# Burn-Up Chart and Sprint Planning
+# Burn-Down Chart and Sprint Planning
 
 **Project:** Methsara Publications Webstore  
 **Sprint Duration:** 7 days per sprint  
-**Total Sprints:** 4 sprints (28 days total)
+**Total Sprints:** 4 sprints (28 days total)  
+**Total Story Points:** 263 SP
 
 ---
 
-## Burn-Up Chart Data
+## Sprint Planning Summary
 
-### Sprint Planning Summary
-
-| Sprint | Duration | Story Points Planned | Story Points Completed (Cumulative) | Total Scope |
-|--------|----------|---------------------|-------------------------------------|-------------|
-| **Sprint 0** | Day 0 | 0 | 0 | 263 |
-| **Sprint 1** | Days 1-7 | 93 | 93 | 263 |
-| **Sprint 2** | Days 8-14 | 56 | 149 | 263 |
-| **Sprint 3** | Days 15-21 | 73 | 222 | 263 |
-| **Sprint 4** | Days 22-28 | 41 | 263 | 263 |
+| Sprint | Duration | Story Points Completed (Sprint) | Remaining Story Points | Ideal Remaining |
+|--------|----------|---------------------------------|------------------------|-----------------|
+| **Start (Sprint 0)** | Day 0 | 0 | 263 | 263 |
+| **Sprint 1** | Days 1–7 | 93 | 170 | 197 |
+| **Sprint 2** | Days 8–14 | 56 | 114 | 132 |
+| **Sprint 3** | Days 15–21 | 73 | 41 | 66 |
+| **Sprint 4** | Days 22–28 | 41 | 0 | 0 |
 
 ---
 
-## Burn-Up Chart Visualization
+## Burn-Down Chart Visualization
 
 ```mermaid
-%%{init: {'theme':'base'}}%%
-graph LR
-    subgraph "Burn-Up Chart - Story Points Completion"
-        A[Day 0<br/>0 SP] --> B[Day 7<br/>93 SP]
-        B --> C[Day 14<br/>149 SP]
-        C --> D[Day 21<br/>222 SP]
-        D --> E[Day 28<br/>263 SP]
-        
-        A2[Day 0<br/>263 SP] --> B2[Day 7<br/>263 SP]
-        B2 --> C2[Day 14<br/>263 SP]
-        C2 --> D2[Day 21<br/>263 SP]
-        D2 --> E2[Day 28<br/>263 SP]
-    end
-    
-    style A fill:#ffcdd2
-    style B fill:#fff9c4
-    style C fill:#c5e1a5
-    style D fill:#81c784
-    style E fill:#4caf50
-    
-    style A2 fill:#e3f2fd
-    style B2 fill:#e3f2fd
-    style C2 fill:#e3f2fd
-    style D2 fill:#e3f2fd
-    style E2 fill:#e3f2fd
+xychart-beta
+    title "Burn-Down Chart - Methsara Publications Webstore"
+    x-axis ["Day 0", "Day 7 (Sprint 1)", "Day 14 (Sprint 2)", "Day 21 (Sprint 3)", "Day 28 (Sprint 4)"]
+    y-axis "Story Points Remaining" 0 --> 263
+    line [263, 197, 132, 66, 0]
+    line [263, 170, 114, 41, 0]
 ```
 
 **Legend:**
-- 🟢 **Green Line (Bottom):** Cumulative story points completed
-- 🔵 **Blue Line (Top):** Total project scope (constant at 263 SP)
+- 📉 **Line 1 — Ideal Burn-Down:** The straight diagonal line showing the expected rate of work completion if the team completed exactly equal story points each sprint (65.75 SP/sprint)
+- 📊 **Line 2 — Actual Burn-Down:** The actual remaining story points at the end of each sprint
+
+---
+
+## Burn-Down Chart Explanation
+
+### What is a Burn-Down Chart?
+
+A burn-down chart is an Agile project management tool used to **track how much work remains** in a project or sprint over time. It shows the team's progress toward completing all planned work by the end of the project.
+
+- **X-Axis (Horizontal):** Represents time — in this project, divided into 4 sprints of 7 days each (28 days total)
+- **Y-Axis (Vertical):** Represents remaining story points — starting at 263 SP and counting down to 0
+- **Ideal Line:** A straight diagonal from 263 SP (Day 0) to 0 SP (Day 28), representing a perfectly even work pace
+- **Actual Line:** The real remaining story points recorded at the end of each sprint
+
+### How to Read This Chart
+
+| Position of Actual Line | Meaning |
+|------------------------|---------|
+| **Below** the ideal line | Team is **ahead of schedule** — completing work faster than planned |
+| **Above** the ideal line | Team is **behind schedule** — completing work slower than planned |
+| **Meets** the ideal line | Team is **on track** |
+| **Reaches zero** at Day 28 | Project **completed on time** |
+
+### Analysis of This Project's Burn-Down
+
+| Sprint | Ideal Remaining | Actual Remaining | Status |
+|--------|----------------|-----------------|--------|
+| Day 0 | 263 SP | 263 SP | On track |
+| Sprint 1 (Day 7) | 197 SP | 170 SP | ✅ **Ahead** — completed 93 SP vs ideal 66 SP |
+| Sprint 2 (Day 14) | 132 SP | 114 SP | ✅ **Ahead** — maintained lead |
+| Sprint 3 (Day 21) | 66 SP | 41 SP | ✅ **Ahead** — strong performance |
+| Sprint 4 (Day 28) | 0 SP | 0 SP | ✅ **Complete** — all 263 SP delivered |
+
+### Key Insights
+
+1. **Ahead of Schedule Throughout:** The actual burn-down line consistently stayed below the ideal line, meaning the team completed work faster than the planned pace in every sprint.
+2. **Highest Velocity in Sprint 1 (93 SP):** The team delivered the most work in Sprint 1 because foundational features (authentication, RBAC, product catalog, cart) required significant early effort but enabled faster delivery in later sprints.
+3. **Lowest Velocity in Sprint 4 (41 SP):** Sprint 4 contained lower-priority, lower-complexity polish features (analytics, gift vouchers, seasonal campaigns), which naturally have fewer story points.
+4. **No Scope Creep:** Total scope remained constant at 263 SP across all sprints — no new requirements were added mid-project.
+5. **On-Time Completion:** The actual line reached 0 SP at Day 28, confirming the project was completed within the planned timeline.
+
+---
+
+## Velocity Analysis
+
+| Sprint | Story Points Completed | Velocity (SP/day) | Comparison to Ideal (65.75 SP) |
+|--------|----------------------|-------------------|-------------------------------|
+| Sprint 1 | 93 | 13.3 SP/day | +27.25 SP above ideal |
+| Sprint 2 | 56 | 8.0 SP/day | −9.75 SP below ideal |
+| Sprint 3 | 73 | 10.4 SP/day | +7.25 SP above ideal |
+| Sprint 4 | 41 | 5.9 SP/day | −24.75 SP below ideal |
+| **Average** | **65.75** | **9.4 SP/day** | **On target overall** |
+
+> **Note:** Although sprint-by-sprint velocity varied, the cumulative total always remained at or ahead of the ideal, ensuring on-time project delivery.
+
+---
+
+## Burn-Up Chart (Supplementary View)
+
+A burn-up chart shows the same data from the opposite perspective — **how much work has been completed** rather than how much remains.
+
+```mermaid
+xychart-beta
+    title "Burn-Up Chart - Methsara Publications Webstore"
+    x-axis ["Day 0", "Day 7 (Sprint 1)", "Day 14 (Sprint 2)", "Day 21 (Sprint 3)", "Day 28 (Sprint 4)"]
+    y-axis "Story Points" 0 --> 263
+    line [263, 263, 263, 263, 263]
+    line [0, 93, 149, 222, 263]
+```
+
+**Legend:**
+- 📏 **Line 1 — Total Scope:** Constant at 263 SP (project scope did not change)
+- 📈 **Line 2 — Completed Work:** Cumulative story points completed, rising from 0 to 263 SP
 
 ---
 

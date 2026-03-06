@@ -598,7 +598,7 @@ The following sections are provided in separate documents for clarity and readab
 - **Section 10:** Business Model Canvas → See [Business_Model_Canvas.md](./Business_Model_Canvas.md)
 - **Section 11:** UML Use Case Diagram → See [UML_Use_Case_Diagram.md](./UML_Use_Case_Diagram.md)
 - **Section 12:** Product Backlog Table → See [Product_Backlog_Table.md](./Product_Backlog_Table.md)
-- **Section 13:** Burn-up Chart → See [Burn_Up_Chart.md](./Burn_Up_Chart.md)
+- **Section 13:** Burn-Down Chart → See [Burn_Up_Chart.md](./Burn_Up_Chart.md)
 - **Section 14:** Requirements Traceability Matrix (RTM) → See [Requirements_Traceability_Matrix.md](./Requirements_Traceability_Matrix.md)
 
 ---
