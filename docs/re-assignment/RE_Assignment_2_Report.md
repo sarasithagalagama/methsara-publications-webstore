@@ -574,43 +574,66 @@ API --> [reviews] : Mongoose ODM
 
 ## 7. Behavioural Models
 
-### 7.1 UML Sequence Diagram — Use Case 1: Customer Registration & Email Verification
+### 7.1 UML Sequence Diagram — Use Case 1: Customer Registration & Login with Session Tracking
 
 ```plantuml
 @startuml
 skinparam sequenceArrowThickness 1.5
 actor Customer
 participant "React Frontend" as FE
-participant "Express API\n/api/auth/register" as API
+participant "Express API\n/api/auth" as API
 participant "User Model\n(MongoDB)" as DB
-participant "Email Service\n(Nodemailer)" as Email
+participant "Session Model\n(MongoDB)" as Session
 
-Customer -> FE: Fill registration form\n(name, email, password, phone)
-FE -> FE: Client-side validation
+== Phase 1: Registration ==
+Customer -> FE: Navigate to Register page\nFill form (name, email, password, phone)
+FE -> FE: Client-side validation\n(required fields, email format, min length)
 FE -> API: POST /api/auth/register\n{name, email, password, phone}
-API -> DB: Check if email exists
-DB --> API: Email not found
-API -> DB: bcrypt.hash(password)
-API -> DB: Create User\n{isActive: false, isEmailVerified: false}
-DB --> API: User created (_id)
-API -> Email: sendVerificationEmail\n(email, verificationToken)
-Email --> Customer: Verification email sent
-API --> FE: 201 Created\n{message: "Check your email"}
-FE --> Customer: ✅ "Registration successful! Check your email."
+API -> DB: findOne({email}) — check uniqueness
+DB --> API: Email not found ✓
+API -> DB: bcrypt.hash(password, 10)
+API -> DB: User.create({..., isEmailVerified: true, isActive: true})
+DB --> API: User created {_id, name, email, role: "customer"}
+API -> API: generateToken(user._id) → JWT
+API --> FE: 201 Created {token, user: {id, name, email, role}}
+FE -> FE: Store JWT in localStorage\nUpdate Auth context
+FE --> Customer: ✅ Redirect to Storefront\n(logged in immediately)
 
-Customer -> FE: Click verification link
-FE -> API: GET /api/auth/verify/:token
-API -> DB: Find user by token
-DB --> API: User found
-API -> DB: Update: isEmailVerified=true, isActive=true
-DB --> API: Updated
-API --> FE: 200 OK {message: "Email verified!"}
-FE --> Customer: ✅ Redirect to Login page
+== Phase 2: Subsequent Login ==
+Customer -> FE: Navigate to Login page\nEnter email & password
+FE -> API: POST /api/auth/login\n{email, password}
+API -> DB: findOne({email}).select("+password")
+DB --> API: User document
+API -> API: bcrypt.compare(password, user.password)
+note right of API: Password match ✓
+API -> DB: Check user.isActive
+DB --> API: isActive = true ✓
+API -> DB: Update: user.lastLogin = Date.now()
+API -> API: generateToken(user._id) → JWT
+API -> Session: Session.create({\n  user: user._id, token,\n  ipAddress, userAgent,\n  device: "Chrome on Windows"\n})
+Session --> API: Session saved
+API --> FE: 200 OK {token, user: {\n  id, name, email, role,\n  assignedLocation,\n  mustChangePassword: false\n}}
+FE -> FE: Store JWT, update Auth context
+FE --> Customer: ✅ Redirect to Dashboard\n(role-specific view)
+
+== Phase 3: Session Management ==
+Customer -> FE: Open Profile → Active Sessions
+FE -> API: GET /api/auth/sessions\n[Authorization: Bearer <token>]
+API -> Session: find({user: req.user.id}).sort({loginTime: -1})
+Session --> API: Sessions list [{device, ip, loginTime, status}]
+API --> FE: 200 OK {sessions[]}
+FE --> Customer: Display session list\n("Chrome on Windows", "Firefox on Android", ...)
+Customer -> FE: Click "Revoke" on suspicious session
+FE -> API: PUT /api/auth/sessions/:id/revoke
+API -> Session: session.status = "revoked"; save()
+Session --> API: Updated
+API --> FE: 200 OK {message: "Session revoked"}
+FE --> Customer: ✅ Session removed from list
 
 @enduml
 ```
 
-**Commentary:** This diagram shows the two-phase registration process. Phase 1 creates an inactive account and sends a verification email. Phase 2 activates the account only after the user clicks the unique token link. The JWT is not issued at registration; it is only issued upon successful login. This prevents unverified accounts from accessing the system.
+**Commentary:** This diagram covers the complete implemented authentication lifecycle across three phases. Phase 1 shows immediate registration with account activation and JWT issuance (no email verification step, as `isEmailVerified` is set to `true` on creation). Phase 2 shows subsequent logins including the bcrypt comparison, `isActive` guard, and Session document creation with UA-Parser device detection. Phase 3 shows the session management feature (FR1.13) where users can view and remotely revoke active sessions.
 
 ---
 
