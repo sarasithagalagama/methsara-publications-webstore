@@ -903,9 +903,211 @@ end note
 
 ---
 
+### 7.8 UML State Diagram — PurchaseOrder Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Draft : Supplier Manager creates PO\n(POST /api/purchase-orders)
+
+Draft --> Sent : Supplier Manager\nsubmits PO to supplier\n(PUT /api/purchase-orders/:id/send)
+Draft --> Cancelled : Supplier Manager\ndiscards draft
+
+Sent --> Confirmed : Supplier confirms\nacceptance of PO
+Sent --> Cancelled : Supplier rejects\nor no response
+
+Confirmed --> Received : Inventory Manager\nconfirms full delivery\n(PUT /api/purchase-orders/:id/receive)
+Confirmed --> Cancelled : Supplier cancels\nafter confirmation
+
+Received --> [*] : PO complete\n(inventory levels updated)
+Cancelled --> [*] : PO closed\n(no stock transferred)
+
+note right of Received
+  On Received: inventory.quantity
+  is incremented at target branch
+  for all received items
+end note
+
+note right of Draft
+  poNumber auto-generated
+  as PO-YYYY-NNNNN
+end note
+
+@enduml
+```
+
+**Commentary:** The `PurchaseOrder` object moves through five states (Draft, Sent, Confirmed, Received, Cancelled). The `Received` terminal state triggers automatic inventory updates at the target branch location. Cancellation is permitted from any non-terminal state, allowing flexibility for supplier negotiations or order errors.
+
+---
+
+### 7.9 UML State Diagram — StockTransfer Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Pending : Location Manager submits\ntransfer request\n(POST /api/stock-transfers/request)
+
+Pending --> Approved : Approving Manager\naccepts the request\n(PUT /api/stock-transfers/:id/approve)
+Pending --> Rejected : Approving Manager\ndeclines request\n(PUT /api/stock-transfers/:id/reject)
+
+Approved --> Completed : Stock physically\ntransferred and confirmed
+Rejected --> [*] : Transfer closed\n(no stock movement)
+Completed --> [*] : Transfer archived\n(both inventories updated)
+
+note right of Approved
+  On Approve:
+  - Source branch quantity decremented
+  - Destination branch quantity incremented
+  (atomic operation)
+end note
+
+note right of Rejected
+  Rejection reason stored
+  and notified to requesting
+  manager
+end note
+
+@enduml
+```
+
+**Commentary:** The `StockTransfer` state machine enforces a request-approval workflow. The actual stock movement (atomic increment/decrement of inventory at source and destination branches) only occurs on the `Approved` transition, preventing premature or unauthorised stock changes. Both the approved and completed states allow audit trail reconstruction.
+
+---
+
+### 7.10 UML State Diagram — User Account Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Active : Account created\n(register or createStaff)
+
+Active --> MustChangePassword : Staff account created\n(mustChangePassword = true)
+MustChangePassword --> Active : Staff changes password\n(PUT /api/auth/change-password)
+
+Active --> Deactivated : Admin deactivates account\n(PUT /api/auth/deactivate/:id)
+Deactivated --> Active : Admin reactivates account
+
+Active --> PasswordResetPending : User requests\npassword reset\n(POST /api/auth/forgot-password)
+PasswordResetPending --> Active : Reset token used\nsuccessfully within 1 hour\n(POST /api/auth/reset-password)
+PasswordResetPending --> Active : Token expires\n(no action — account stays active)
+
+Deactivated --> [*] : Account permanently\ndeleted (admin action)
+Active --> [*] : Account deleted
+
+note right of Deactivated
+  isActive = false
+  Login blocked even with
+  correct password
+end note
+
+note right of MustChangePassword
+  mustChangePassword = true
+  is set for all newly created
+  staff accounts (FR1.8)
+end note
+
+@enduml
+```
+
+**Commentary:** The `User` account object has multiple concurrent sub-states. A staff user enters the `MustChangePassword` sub-state immediately on creation, which must be resolved before full access is granted. Deactivation blocks login without deleting data, supporting account recovery. The `PasswordResetPending` state is transient — the token expires after 1 hour and the account automatically reverts to `Active` without any change.
+
+---
+
+### 7.11 UML State Diagram — Coupon Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Active : Marketing Manager creates coupon\n(POST /api/coupons)\nisActive = true
+
+Active --> Exhausted : currentUsageCount\nreaches maxUsageCount
+Active --> Expired : Current date exceeds\nvalidUntil date
+Active --> Deactivated : Marketing Manager\nmanually deactivates\n(PUT /api/coupons/:id)
+
+Exhausted --> [*] : Coupon archived\n(no further redemption possible)
+Expired --> [*] : Coupon archived
+Deactivated --> Active : Marketing Manager\nreactivates coupon
+
+note right of Active
+  Validation checks at checkout:
+  1. Code exists
+  2. isActive = true
+  3. validFrom ≤ today ≤ validUntil
+  4. cartTotal ≥ minPurchaseAmount
+  5. currentUsageCount < maxUsageCount
+end note
+
+@enduml
+```
+
+**Commentary:** The `Coupon` object enters three possible terminal-like states depending on how it becomes invalid: exhaustion (usage limit reached), expiry (date passed), or manual deactivation by the Marketing Manager. Only `Deactivated` is recoverable — the Marketing Manager can reactivate a coupon. `Exhausted` and `Expired` states are permanent. All five checkout validation checks must pass for a coupon in `Active` state to be applied (FR6.6).
+
+---
+
+### 7.12 UML State Diagram — Product Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Active : Product Manager creates product\n(POST /api/products)\nisActive = true
+
+Active --> Archived : Product Manager archives product\n(visibility toggle — isActive = false)\n(PUT /api/products/:id/archive)
+Archived --> Active : Product Manager restores product
+
+Active --> FeaturedActive : Product Manager\nenables featured flag\n(isFeatured = true)
+FeaturedActive --> Active : Featured flag removed
+
+Active --> FlashSaleActive : Product Manager\nenables flash sale\n(isFlashSale = true)
+FlashSaleActive --> Active : Flash sale ends
+
+Active --> [*] : Product permanently deleted\n(only if stock = 0 across all locations)
+Archived --> [*] : Product permanently deleted
+
+note right of Archived
+  Archived products:
+  - Hidden from storefront
+  - Still visible to managers
+  - Can be restored at any time
+  - Stock NOT affected by archive
+end note
+
+note right of FeaturedActive
+  Featured and FlashSale
+  flags are independent —
+  a product can be both
+  simultaneously
+end note
+
+@enduml
+```
+
+**Commentary:** The `Product` state machine separates visibility from deletion. `Archived` is a soft-delete — the product is hidden from the storefront but retained in the database with its inventory intact (per the codebase refactoring from a previous session). Permanent deletion is restricted to products with zero stock across all locations. The `FeaturedActive` and `FlashSaleActive` are orthogonal sub-states that can be combined independently.
+
+---
+
 ## 8. Flow Models
 
-### 8.1 UML Activity Diagram — Use Case 1: Customer Registration
+### 8.1 UML Activity Diagram — Use Case 1: Admin Creates a Staff Account (FR1.4)
 
 ```plantuml
 @startuml
@@ -913,48 +1115,84 @@ skinparam activity {
   BackgroundColor #f0f8ff
   BorderColor #336699
 }
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
 
+|System Administrator|
 start
-:Customer navigates to Registration Page;
-:Customer fills registration form\n(name, email, password, phone);
-:System performs client-side validation;
+:Navigate to Admin Panel → Staff Management;
+:Click "Create New Staff";
+:Fill form: name, email, phone,\nrole, assignedLocation,\nNIC, DOB, address;
 
+|React Frontend|
+:Client-side validation\n(required fields, email format,\nphone 10 digits, NIC format);
 if (Form valid?) then (no)
-  :Display validation errors;
-  :Return to form;
+  :Display field-level errors;
+  |System Administrator|
+  :Correct errors and resubmit;
   stop
 else (yes)
-  :POST /api/auth/register;
-  if (Email already registered?) then (yes)
-    :Return error: "Email already exists";
+  :POST /api/auth/create-staff\n[Authorization: Bearer <admin_jwt>];
+endif
+
+|Auth Middleware|
+:Extract and verify JWT token;
+if (JWT valid?) then (no)
+  :Return 401 Unauthorized;
+  stop
+else (yes)
+  :Check role === "admin";
+  if (Admin role?) then (no)
+    :Return 403 Forbidden;
     stop
-  else (no)
-    :Hash password (bcrypt);
-    :Create User record\n{isActive: false};
-    :Generate email verification token;
-    :Send verification email;
-    :Display "Check your email" message;
-    :Customer opens email and clicks link;
-    if (Token valid & not expired?) then (no)
-      :Display "Link expired. Request new one.";
-      stop
-    else (yes)
-      :Activate account\n{isEmailVerified: true, isActive: true};
-      :Redirect to Login page;
-      :Display "Email verified!";
-    endif
+  else (yes)
   endif
 endif
+
+|Express API|
+:Server-side input validation\n(email regex, phone 10 digits,\nNIC format, age ≥ 18 from DOB);
+if (Inputs valid?) then (no)
+  :Return 400 Bad Request\n{errors: [...]};
+  stop
+else (yes)
+endif
+
+|MongoDB|
+:findOne({ email }) — check uniqueness;
+if (Email already exists?) then (yes)
+  :Return 409 Conflict\n"Email already registered";
+  stop
+else (no)
+endif
+
+|Express API|
+:User.create({\n  name, email, phone, role,\n  userType: "staff",\n  assignedLocation,\n  mustChangePassword: true,\n  isActive: true,\n  isEmailVerified: true\n});
+
+|MongoDB|
+:Save new staff User document;
+:Return { _id, name, email, role, assignedLocation };
+
+|Express API|
+:Return 201 Created\n{ message, user: {id, name, email, role} };
+
+|React Frontend|
+:Display success toast\n"Staff account created successfully";
+:Refresh Staff Management table;
+
+|System Administrator|
+:New staff member visible in table;
 stop
 
 @enduml
 ```
 
-**Commentary:** The registration activity shows two decision points: client-side validation and server-side email uniqueness check. The email verification flow is a separate sub-process that can fail if the token has expired (24-hour window).
+**Commentary:** This swimlane activity diagram for FR1.4 clearly separates responsibilities across five lanes. The System Administrator owns the form interaction. The React Frontend handles client-side validation. The Auth Middleware performs the JWT verification and RBAC check before any business logic runs. The Express API executes server-side validation and constructs the user document. MongoDB persists the record. The `mustChangePassword: true` flag enforces FR1.8 on the staff member's first login.
 
 ---
 
-### 8.2 UML Activity Diagram — Use Case 2: Place Order
+### 8.2 UML Activity Diagram — Use Case 2: Place Order (FR3.1–FR3.12)
 
 ```plantuml
 @startuml
@@ -962,61 +1200,105 @@ skinparam activity {
   BackgroundColor #f0f8ff
   BorderColor #336699
 }
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
 
+|Customer|
 start
-:Customer views shopping cart;
-:Customer clicks "Proceed to Checkout";
+:View shopping cart;
+:Click "Proceed to Checkout";
 
+|React Frontend|
 fork
-  :Load saved delivery addresses;
+  :Load saved delivery addresses\n(GET /api/users/addresses);
 fork again
   :Calculate cart subtotal;
 end fork
+:Display checkout form;
 
-:Customer selects delivery address;
-:Customer selects payment method (COD / Bank Transfer);
+|Customer|
+:Select delivery address;
+:Select payment method\n(COD or Bank Transfer);
+if (Apply coupon code?) then (yes)
+  :Enter coupon code;
+  |React Frontend|
+  :POST /api/coupons/validate\n{code, cartTotal};
 
-if (Customer applies coupon?) then (yes)
-  :POST /api/coupons/validate;
+  |Express API|
+  :Run 5-step coupon validation\n(exists → active → dates →\nminPurchase → usageLimit);
   if (Coupon valid?) then (yes)
-    :Apply discount to total;
+    :Return discounted total;
+    |React Frontend|
+    :Display updated total with discount;
   else (no)
-    :Show error message;
+    :Return error message;
+    |React Frontend|
+    :Show coupon error to customer;
   endif
 else (no)
 endif
 
-:Customer reviews order summary;
-:Customer clicks "Place Order";
-:POST /api/orders;
-:Check stock availability for all items;
+|Customer|
+:Review order summary;
+:Click "Place Order";
 
+|React Frontend|
+:POST /api/orders\n{items, address, paymentMethod, couponCode};
+
+|Express API|
+:Validate stock availability\nfor all ordered items;
+
+|MongoDB|
+:Check inventory.available\nfor each product at branch;
 if (All items in stock?) then (no)
-  :Return error: "Item no longer available";
+  |Express API|
+  :Return 400: "Item no longer in stock";
+  |Customer|
+  :View error message;
   stop
 else (yes)
-  :Create Order record;
-  :Deduct stock from fulfillment location;
-  :Mark coupon as used (if applicable);
-  if (Payment = Bank Transfer?) then (yes)
-    :Prompt customer to upload bank slip;
-    :Save bank slip {paymentStatus: Pending};
-  else (COD)
-    :Set paymentStatus = Pending;
-  endif
-  :Send order confirmation email;
-  :Display Order ID and success message;
 endif
+
+|Express API|
+:Create Order record\n{status: Pending, paymentStatus: Pending};
+:Atomically deduct stock\nfrom fulfillment location;
+if (Coupon used?) then (yes)
+  :Increment coupon usageCount;
+  :Log coupon usage history;
+else (no)
+endif
+
+|MongoDB|
+:Save Order, update Inventory;
+
+|Express API|
+if (Payment = Bank Transfer?) then (yes)
+  :Return 201 with upload prompt;
+  |Customer|
+  :Upload bank transfer slip image;
+  |Express API|
+  :Save slip path {paymentStatus: Pending};
+else (COD)
+  :Return 201 Created\n{orderId, status: Pending};
+endif
+
+|React Frontend|
+:Display Order confirmation page\n(Order ID, items, total, ETA);
+
+|Customer|
+:Receive order confirmation;
 stop
 
 @enduml
 ```
 
-**Commentary:** This activity diagram highlights two parallel actions on checkout (loading addresses and calculating subtotal), coupon validation as an optional branch, and the distinction between COD and bank transfer payment flows.
+**Commentary:** This swimlane diagram separates the four active participants in order placement. The Customer drives the interaction. The React Frontend handles UI state, parallel data loads (addresses + subtotal), and form submission. The Express API runs all business rules (stock check, coupon validation, atomic stock deduction). MongoDB stores the final Order and updates Inventory. The bank transfer upload is an asynchronous branch specific to that payment method.
 
 ---
 
-### 8.3 UML Activity Diagram — Use Case 3: Process Stock Transfer
+### 8.3 UML Activity Diagram — Use Case 3: Process Stock Transfer (FR5.4–FR5.5)
 
 ```plantuml
 @startuml
@@ -1024,44 +1306,109 @@ skinparam activity {
   BackgroundColor #f0f8ff
   BorderColor #336699
 }
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
 
+|Requesting Manager|
 start
-:Inventory Manager views low-stock alert;
-:Navigate to Request Transfer form;
-:Fill transfer request\n(product, quantity, source location, reason);
-:POST /api/stock-transfers/request;
+:View low-stock alert on dashboard;
+:Navigate to Stock Transfers → Request Transfer;
+:Fill request form:\n(product, quantity, source location,\ndestination location, reason);
 
-:System checks source location stock;
+|React Frontend|
+:Validate form (required fields, quantity > 0);
+if (Form valid?) then (no)
+  :Display validation errors;
+  |Requesting Manager|
+  :Correct and resubmit;
+  stop
+else (yes)
+  :POST /api/stock-transfers/request\n[Authorization: Bearer <jwt>];
+endif
 
+|Express API|
+:Verify JWT and RBAC role\n(location_inventory_manager or\nmaster_inventory_manager);
+
+|MongoDB|
+:Query source branch inventory\nfor requested product;
 if (Sufficient stock at source?) then (no)
-  :Return error: "Insufficient stock at source";
+  |Express API|
+  :Return 400: "Insufficient stock at source";
+  |Requesting Manager|
+  :View error — cannot request transfer;
   stop
 else (yes)
-  :Create Transfer Request\n{status: Pending};
-  :Notify target location manager;
-  :Source manager clicks "Approve" or "Reject";
-  if (Approved?) then (yes)
-    :Deduct quantity from source location;
-    :Add quantity to destination location;
-    :Update transfer status → Approved;
-    :Log stock movement with timestamp;
-    :Notify both managers;
-    :Display success message;
-  else (no — Rejected)
-    :Update transfer status → Rejected;
-    :Send rejection notification with reason;
-  endif
 endif
-stop
+
+|Express API|
+:Create StockTransfer document\n{status: "Pending", requestedBy, product,\nquantity, fromLocation, toLocation, reason};
+
+|MongoDB|
+:Save StockTransfer — status: Pending;
+
+|Express API|
+:Return 201 Created {transferId, status: Pending};
+
+|React Frontend|
+:Show "Transfer request submitted" to Requesting Manager;
+
+|Approving Manager|
+:Receive notification of pending request;
+:Review transfer details\n(product, quantity, reason, source);
+if (Approve request?) then (yes)
+  :Click "Approve";
+  |React Frontend|
+  :PUT /api/stock-transfers/:id/approve;
+
+  |Express API|
+  :Begin atomic transaction;
+
+  |MongoDB|
+  fork
+    :Decrement source branch inventory\nby requested quantity;
+  fork again
+    :Increment destination branch inventory\nby requested quantity;
+  end fork
+  :Update StockTransfer status → "Approved";
+  :Log stock movement with timestamp and userId;
+
+  |Express API|
+  :Return 200 OK {status: Approved};
+
+  |React Frontend|
+  :Notify Requesting Manager: "Transfer Approved";
+
+  |Requesting Manager|
+  :View updated stock levels at destination;
+  stop
+else (no — Reject)
+  :Enter rejection reason;
+  :Click "Reject";
+  |React Frontend|
+  :PUT /api/stock-transfers/:id/reject\n{reason};
+
+  |Express API|
+  :Update StockTransfer status → "Rejected";
+  :Store rejection reason;
+
+  |MongoDB|
+  :Save updated StockTransfer;
+
+  |Requesting Manager|
+  :Receive rejection notification with reason;
+  stop
+endif
 
 @enduml
 ```
 
-**Commentary:** The stock transfer activity ensures stock integrity by checking source availability before creating the request. The approval decision point separates the requestor from the approver roles.
+**Commentary:** The stock transfer swimlane diagram clearly separates the two inventory manager roles — the Requesting Manager initiates the process while the Approving Manager has decision authority. The atomic fork in MongoDB ensures that stock is simultaneously decremented at the source and incremented at the destination, preventing any data inconsistency. All movements are logged with user and timestamp for audit purposes (NFR2.5).
 
 ---
 
-### 8.4 UML Activity Diagram — Use Case 4: Create & Apply Coupon
+### 8.4 UML Activity Diagram — Use Case 4: Create & Apply Coupon (FR6.1, FR6.6)
 
 ```plantuml
 @startuml
@@ -1069,64 +1416,117 @@ skinparam activity {
   BackgroundColor #f0f8ff
   BorderColor #336699
 }
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
 
+|Marketing Manager|
 start
+:Navigate to Promotions → Create Coupon;
+:Fill coupon form:\n(code, discountType, value, minPurchase,\nvalidFrom, validUntil, maxUsage, perUserLimit);
 
-partition "Marketing Manager — Create Coupon" {
-  :Navigate to Promotions → Create Coupon;
-  :Enter coupon details\n(code, discount type, value, dates, limits);
-  :POST /api/coupons;
-  if (Coupon code already exists?) then (yes)
-    :Return error: "Code must be unique";
-    stop
-  else (no)
-    :Create Coupon {isActive: true};
-    :Display "Coupon created successfully";
-  endif
-}
+|React Frontend|
+:Validate required fields;
+if (Form valid?) then (no)
+  :Display field errors;
+  |Marketing Manager|
+  :Correct and resubmit;
+  stop
+else (yes)
+  :POST /api/coupons\n[Authorization: Bearer <manager_jwt>];
+endif
 
-partition "Customer — Apply Coupon at Checkout" {
-  :Customer enters coupon code at checkout;
-  :POST /api/coupons/validate {code, cartTotal};
-  if (Coupon exists?) then (no)
-    :Return: "Invalid coupon code";
-    stop
-  else (yes)
-    if (Coupon is active?) then (no)
-      :Return: "Coupon is no longer active";
-      stop
-    else (yes)
-      if (Within validity dates?) then (no)
-        :Return: "Coupon has expired";
-        stop
-      else (yes)
-        if (Cart total meets minimum?) then (no)
-          :Return: "Add more items to use this coupon";
-          stop
-        else (yes)
-          if (Usage limit reached or already used?) then (yes)
-            :Return: "Coupon not available";
-            stop
-          else (no)
-            :Calculate and apply discount;
-            :Display updated order total;
-            :On order placement: increment usageCount;
-          endif
-        endif
-      endif
-    endif
-  endif
-}
+|Express API|
+:Verify JWT + RBAC (marketing_manager);
+
+|MongoDB|
+:findOne({ code }) — check uniqueness;
+if (Code already exists?) then (yes)
+  |Express API|
+  :Return 409: "Coupon code must be unique";
+  |Marketing Manager|
+  :Enter different code;
+  stop
+else (no)
+endif
+
+|Express API|
+:Coupon.create({\n  code, discountType, discountValue,\n  minPurchaseAmount, maxDiscount,\n  validFrom, validUntil,\n  maxUsageCount, perUserLimit,\n  isActive: true\n});
+
+|MongoDB|
+:Save Coupon document;
+
+|React Frontend|
+:Display "Coupon EXAM2024 created successfully!";
+
+|Marketing Manager|
+:Coupon visible in Promotions table;
+
+note
+  === Customer Redeems Coupon at Checkout ===
+end note
+
+|Customer|
+:Navigate to Checkout;
+:Enter coupon code;
+
+|React Frontend|
+:POST /api/coupons/validate\n{code, cartTotal, userId};
+
+|Express API|
+:Gate 1 — Code exists?;
+if (Code exists?) then (no)
+  :Return: "Invalid coupon code";
+  |Customer|
+  :View error, try again or skip;
+  stop
+else (yes)
+endif
+:Gate 2 — isActive = true?;
+if (Coupon active?) then (no)
+  :Return: "Coupon is inactive";
+  stop
+else (yes)
+endif
+:Gate 3 — validFrom ≤ today ≤ validUntil?;
+if (Within validity dates?) then (no)
+  :Return: "Coupon has expired";
+  stop
+else (yes)
+endif
+:Gate 4 — cartTotal ≥ minPurchaseAmount?;
+if (Min purchase met?) then (no)
+  :Return: "Minimum purchase amount not met";
+  stop
+else (yes)
+endif
+:Gate 5 — usageCount < maxUsage\n& perUser usage < perUserLimit?;
+if (Usage limits OK?) then (no)
+  :Return: "Coupon not available for you";
+  stop
+else (yes)
+endif
+:Calculate discountAmount\n(min of discountValue and maxDiscount);
+:Return { valid: true, discountAmount, newTotal };
+
+|React Frontend|
+:Display discounted total to customer;
+
+|Customer|
+:Confirm and place order;
+(order is processed — see UC2)
+
 stop
 
 @enduml
 ```
 
-**Commentary:** The coupon activity diagram is divided into two partitions — creation (Marketing Manager) and redemption (Customer at checkout). Five sequential validation gates must pass before the discount is applied, preventing misuse.
+**Commentary:** The swimlane diagram separates the Marketing Manager's creation flow from the Customer's redemption flow. Five sequential validation gates (FR6.6) are explicitly modelled in the Express API lane, showing that all five must pass before a discount is applied. The coupon creation and redemption are distinct sub-flows within the same diagram, keeping the full lifecycle visible.
 
 ---
 
-### 8.5 UML Activity Diagram — Use Case 5: Product Search & Filtering
+### 8.5 UML Activity Diagram — Use Case 5: Product Search & Filtering (FR2.4–FR2.7)
 
 ```plantuml
 @startuml
@@ -1134,60 +1534,121 @@ skinparam activity {
   BackgroundColor #f0f8ff
   BorderColor #336699
 }
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
 
+|Customer|
 start
-:Customer navigates to Storefront;
-:System loads all active products (default view);
-:Customer enters search keyword (e.g. "Mathematics");
+:Navigate to Storefront;
+
+|React Frontend|
+:GET /api/products (default view);
+
+|Express API|
+:Query all active, non-archived products;
+
+|MongoDB|
+:Return full product list;
+
+|React Frontend|
+:Display default product grid;
+
+|Customer|
+:Enter search keyword\n(e.g. "Mathematics");
+
+|React Frontend|
 :GET /api/products?search=Mathematics;
 
-if (Products found?) then (no)
-  :Display "No products match your search";
+|Express API|
+:Full-text search on title, author, ISBN\n(MongoDB text index);
+
+|MongoDB|
+:Return matched products;
+
+|Express API|
+if (Results found?) then (no)
+  :Return empty array;
+  |React Frontend|
+  :Display "No products found";
+  |Customer|
+  :Refine search term;
   stop
 else (yes)
-  :Display search results with highlighted terms;
-  :Customer optionally applies filters;
-  if (Grade filter applied?) then (yes)
-    :Add grade param to query;
-  else (no)
-  endif
-  if (Subject filter applied?) then (yes)
-    :Add subject param to query;
-  else (no)
-  endif
-  if (Price range filter applied?) then (yes)
-    :Add minPrice / maxPrice params;
-  else (no)
-  endif
-  :Re-fetch filtered products;
-  if (Sort option selected?) then (yes)
-    :Add sort param (price_asc / price_desc / newest);
-    :Re-fetch sorted results;
-  else (no)
-  endif
-  :Display refined product grid;
-  if (Customer clicks a product?) then (yes)
-    fork
-      :Fetch product details (GET /api/products/:id);
-    fork again
-      :Fetch product reviews (GET /api/reviews?product=:id);
-    end fork
-    :Display product detail page;
-    :Customer adds to cart or continues browsing;
-  else (no — customer refines search)
-    :Return to filter/search step;
-  endif
+  :Return product list;
 endif
-stop
+
+|React Frontend|
+:Display results with match count;
+
+|Customer|
+:Optionally apply filters;
+if (Grade filter selected?) then (yes)
+  |React Frontend|
+  :Add grade= param;
+else (no)
+endif
+if (Subject filter selected?) then (yes)
+  |React Frontend|
+  :Add subject= param;
+else (no)
+endif
+if (Price range selected?) then (yes)
+  |React Frontend|
+  :Add minPrice=, maxPrice= params;
+else (no)
+endif
+if (Sort preference selected?) then (yes)
+  |React Frontend|
+  :Add sort= param\n(price_asc | price_desc | newest);
+else (no)
+endif
+
+|React Frontend|
+:GET /api/products?{all combined params};
+
+|Express API|
+:Apply filters + sort to MongoDB query;
+
+|MongoDB|
+:Return filtered & sorted results;
+
+|React Frontend|
+:Re-render refined product grid;
+
+|Customer|
+if (Click on a product?) then (yes)
+
+  |React Frontend|
+  fork
+    :GET /api/products/:id;
+  fork again
+    :GET /api/reviews?product=:id;
+  end fork
+
+  |Express API|
+  :Return product details + reviews;
+
+  |React Frontend|
+  :Display product detail page\n(images, price, stock status,\nratings, reviews, related products);
+
+  |Customer|
+  :Add to cart or continue browsing;
+  stop
+else (no)
+  :Refine filters and search again;
+  stop
+endif
 
 @enduml
 ```
 
-**Commentary:** The product search activity shows progressive filter refinement. Each filter parameter is optional (shown as independent decision branches), and filters are combined into a single re-query. Parallel fork is used when loading a product detail page — product data and reviews are fetched simultaneously for performance.
+**Commentary:** The product search swimlane separates the customer's browsing intent from the frontend's query construction and the API/database's execution. Optional filters (Grade, Subject, Price, Sort) are shown as independent decision branches in the React Frontend lane — each adds a query parameter. The parallel fork when opening a product page reflects the simultaneous fetch of product details and reviews for performance (FR2.6).
 
 ---
 
-### 8.6 UML Activity Diagram — Use Case 6: Create & Apply Discount Coupon
+### 8.6 UML Activity Diagram — Use Case 6: Create & Apply Discount Coupon (FR6.1–FR6.6)
 
 ```plantuml
 @startuml
@@ -1195,61 +1656,119 @@ skinparam activity {
   BackgroundColor #f0f8ff
   BorderColor #336699
 }
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
 
+|Marketing Manager|
 start
+:Navigate to Promotions → Create New Coupon;
+:Fill coupon details:\n(code, discountType: percentage/fixed,\ndiscountValue, maxDiscount,\nminPurchaseAmount, gradeRestrictions,\napplicableProducts, validFrom, validUntil,\nmaxUsageCount, perUserLimit);
 
-partition "Marketing Manager — Create Coupon" {
-  :Navigate to Promotions → Create New Coupon;
-  :Fill coupon details:\n(code, discountType, value, minPurchase, dates, limits);
+|React Frontend|
+:Client-side validation\n(required fields, date range valid,\nvalue > 0);
+if (Valid?) then (no)
+  :Display errors;
+  |Marketing Manager|
+  :Fix and resubmit;
+  stop
+else (yes)
   :POST /api/coupons;
-  if (Coupon code unique?) then (no)
-    :Return error: "Code already exists";
-    stop
-  else (yes)
-    :Save Coupon {isActive: true};
-    :Display "Coupon created successfully!";
-  endif
-}
+endif
 
-partition "Customer — Redeem Coupon" {
-  :Customer at checkout enters coupon code;
-  :POST /api/coupons/validate {code, cartTotal, userId};
-  if (Code exists?) then (no)
-    :Return: "Invalid coupon code";
-    stop
-  else (yes)
-    if (Coupon active & within valid dates?) then (no)
-      :Return: "Coupon expired or inactive";
-      stop
-    else (yes)
-      if (Cart total meets minimum purchase?) then (no)
-        :Return: "Minimum purchase not met";
-        stop
-      else (yes)
-        if (Usage limit & per-user limit OK?) then (no)
-          :Return: "Coupon not available";
-          stop
-        else (yes)
-          :Calculate discount amount;
-          :Display discounted total to customer;
-          :Customer confirms and places order;
-          :POST /api/orders {couponCode, discountedTotal};
-          :Create order with couponDiscount recorded;
-          :Increment coupon usageCount;
-          :Log coupon usage history;
-          :Send order confirmation email;
-          :Display order success + discount breakdown;
-        endif
-      endif
-    endif
-  endif
-}
+|Express API|
+:Authenticate + authorise (marketing_manager);
+
+|MongoDB|
+:Check code uniqueness;
+
+if (Code unique?) then (no)
+  |React Frontend|
+  :Return "Code already exists";
+  stop
+else (yes)
+endif
+
+|MongoDB|
+:Coupon.create({...all fields, isActive: true});
+:Return saved Coupon { _id, code };
+
+|React Frontend|
+:Show "Coupon created!" notification;
+:Refresh coupon management table;
+
+|Marketing Manager|
+:Monitor coupon usage analytics\n(GET /api/coupons/:id/usage);
+:View: total uses, per-user, order history;
+
+note
+  === Customer Applies Coupon ===
+end note
+
+|Customer|
+:At checkout, enter coupon code;
+
+|React Frontend|
+:POST /api/coupons/validate\n{code, cartTotal, userId};
+
+|Express API|
+:Sequential validation (FR6.6):;
+if (1 — Code exists?) then (no)
+  :Return "Invalid code";
+  stop
+else (yes)
+endif
+if (2 — isActive?) then (no)
+  :Return "Coupon inactive";
+  stop
+else (yes)
+endif
+if (3 — Inside validity dates?) then (no)
+  :Return "Coupon expired";
+  stop
+else (yes)
+endif
+if (4 — Cart meets minimum?) then (no)
+  :Return "Min. purchase not met";
+  stop
+else (yes)
+endif
+if (5 — Usage limits OK?) then (no)
+  :Return "Coupon unavailable";
+  stop
+else (yes)
+endif
+
+:Compute discount:\nmin(discountValue %, maxDiscount);
+:Return { valid: true, discount, newTotal };
+
+|React Frontend|
+:Display discounted total;
+
+|Customer|
+:Confirm order;
+
+|Express API|
+:Create Order with couponCode\nand discountAmount recorded;
+:Increment coupon.currentUsageCount;
+:Append to coupon.usageHistory\n{orderId, userId, usedAt, amount};
+
+|MongoDB|
+:Update Coupon document;
+:Save Order document;
+
+|React Frontend|
+:Display Order Confirmation\nwith discount breakdown;
+
+|Customer|
+:Order placed ✓;
 stop
 
 @enduml
 ```
 
-**Commentary:** This standalone coupon activity diagram separates responsibilities between the Marketing Manager (creation) and the Customer (redemption). Unlike the earlier combined diagram (UC-4), this focuses more explicitly on the redemption validation chain and the post-order coupon usage recording, which provides a complete audit trail.
+**Commentary:** The 8.6 swimlane diagram provides the most complete view of the coupon lifecycle — from Marketing Manager creation through customer redemption and post-order recording. Unlike diagram 8.4, this version includes: grade/product restrictions in the creation form, per-user usage tracking, the `usageHistory` append operation, and the full audit trail stored in MongoDB. The five sequential validation gates are modelled in the Express API lane (FR6.6).
 
 ---
 
@@ -1289,43 +1808,69 @@ Lanes: Customer | System | Admin/Finance
 > **Note for PDF submission:** Please render these BPMN descriptions using draw.io or Camunda Modeler. The textual notation above maps directly to BPMN 2.0 elements (pools, lanes, gateways, tasks, events).
 
 ### 9.2 BPMN — Customer Registration & Email Verification Process
+### 9.2 BPMN — Admin Creates a Staff Account Process (FR1.4)
 
 ```
-Pool: Customer Registration Process
-Lanes: Customer | System | Email Service
+Pool: Staff Account Creation Process
+Lanes: System Administrator | API Gateway (Auth Middleware) | System (Backend)
 
-[Customer]
-  (Start Event: Wants to Register) → [Navigate to Registration Page] →
-  [Fill Registration Form (name, email, phone, password)] →
-  [Submit Registration Form] →
-  (Intermediate Message Event: Wait for Verification Email) →
-  [Open Email & Click Verification Link] →
-  <Link Valid & Not Expired? Gateway>
-    Yes → [Account Activated] → (End Event: Registration Complete)
-    No  → [View "Link Expired" Message] →
-          [Request New Verification Link] → back to Intermediate Event
+[System Administrator]
+  (Start Event: Need to onboard new staff member) →
+  [Navigate to Admin Panel → Staff Management] →
+  [Click "Create New Staff"] →
+  [Fill Staff Creation Form:
+    - Full Name
+    - Email Address
+    - Phone Number (10 digits)
+    - Role (product_manager | finance_manager | supplier_manager |
+            master_inventory_manager | location_inventory_manager | marketing_manager)
+    - Assigned Location (Main Branch | Balangoda Branch | Kottawa Branch)
+    - NIC Number
+    - Date of Birth
+    - Address] →
+  [Submit Form] →
+  <Client-Side Validation? Gateway>
+    Fail → [Display field-level errors] → back to [Fill Staff Creation Form]
+    Pass → ↓
 
-[System]
-  (Receive Registration Request) → [Validate Input Data] →
-  <Input Valid? Gateway>
-    No  → [Return Validation Errors to Customer]
-    Yes → [Check Email Uniqueness] →
-          <Email Already Exists? Gateway>
-            Yes → [Return "Email already registered" error]
-            No  → [Hash Password (bcrypt)] →
-                  [Create User Record {isActive: false, isEmailVerified: false}] →
-                  [Generate Verification Token] →
-                  [Trigger Email Service] →
-                  (Wait for Verification Request)
-  → (Receive Verification Click) → [Validate Token] →
-  <Token Valid? Gateway>
-    Yes → [Activate Account {isEmailVerified: true, isActive: true}] →
-          [Redirect to Login Page] → (End)
-    No  → [Return "Token Expired" message] → (End)
+[API Gateway (Auth Middleware)]
+  (Receive POST /api/auth/create-staff) →
+  [JWT Verification: Extract & Verify Bearer Token] →
+  <JWT Valid? Gateway>
+    No  → [Return 401 Unauthorized] → (End Event: Creation Failed)
+    Yes → [RBAC Check: role === "admin"?] →
+  <Admin Role? Gateway>
+    No  → [Return 403 Forbidden] → (End Event: Creation Failed)
+    Yes → ↓ (Pass to Backend)
 
-[Email Service]
-  (Receive Trigger) → [Compose Verification Email with Token Link] →
-  [Send Email to Customer] → (End)
+[System (Backend)]
+  (Receive Validated Request) →
+  [Server-Side Input Validation:
+    - Email format regex
+    - Phone: exactly 10 digits
+    - NIC: old (9 digits + V) or new (12 digits) format
+    - Age: calculated from DOB must be ≥ 18 years] →
+  <Inputs Valid? Gateway>
+    No  → [Return 400 Bad Request with error list] → (End Event: Creation Failed)
+    Yes → [DB Query: findOne({ email })] →
+  <Email Already Exists? Gateway>
+    Yes → [Return 409 Conflict: "Email already registered"] → (End Event: Creation Failed)
+    No  → [Create User Document:
+              { name, email, phone, role,
+                userType: "staff",
+                assignedLocation,
+                mustChangePassword: true,
+                isActive: true,
+                isEmailVerified: true }] →
+          [Return 201 Created:
+              { message: "Staff account created successfully",
+                user: { id, name, email, role, assignedLocation } }] →
+          [Admin Panel: Display success toast] →
+          [Staff table updates to show new member] →
+  (End Event: Staff Account Created ✓)
+
+note: Staff member receives login credentials separately (out-of-band).
+      On first login, mustChangePassword = true forces immediate password change (FR1.8).
 ```
 
 ### 9.3 BPMN — Product Search & Filtering Process
