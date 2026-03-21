@@ -232,7 +232,18 @@ const Checkout = () => {
       const headers = token ? { Authorization: "Bearer " + token } : {};
       const res = await axios.post("/api/orders", orderData, { headers });
 
-      if (isGuest) localStorage.removeItem("guestCart");
+      if (isGuest) {
+        localStorage.removeItem("guestCart");
+      } else {
+        // Clear cart for logged-in users after successful order
+        try {
+          await axios.delete("/api/cart/clear", { headers });
+          setCart({ items: [], totalAmount: 0, discount: 0 });
+        } catch (clearErr) {
+          // Optionally handle cart clear error
+          console.error("Error clearing cart after order:", clearErr);
+        }
+      }
 
       setOrderRef(res.data.order?._id?.slice(-8).toUpperCase() || "ORD-DONE");
       setShowSuccessModal(true);
