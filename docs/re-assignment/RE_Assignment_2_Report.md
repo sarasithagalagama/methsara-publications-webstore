@@ -613,146 +613,7 @@ end note
 
 ---
 
-### 7.2 UML Sequence Diagram — Use Case 2: Place Order with COD & Coupon
-
-```plantuml
-@startuml
-skinparam sequenceArrowThickness 1.5
-actor Customer
-participant "React Frontend" as FE
-participant "Checkout API\n/api/orders" as API
-participant "Coupon Model" as Coupon
-participant "Inventory Model" as Inv
-participant "Order Model" as Order
-participant "Email Service" as Email
-
-Customer -> FE: Click "Proceed to Checkout"
-FE -> FE: Display checkout form
-Customer -> FE: Select address, COD, enter coupon "EXAM2024"
-FE -> API: POST /api/coupons/validate\n{code: "EXAM2024", total: 2450}
-API -> Coupon: Find coupon by code
-Coupon --> API: Coupon found
-API -> Coupon: Validate (active, date, minPurchase, usage limit)
-Coupon --> API: Valid ✓
-API --> FE: {valid: true, discount: 245}
-FE --> Customer: Shows updated total: Rs. 2,505
-
-Customer -> FE: Click "Place Order"
-FE -> API: POST /api/orders\n{items, address, payment: COD, coupon, total}
-API -> Inv: Check stock availability per item
-Inv --> API: Stock sufficient ✓
-API -> Order: Create order document
-Order --> API: {orderId: #MP-2024-00123, status: "Pending"}
-API -> Inv: Deduct stock (atomic transaction)
-Inv --> API: Stock deducted ✓
-API -> Coupon: Increment usageCount, log usage
-API -> Email: Send confirmation email to customer
-API --> FE: 201 Created {orderId, message}
-FE --> Customer: ✅ "Order placed! #MP-2024-00123"
-
-@enduml
-```
-
-**Commentary:** This sequence shows the atomicity of order placement: stock deduction and order creation succeed or fail together. Coupon validation is a separate pre-check. The system prevents overselling by checking real-time inventory before confirming.
-
----
-
-### 7.3 UML Sequence Diagram — Use Case 3: Inter-Branch Stock Transfer
-
-```plantuml
-@startuml
-skinparam sequenceArrowThickness 1.5
-actor "Balangoda\nInventory Manager" as Mgr1
-actor "Main Branch\nInventory Manager" as Mgr2
-participant "React Frontend" as FE
-participant "Transfer API\n/api/stock-transfers" as API
-participant "Inventory Model" as Inv
-participant "Notification Service" as Notif
-
-Mgr1 -> FE: Navigate to Stock Levels
-FE -> API: GET /api/inventory/location/balangoda
-API --> FE: Stock list (Grade 11 Science: 3 units ⚠️)
-FE --> Mgr1: Low-stock alert shown
-
-Mgr1 -> FE: Click "Request Transfer"\n{product, qty:20, from: Main, to: Balangoda}
-FE -> API: POST /api/stock-transfers/request\n{productId, qty, fromLocation, reason}
-API -> Inv: Check fromLocation stock (Main: 65 units)
-Inv --> API: Sufficient stock ✓
-API -> API: Create TransferRequest\n{status: "Pending", transferId: #TR-2024-00045}
-API -> Notif: Notify Main Branch Manager
-API --> FE: {transferId, status: "Pending"}
-FE --> Mgr1: ✅ Transfer requested
-
-Mgr2 -> FE: Open transfer request #TR-2024-00045
-FE -> API: GET /api/stock-transfers/:id
-API --> FE: Transfer details
-Mgr2 -> FE: Click "Approve Transfer"
-FE -> API: PUT /api/stock-transfers/:id/approve
-API -> Inv: Deduct 20 from Main (65→45)
-API -> Inv: Add 20 to Balangoda (3→23)
-API -> API: Update transfer status → "Approved"
-API -> Notif: Notify Balangoda Manager
-API --> FE: {status: "Approved"}
-FE --> Mgr2: ✅ "Transfer approved. Stock updated."
-
-@enduml
-```
-
-**Commentary:** This diagram shows the request-approval workflow for inter-branch transfers. The stock modification happens only after approval, and both managers are notified. The system prevents negative stock at the source location.
-
----
-
-### 7.4 UML Sequence Diagram — Use Case 4: Create Purchase Order & Receive Stock
-
-```plantuml
-@startuml
-skinparam sequenceArrowThickness 1.5
-actor "Supplier Manager" as SM
-actor "Inventory Manager" as IM
-participant "React Frontend" as FE
-participant "PO API\n/api/purchase-orders" as API
-participant "PurchaseOrder Model" as PO
-participant "Inventory Model" as Inv
-participant "Email Service" as Email
-
-SM -> FE: Navigate to Purchase Orders → Create New PO
-SM -> FE: Select supplier, add items, set delivery date
-FE -> API: POST /api/purchase-orders\n{supplierId, items, location, deliveryDate}
-API -> PO: Create PO {poNumber: PO-2024-00078, status: "Draft"}
-PO --> API: PO created
-API --> FE: {poId, status: "Draft"}
-FE --> SM: ✅ PO created in Draft
-
-SM -> FE: Review PO → Click "Send to Supplier"
-FE -> API: PUT /api/purchase-orders/:id/send
-API -> PO: Update status → "Sent"
-API -> Email: Email PO PDF to supplier
-Email --> SM: Supplier notified
-API --> FE: {status: "Sent"}
-FE --> SM: ✅ PO sent to supplier
-
-note over SM, IM: [Two weeks later — supplier delivers stock]
-
-IM -> FE: Navigate to Receive Stock → Select PO-2024-00078
-FE -> API: GET /api/purchase-orders/:id
-API --> FE: PO details (expected items)
-IM -> FE: Verify quantities → Click "Confirm Receipt"
-FE -> API: PUT /api/purchase-orders/:id/receive\n{actualQuantities}
-API -> PO: Update status → "Received"
-API -> Inv: Add received stock to Main Branch inventory
-Inv --> API: Stock updated ✓
-API -> Email: Notify Finance Manager (invoice due)
-API --> FE: {status: "Received", inventoryUpdated: true}
-FE --> IM: ✅ "Stock received and inventory updated."
-
-@enduml
-```
-
-**Commentary:** This diagram shows the full purchase order lifecycle from draft creation through supplier notification to stock receipt. When the inventory manager confirms receipt, stock is automatically added to the designated branch inventory, and the Finance Manager is notified to process the supplier invoice.
-
----
-
-### 7.5 UML Sequence Diagram — Use Case 5: Product Search & Filtering
+### 7.2 UML Sequence Diagram — Use Case 2: Product Search & Filtering
 
 ```plantuml
 @startuml
@@ -806,6 +667,145 @@ FE --> Customer: Display product detail page\n(images, price, stock status, revi
 
 ---
 
+### 7.3 UML Sequence Diagram — Use Case 3: Place Order with COD & Coupon
+
+```plantuml
+@startuml
+skinparam sequenceArrowThickness 1.5
+actor Customer
+participant "React Frontend" as FE
+participant "Checkout API\n/api/orders" as API
+participant "Coupon Model" as Coupon
+participant "Inventory Model" as Inv
+participant "Order Model" as Order
+participant "Email Service" as Email
+
+Customer -> FE: Click "Proceed to Checkout"
+FE -> FE: Display checkout form
+Customer -> FE: Select address, COD, enter coupon "EXAM2024"
+FE -> API: POST /api/coupons/validate\n{code: "EXAM2024", total: 2450}
+API -> Coupon: Find coupon by code
+Coupon --> API: Coupon found
+API -> Coupon: Validate (active, date, minPurchase, usage limit)
+Coupon --> API: Valid ✓
+API --> FE: {valid: true, discount: 245}
+FE --> Customer: Shows updated total: Rs. 2,505
+
+Customer -> FE: Click "Place Order"
+FE -> API: POST /api/orders\n{items, address, payment: COD, coupon, total}
+API -> Inv: Check stock availability per item
+Inv --> API: Stock sufficient ✓
+API -> Order: Create order document
+Order --> API: {orderId: #MP-2024-00123, status: "Pending"}
+API -> Inv: Deduct stock (atomic transaction)
+Inv --> API: Stock deducted ✓
+API -> Coupon: Increment usageCount, log usage
+API -> Email: Send confirmation email to customer
+API --> FE: 201 Created {orderId, message}
+FE --> Customer: ✅ "Order placed! #MP-2024-00123"
+
+@enduml
+```
+
+**Commentary:** This sequence shows the atomicity of order placement: stock deduction and order creation succeed or fail together. Coupon validation is a separate pre-check. The system prevents overselling by checking real-time inventory before confirming.
+
+---
+
+### 7.4 UML Sequence Diagram — Use Case 4: Create Purchase Order & Receive Stock
+
+```plantuml
+@startuml
+skinparam sequenceArrowThickness 1.5
+actor "Supplier Manager" as SM
+actor "Inventory Manager" as IM
+participant "React Frontend" as FE
+participant "PO API\n/api/purchase-orders" as API
+participant "PurchaseOrder Model" as PO
+participant "Inventory Model" as Inv
+participant "Email Service" as Email
+
+SM -> FE: Navigate to Purchase Orders → Create New PO
+SM -> FE: Select supplier, add items, set delivery date
+FE -> API: POST /api/purchase-orders\n{supplierId, items, location, deliveryDate}
+API -> PO: Create PO {poNumber: PO-2024-00078, status: "Draft"}
+PO --> API: PO created
+API --> FE: {poId, status: "Draft"}
+FE --> SM: ✅ PO created in Draft
+
+SM -> FE: Review PO → Click "Send to Supplier"
+FE -> API: PUT /api/purchase-orders/:id/send
+API -> PO: Update status → "Sent"
+API -> Email: Email PO PDF to supplier
+Email --> SM: Supplier notified
+API --> FE: {status: "Sent"}
+FE --> SM: ✅ PO sent to supplier
+
+note over SM, IM: [Two weeks later — supplier delivers stock]
+
+IM -> FE: Navigate to Receive Stock → Select PO-2024-00078
+FE -> API: GET /api/purchase-orders/:id
+API --> FE: PO details (expected items)
+IM -> FE: Verify quantities → Click "Confirm Receipt"
+FE -> API: PUT /api/purchase-orders/:id/receive\n{actualQuantities}
+API -> PO: Update status → "Received"
+API -> Inv: Add received stock to Main Branch inventory
+Inv --> API: Stock updated ✓
+API -> Email: Notify Finance Manager (invoice due)
+API --> FE: {status: "Received", inventoryUpdated: true}
+FE --> IM: ✅ "Stock received and inventory updated."
+
+@enduml
+```
+
+**Commentary:** This diagram shows the full purchase order lifecycle from draft creation through supplier notification to stock receipt. When the inventory manager confirms receipt, stock is automatically added to the designated branch inventory, and the Finance Manager is notified to process the supplier invoice.
+
+---
+
+### 7.5 UML Sequence Diagram — Use Case 5: Inter-Branch Stock Transfer
+
+```plantuml
+@startuml
+skinparam sequenceArrowThickness 1.5
+actor "Balangoda\nInventory Manager" as Mgr1
+actor "Main Branch\nInventory Manager" as Mgr2
+participant "React Frontend" as FE
+participant "Transfer API\n/api/stock-transfers" as API
+participant "Inventory Model" as Inv
+participant "Notification Service" as Notif
+
+Mgr1 -> FE: Navigate to Stock Levels
+FE -> API: GET /api/inventory/location/balangoda
+API --> FE: Stock list (Grade 11 Science: 3 units ⚠️)
+FE --> Mgr1: Low-stock alert shown
+
+Mgr1 -> FE: Click "Request Transfer"\n{product, qty:20, from: Main, to: Balangoda}
+FE -> API: POST /api/stock-transfers/request\n{productId, qty, fromLocation, reason}
+API -> Inv: Check fromLocation stock (Main: 65 units)
+Inv --> API: Sufficient stock ✓
+API -> API: Create TransferRequest\n{status: "Pending", transferId: #TR-2024-00045}
+API -> Notif: Notify Main Branch Manager
+API --> FE: {transferId, status: "Pending"}
+FE --> Mgr1: ✅ Transfer requested
+
+Mgr2 -> FE: Open transfer request #TR-2024-00045
+FE -> API: GET /api/stock-transfers/:id
+API --> FE: Transfer details
+Mgr2 -> FE: Click "Approve Transfer"
+FE -> API: PUT /api/stock-transfers/:id/approve
+API -> Inv: Deduct 20 from Main (65→45)
+API -> Inv: Add 20 to Balangoda (3→23)
+API -> API: Update transfer status → "Approved"
+API -> Notif: Notify Balangoda Manager
+API --> FE: {status: "Approved"}
+FE --> Mgr2: ✅ "Transfer approved. Stock updated."
+
+@enduml
+```
+
+**Commentary:** This diagram shows the request-approval workflow for inter-branch transfers. The stock modification happens only after approval, and both managers are notified. The system prevents negative stock at the source location.
+
+---
+
 ### 7.6 UML Sequence Diagram — Use Case 6: Create & Apply Discount Coupon
 
 ```plantuml
@@ -855,7 +855,95 @@ FE --> Customer: ✅ Order confirmed with discount applied
 
 ---
 
-### 7.7 UML State Diagram — Order Object
+### 7.7 UML State Diagram — User Account Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Active : Account created\n(register or createStaff)
+
+Active --> MustChangePassword : Staff account created\n(mustChangePassword = true)
+MustChangePassword --> Active : Staff changes password\n(PUT /api/auth/change-password)
+
+Active --> Deactivated : Admin deactivates account\n(PUT /api/auth/deactivate/:id)
+Deactivated --> Active : Admin reactivates account
+
+Active --> PasswordResetPending : User requests\npassword reset\n(POST /api/auth/forgot-password)
+PasswordResetPending --> Active : Reset token used\nsuccessfully within 1 hour\n(POST /api/auth/reset-password)
+PasswordResetPending --> Active : Token expires\n(no action — account stays active)
+
+Deactivated --> [*] : Account permanently\ndeleted (admin action)
+Active --> [*] : Account deleted
+
+note right of Deactivated
+  isActive = false
+  Login blocked even with
+  correct password
+end note
+
+note right of MustChangePassword
+  mustChangePassword = true
+  is set for all newly created
+  staff accounts (FR1.8)
+end note
+
+@enduml
+```
+
+**Commentary:** The `User` account object has multiple concurrent sub-states. A staff user enters the `MustChangePassword` sub-state immediately on creation, which must be resolved before full access is granted. Deactivation blocks login without deleting data, supporting account recovery. The `PasswordResetPending` state is transient — the token expires after 1 hour and the account automatically reverts to `Active` without any change.
+
+---
+
+### 7.8 UML State Diagram — Product Object
+
+```plantuml
+@startuml
+skinparam state {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+
+[*] --> Active : Product Manager creates product\n(POST /api/products)\nisActive = true
+
+Active --> Archived : Product Manager archives product\n(visibility toggle — isActive = false)\n(PUT /api/products/:id/archive)
+Archived --> Active : Product Manager restores product
+
+Active --> FeaturedActive : Product Manager\nenables featured flag\n(isFeatured = true)
+FeaturedActive --> Active : Featured flag removed
+
+Active --> FlashSaleActive : Product Manager\nenables flash sale\n(isFlashSale = true)
+FlashSaleActive --> Active : Flash sale ends
+
+Active --> [*] : Product permanently deleted\n(only if stock = 0 across all locations)
+Archived --> [*] : Product permanently deleted
+
+note right of Archived
+  Archived products:
+  - Hidden from storefront
+  - Still visible to managers
+  - Can be restored at any time
+  - Stock NOT affected by archive
+end note
+
+note right of FeaturedActive
+  Featured and FlashSale
+  flags are independent —
+  a product can be both
+  simultaneously
+end note
+
+@enduml
+```
+
+**Commentary:** The `Product` state machine separates visibility from deletion. `Archived` is a soft-delete — the product is hidden from the storefront but retained in the database with its inventory intact (per the codebase refactoring from a previous session). Permanent deletion is restricted to products with zero stock across all locations. The `FeaturedActive` and `FlashSaleActive` are orthogonal sub-states that can be combined independently.
+
+---
+
+### 7.9 UML State Diagram — Order Object
 
 The following state diagram shows all possible states of an `Order` object throughout its lifecycle.
 
@@ -903,7 +991,7 @@ end note
 
 ---
 
-### 7.8 UML State Diagram — PurchaseOrder Object
+### 7.10 UML State Diagram — PurchaseOrder Object
 
 ```plantuml
 @startuml
@@ -944,7 +1032,7 @@ end note
 
 ---
 
-### 7.9 UML State Diagram — StockTransfer Object
+### 7.11 UML State Diagram — StockTransfer Object
 
 ```plantuml
 @startuml
@@ -982,50 +1070,7 @@ end note
 
 ---
 
-### 7.10 UML State Diagram — User Account Object
-
-```plantuml
-@startuml
-skinparam state {
-  BackgroundColor #f0f8ff
-  BorderColor #336699
-}
-
-[*] --> Active : Account created\n(register or createStaff)
-
-Active --> MustChangePassword : Staff account created\n(mustChangePassword = true)
-MustChangePassword --> Active : Staff changes password\n(PUT /api/auth/change-password)
-
-Active --> Deactivated : Admin deactivates account\n(PUT /api/auth/deactivate/:id)
-Deactivated --> Active : Admin reactivates account
-
-Active --> PasswordResetPending : User requests\npassword reset\n(POST /api/auth/forgot-password)
-PasswordResetPending --> Active : Reset token used\nsuccessfully within 1 hour\n(POST /api/auth/reset-password)
-PasswordResetPending --> Active : Token expires\n(no action — account stays active)
-
-Deactivated --> [*] : Account permanently\ndeleted (admin action)
-Active --> [*] : Account deleted
-
-note right of Deactivated
-  isActive = false
-  Login blocked even with
-  correct password
-end note
-
-note right of MustChangePassword
-  mustChangePassword = true
-  is set for all newly created
-  staff accounts (FR1.8)
-end note
-
-@enduml
-```
-
-**Commentary:** The `User` account object has multiple concurrent sub-states. A staff user enters the `MustChangePassword` sub-state immediately on creation, which must be resolved before full access is granted. Deactivation blocks login without deleting data, supporting account recovery. The `PasswordResetPending` state is transient — the token expires after 1 hour and the account automatically reverts to `Active` without any change.
-
----
-
-### 7.11 UML State Diagram — Coupon Object
+### 7.12 UML State Diagram — Coupon Object
 
 ```plantuml
 @startuml
@@ -1057,51 +1102,6 @@ end note
 ```
 
 **Commentary:** The `Coupon` object enters three possible terminal-like states depending on how it becomes invalid: exhaustion (usage limit reached), expiry (date passed), or manual deactivation by the Marketing Manager. Only `Deactivated` is recoverable — the Marketing Manager can reactivate a coupon. `Exhausted` and `Expired` states are permanent. All five checkout validation checks must pass for a coupon in `Active` state to be applied (FR6.6).
-
----
-
-### 7.12 UML State Diagram — Product Object
-
-```plantuml
-@startuml
-skinparam state {
-  BackgroundColor #f0f8ff
-  BorderColor #336699
-}
-
-[*] --> Active : Product Manager creates product\n(POST /api/products)\nisActive = true
-
-Active --> Archived : Product Manager archives product\n(visibility toggle — isActive = false)\n(PUT /api/products/:id/archive)
-Archived --> Active : Product Manager restores product
-
-Active --> FeaturedActive : Product Manager\nenables featured flag\n(isFeatured = true)
-FeaturedActive --> Active : Featured flag removed
-
-Active --> FlashSaleActive : Product Manager\nenables flash sale\n(isFlashSale = true)
-FlashSaleActive --> Active : Flash sale ends
-
-Active --> [*] : Product permanently deleted\n(only if stock = 0 across all locations)
-Archived --> [*] : Product permanently deleted
-
-note right of Archived
-  Archived products:
-  - Hidden from storefront
-  - Still visible to managers
-  - Can be restored at any time
-  - Stock NOT affected by archive
-end note
-
-note right of FeaturedActive
-  Featured and FlashSale
-  flags are independent —
-  a product can be both
-  simultaneously
-end note
-
-@enduml
-```
-
-**Commentary:** The `Product` state machine separates visibility from deletion. `Archived` is a soft-delete — the product is hidden from the storefront but retained in the database with its inventory intact (per the codebase refactoring from a previous session). Permanent deletion is restricted to products with zero stock across all locations. The `FeaturedActive` and `FlashSaleActive` are orthogonal sub-states that can be combined independently.
 
 ---
 
@@ -1192,341 +1192,7 @@ stop
 
 ---
 
-### 8.2 UML Activity Diagram — Use Case 2: Place Order (FR3.1–FR3.12)
-
-```plantuml
-@startuml
-skinparam activity {
-  BackgroundColor #f0f8ff
-  BorderColor #336699
-}
-skinparam partition {
-  BorderColor #336699
-  FontStyle bold
-}
-
-|Customer|
-start
-:View shopping cart;
-:Click "Proceed to Checkout";
-
-|React Frontend|
-fork
-  :Load saved delivery addresses\n(GET /api/users/addresses);
-fork again
-  :Calculate cart subtotal;
-end fork
-:Display checkout form;
-
-|Customer|
-:Select delivery address;
-:Select payment method\n(COD or Bank Transfer);
-if (Apply coupon code?) then (yes)
-  :Enter coupon code;
-  |React Frontend|
-  :POST /api/coupons/validate\n{code, cartTotal};
-
-  |Express API|
-  :Run 5-step coupon validation\n(exists → active → dates →\nminPurchase → usageLimit);
-  if (Coupon valid?) then (yes)
-    :Return discounted total;
-    |React Frontend|
-    :Display updated total with discount;
-  else (no)
-    :Return error message;
-    |React Frontend|
-    :Show coupon error to customer;
-  endif
-else (no)
-endif
-
-|Customer|
-:Review order summary;
-:Click "Place Order";
-
-|React Frontend|
-:POST /api/orders\n{items, address, paymentMethod, couponCode};
-
-|Express API|
-:Validate stock availability\nfor all ordered items;
-
-|MongoDB|
-:Check inventory.available\nfor each product at branch;
-if (All items in stock?) then (no)
-  |Express API|
-  :Return 400: "Item no longer in stock";
-  |Customer|
-  :View error message;
-  stop
-else (yes)
-endif
-
-|Express API|
-:Create Order record\n{status: Pending, paymentStatus: Pending};
-:Atomically deduct stock\nfrom fulfillment location;
-if (Coupon used?) then (yes)
-  :Increment coupon usageCount;
-  :Log coupon usage history;
-else (no)
-endif
-
-|MongoDB|
-:Save Order, update Inventory;
-
-|Express API|
-if (Payment = Bank Transfer?) then (yes)
-  :Return 201 with upload prompt;
-  |Customer|
-  :Upload bank transfer slip image;
-  |Express API|
-  :Save slip path {paymentStatus: Pending};
-else (COD)
-  :Return 201 Created\n{orderId, status: Pending};
-endif
-
-|React Frontend|
-:Display Order confirmation page\n(Order ID, items, total, ETA);
-
-|Customer|
-:Receive order confirmation;
-stop
-
-@enduml
-```
-
-**Commentary:** This swimlane diagram separates the four active participants in order placement. The Customer drives the interaction. The React Frontend handles UI state, parallel data loads (addresses + subtotal), and form submission. The Express API runs all business rules (stock check, coupon validation, atomic stock deduction). MongoDB stores the final Order and updates Inventory. The bank transfer upload is an asynchronous branch specific to that payment method.
-
----
-
-### 8.3 UML Activity Diagram — Use Case 3: Process Stock Transfer (FR5.4–FR5.5)
-
-```plantuml
-@startuml
-skinparam activity {
-  BackgroundColor #f0f8ff
-  BorderColor #336699
-}
-skinparam partition {
-  BorderColor #336699
-  FontStyle bold
-}
-
-|Requesting Manager|
-start
-:View low-stock alert on dashboard;
-:Navigate to Stock Transfers → Request Transfer;
-:Fill request form:\n(product, quantity, source location,\ndestination location, reason);
-
-|React Frontend|
-:Validate form (required fields, quantity > 0);
-if (Form valid?) then (no)
-  :Display validation errors;
-  |Requesting Manager|
-  :Correct and resubmit;
-  stop
-else (yes)
-  :POST /api/stock-transfers/request\n[Authorization: Bearer <jwt>];
-endif
-
-|Express API|
-:Verify JWT and RBAC role\n(location_inventory_manager or\nmaster_inventory_manager);
-
-|MongoDB|
-:Query source branch inventory\nfor requested product;
-if (Sufficient stock at source?) then (no)
-  |Express API|
-  :Return 400: "Insufficient stock at source";
-  |Requesting Manager|
-  :View error — cannot request transfer;
-  stop
-else (yes)
-endif
-
-|Express API|
-:Create StockTransfer document\n{status: "Pending", requestedBy, product,\nquantity, fromLocation, toLocation, reason};
-
-|MongoDB|
-:Save StockTransfer — status: Pending;
-
-|Express API|
-:Return 201 Created {transferId, status: Pending};
-
-|React Frontend|
-:Show "Transfer request submitted" to Requesting Manager;
-
-|Approving Manager|
-:Receive notification of pending request;
-:Review transfer details\n(product, quantity, reason, source);
-if (Approve request?) then (yes)
-  :Click "Approve";
-  |React Frontend|
-  :PUT /api/stock-transfers/:id/approve;
-
-  |Express API|
-  :Begin atomic transaction;
-
-  |MongoDB|
-  fork
-    :Decrement source branch inventory\nby requested quantity;
-  fork again
-    :Increment destination branch inventory\nby requested quantity;
-  end fork
-  :Update StockTransfer status → "Approved";
-  :Log stock movement with timestamp and userId;
-
-  |Express API|
-  :Return 200 OK {status: Approved};
-
-  |React Frontend|
-  :Notify Requesting Manager: "Transfer Approved";
-
-  |Requesting Manager|
-  :View updated stock levels at destination;
-  stop
-else (no — Reject)
-  :Enter rejection reason;
-  :Click "Reject";
-  |React Frontend|
-  :PUT /api/stock-transfers/:id/reject\n{reason};
-
-  |Express API|
-  :Update StockTransfer status → "Rejected";
-  :Store rejection reason;
-
-  |MongoDB|
-  :Save updated StockTransfer;
-
-  |Requesting Manager|
-  :Receive rejection notification with reason;
-  stop
-endif
-
-@enduml
-```
-
-**Commentary:** The stock transfer swimlane diagram clearly separates the two inventory manager roles — the Requesting Manager initiates the process while the Approving Manager has decision authority. The atomic fork in MongoDB ensures that stock is simultaneously decremented at the source and incremented at the destination, preventing any data inconsistency. All movements are logged with user and timestamp for audit purposes (NFR2.5).
-
----
-
-### 8.4 UML Activity Diagram — Use Case 4: Create & Apply Coupon (FR6.1, FR6.6)
-
-```plantuml
-@startuml
-skinparam activity {
-  BackgroundColor #f0f8ff
-  BorderColor #336699
-}
-skinparam partition {
-  BorderColor #336699
-  FontStyle bold
-}
-
-|Marketing Manager|
-start
-:Navigate to Promotions → Create Coupon;
-:Fill coupon form:\n(code, discountType, value, minPurchase,\nvalidFrom, validUntil, maxUsage, perUserLimit);
-
-|React Frontend|
-:Validate required fields;
-if (Form valid?) then (no)
-  :Display field errors;
-  |Marketing Manager|
-  :Correct and resubmit;
-  stop
-else (yes)
-  :POST /api/coupons\n[Authorization: Bearer <manager_jwt>];
-endif
-
-|Express API|
-:Verify JWT + RBAC (marketing_manager);
-
-|MongoDB|
-:findOne({ code }) — check uniqueness;
-if (Code already exists?) then (yes)
-  |Express API|
-  :Return 409: "Coupon code must be unique";
-  |Marketing Manager|
-  :Enter different code;
-  stop
-else (no)
-endif
-
-|Express API|
-:Coupon.create({\n  code, discountType, discountValue,\n  minPurchaseAmount, maxDiscount,\n  validFrom, validUntil,\n  maxUsageCount, perUserLimit,\n  isActive: true\n});
-
-|MongoDB|
-:Save Coupon document;
-
-|React Frontend|
-:Display "Coupon EXAM2024 created successfully!";
-
-|Marketing Manager|
-:Coupon visible in Promotions table;
-
-note
-  === Customer Redeems Coupon at Checkout ===
-end note
-
-|Customer|
-:Navigate to Checkout;
-:Enter coupon code;
-
-|React Frontend|
-:POST /api/coupons/validate\n{code, cartTotal, userId};
-
-|Express API|
-:Gate 1 — Code exists?;
-if (Code exists?) then (no)
-  :Return: "Invalid coupon code";
-  |Customer|
-  :View error, try again or skip;
-  stop
-else (yes)
-endif
-:Gate 2 — isActive = true?;
-if (Coupon active?) then (no)
-  :Return: "Coupon is inactive";
-  stop
-else (yes)
-endif
-:Gate 3 — validFrom ≤ today ≤ validUntil?;
-if (Within validity dates?) then (no)
-  :Return: "Coupon has expired";
-  stop
-else (yes)
-endif
-:Gate 4 — cartTotal ≥ minPurchaseAmount?;
-if (Min purchase met?) then (no)
-  :Return: "Minimum purchase amount not met";
-  stop
-else (yes)
-endif
-:Gate 5 — usageCount < maxUsage\n& perUser usage < perUserLimit?;
-if (Usage limits OK?) then (no)
-  :Return: "Coupon not available for you";
-  stop
-else (yes)
-endif
-:Calculate discountAmount\n(min of discountValue and maxDiscount);
-:Return { valid: true, discountAmount, newTotal };
-
-|React Frontend|
-:Display discounted total to customer;
-
-|Customer|
-:Confirm and place order;
-(order is processed — see UC2)
-
-stop
-
-@enduml
-```
-
-**Commentary:** The swimlane diagram separates the Marketing Manager's creation flow from the Customer's redemption flow. Five sequential validation gates (FR6.6) are explicitly modelled in the Express API lane, showing that all five must pass before a discount is applied. The coupon creation and redemption are distinct sub-flows within the same diagram, keeping the full lifecycle visible.
-
----
-
-### 8.5 UML Activity Diagram — Use Case 5: Product Search & Filtering (FR2.4–FR2.7)
+### 8.2 UML Activity Diagram — Use Case 2: Product Search & Filtering (FR2.4–FR2.7)
 
 ```plantuml
 @startuml
@@ -1645,6 +1311,320 @@ endif
 ```
 
 **Commentary:** The product search swimlane separates the customer's browsing intent from the frontend's query construction and the API/database's execution. Optional filters (Grade, Subject, Price, Sort) are shown as independent decision branches in the React Frontend lane — each adds a query parameter. The parallel fork when opening a product page reflects the simultaneous fetch of product details and reviews for performance (FR2.6).
+
+---
+
+### 8.3 UML Activity Diagram — Use Case 3: Place Order (FR3.1–FR3.12)
+
+```plantuml
+@startuml
+skinparam activity {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
+
+|Customer|
+start
+:View shopping cart;
+:Click "Proceed to Checkout";
+
+|React Frontend|
+fork
+  :Load saved delivery addresses\n(GET /api/users/addresses);
+fork again
+  :Calculate cart subtotal;
+end fork
+:Display checkout form;
+
+|Customer|
+:Select delivery address;
+:Select payment method\n(COD or Bank Transfer);
+if (Apply coupon code?) then (yes)
+  :Enter coupon code;
+  |React Frontend|
+  :POST /api/coupons/validate\n{code, cartTotal};
+
+  |Express API|
+  :Run 5-step coupon validation\n(exists → active → dates →\nminPurchase → usageLimit);
+  if (Coupon valid?) then (yes)
+    :Return discounted total;
+    |React Frontend|
+    :Display updated total with discount;
+  else (no)
+    :Return error message;
+    |React Frontend|
+    :Show coupon error to customer;
+  endif
+else (no)
+endif
+
+|Customer|
+:Review order summary;
+:Click "Place Order";
+
+|React Frontend|
+:POST /api/orders\n{items, address, paymentMethod, couponCode};
+
+|Express API|
+:Validate stock availability\nfor all ordered items;
+
+|MongoDB|
+:Check inventory.available\nfor each product at branch;
+if (All items in stock?) then (no)
+  |Express API|
+  :Return 400: "Item no longer in stock";
+  |Customer|
+  :View error message;
+  stop
+else (yes)
+endif
+
+|Express API|
+:Create Order record\n{status: Pending, paymentStatus: Pending};
+:Atomically deduct stock\nfrom fulfillment location;
+if (Coupon used?) then (yes)
+  :Increment coupon usageCount;
+  :Log coupon usage history;
+else (no)
+endif
+
+|MongoDB|
+:Save Order, update Inventory;
+
+|Express API|
+if (Payment = Bank Transfer?) then (yes)
+  :Return 201 with upload prompt;
+  |Customer|
+  :Upload bank transfer slip image;
+  |Express API|
+  :Save slip path {paymentStatus: Pending};
+else (COD)
+  :Return 201 Created\n{orderId, status: Pending};
+endif
+
+|React Frontend|
+:Display Order confirmation page\n(Order ID, items, total, ETA);
+
+|Customer|
+:Receive order confirmation;
+stop
+
+@enduml
+```
+
+**Commentary:** This swimlane diagram separates the four active participants in order placement. The Customer drives the interaction. The React Frontend handles UI state, parallel data loads (addresses + subtotal), and form submission. The Express API runs all business rules (stock check, coupon validation, atomic stock deduction). MongoDB stores the final Order and updates Inventory. The bank transfer upload is an asynchronous branch specific to that payment method.
+
+---
+
+### 8.4 UML Activity Diagram — Use Case 4: Purchase Order Lifecycle (FR4.1–FR4.5)
+
+```plantuml
+@startuml
+skinparam activity {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
+
+|Supplier Manager|
+start
+:Navigate to Purchase Orders → Create PO;
+:Select Supplier and add requested products;
+:Set expected delivery date and branch location;
+
+|React Frontend|
+:Validate form (required fields, qty > 0);
+if (Form valid?) then (no)
+  :Display errors;
+  stop
+else (yes)
+  :POST /api/purchase-orders;
+endif
+
+|Express API|
+:Verify JWT and RBAC (supplier_manager);
+:Generate unique PO number (e.g. PO-2024-00078);
+:Create PO document {status: "Draft", ...};
+
+|MongoDB|
+:Save new PurchaseOrder document;
+
+|React Frontend|
+:Show "PO created successfully in Draft";
+
+|Supplier Manager|
+:Review PO details;
+if (Send to Supplier?) then (yes)
+  |React Frontend|
+  :PUT /api/purchase-orders/:id/send;
+
+  |Express API|
+  :Update status → "Sent";
+
+  |MongoDB|
+  :Save updated PO;
+
+  |Express API|
+  :Generate PO PDF;
+  :Send email to Supplier;
+
+  |React Frontend|
+  :Show "PO Sent";
+else (no)
+  stop
+endif
+
+|Inventory Manager|
+:Receive physical stock delivery;
+:Navigate to PO Receiving;
+:Enter actual received quantities;
+:Click "Confirm Receipt";
+
+|React Frontend|
+:PUT /api/purchase-orders/:id/receive\n{actualQuantities};
+
+|Express API|
+:Begin atomic transaction;
+
+|MongoDB|
+fork
+  :Update PO status → "Received";
+fork again
+  :Increment Inventory quantities\nat destination branch;
+end fork
+
+|Express API|
+:Log stock receipt;
+:Notify Finance Manager of pending invoice payment;
+
+|React Frontend|
+:Show "Stock Received & Inventory Updated";
+
+|Inventory Manager|
+:View updated stock levels;
+stop
+
+@enduml
+```
+
+**Commentary:** This swimlane activity diagram models the lifecycle of a Purchase Order across three distinct user roles (Supplier Manager, Supplier via Email, and Inventory Manager). The workflow starts with draft creation and sending (Epic 4), and concludes with the Inventory Manager physically receiving the stock (Epic 5), which triggers an atomic MongoDB operation to simultaneously update the PO status and increment the real-time stock levels at the designated branch.
+
+---
+
+### 8.5 UML Activity Diagram — Use Case 5: Process Stock Transfer (FR5.4–FR5.5)
+
+```plantuml
+@startuml
+skinparam activity {
+  BackgroundColor #f0f8ff
+  BorderColor #336699
+}
+skinparam partition {
+  BorderColor #336699
+  FontStyle bold
+}
+
+|Requesting Manager|
+start
+:View low-stock alert on dashboard;
+:Navigate to Stock Transfers → Request Transfer;
+:Fill request form:\n(product, quantity, source location,\ndestination location, reason);
+
+|React Frontend|
+:Validate form (required fields, quantity > 0);
+if (Form valid?) then (no)
+  :Display validation errors;
+  |Requesting Manager|
+  :Correct and resubmit;
+  stop
+else (yes)
+  :POST /api/stock-transfers/request\n[Authorization: Bearer <jwt>];
+endif
+
+|Express API|
+:Verify JWT and RBAC role\n(location_inventory_manager or\nmaster_inventory_manager);
+
+|MongoDB|
+:Query source branch inventory\nfor requested product;
+if (Sufficient stock at source?) then (no)
+  |Express API|
+  :Return 400: "Insufficient stock at source";
+  |Requesting Manager|
+  :View error — cannot request transfer;
+  stop
+else (yes)
+endif
+
+|Express API|
+:Create StockTransfer document\n{status: "Pending", requestedBy, product,\nquantity, fromLocation, toLocation, reason};
+
+|MongoDB|
+:Save StockTransfer — status: Pending;
+
+|Express API|
+:Return 201 Created {transferId, status: Pending};
+
+|React Frontend|
+:Show "Transfer request submitted" to Requesting Manager;
+
+|Approving Manager|
+:Receive notification of pending request;
+:Review transfer details\n(product, quantity, reason, source);
+if (Approve request?) then (yes)
+  :Click "Approve";
+  |React Frontend|
+  :PUT /api/stock-transfers/:id/approve;
+
+  |Express API|
+  :Begin atomic transaction;
+
+  |MongoDB|
+  fork
+    :Decrement source branch inventory\nby requested quantity;
+  fork again
+    :Increment destination branch inventory\nby requested quantity;
+  end fork
+  :Update StockTransfer status → "Approved";
+  :Log stock movement with timestamp and userId;
+
+  |Express API|
+  :Return 200 OK {status: Approved};
+
+  |React Frontend|
+  :Notify Requesting Manager: "Transfer Approved";
+
+  |Requesting Manager|
+  :View updated stock levels at destination;
+  stop
+else (no — Reject)
+  :Enter rejection reason;
+  :Click "Reject";
+  |React Frontend|
+  :PUT /api/stock-transfers/:id/reject\n{reason};
+
+  |Express API|
+  :Update StockTransfer status → "Rejected";
+  :Store rejection reason;
+
+  |MongoDB|
+  :Save updated StockTransfer;
+
+  |Requesting Manager|
+  :Receive rejection notification with reason;
+  stop
+endif
+
+@enduml
+```
+
+**Commentary:** The stock transfer swimlane diagram clearly separates the two inventory manager roles — the Requesting Manager initiates the process while the Approving Manager has decision authority. The atomic fork in MongoDB ensures that stock is simultaneously decremented at the source and incremented at the destination, preventing any data inconsistency. All movements are logged with user and timestamp for audit purposes (NFR2.5).
 
 ---
 
@@ -1774,43 +1754,9 @@ stop
 
 ## 9. BPMN Process Models
 
-### 9.1 BPMN — Customer Order Placement Process
+### 9.1 BPMN — Admin Creates a Staff Account Process (FR1.4)
 
-```
-Pool: Methsara Publications Webstore Order Process
-Lanes: Customer | System | Admin/Finance
-
-[Customer]
-  (Start Event) → [Browse & Add to Cart] → [Proceed to Checkout] → [Enter Delivery & Payment] →
-  <Coupon Applied? Gateway>
-    Yes → [Enter Coupon Code] → [Coupon Valid? Gateway]
-            Valid → [Discount Applied to Total]
-            Invalid → [Error Shown] → [Re-enter / Skip]
-    No → ↓
-  → [Review Order Summary] → [Confirm Order] → [Intermediate Event: Wait for Delivery]
-  → [Receive Delivery] → (End Event: Order Complete)
-
-[System]
-  → (Receive Order Request) → [Check Stock Availability] →
-  <Stock OK? Gateway>
-    No → [Send Stock Error to Customer]
-    Yes → [Create Order Record] → [Deduct Stock] → [Send Confirmation Email] → [Update Order Status]
-  → (Order Status Events: Pending → Processing → Shipped → Delivered)
-
-[Admin/Finance]
-  → [Review Order] → [Update Status to Processing] → [Arrange Dispatch] →
-  [Update Status to Shipped] → [Confirm Delivery]
-  <Bank Transfer? Gateway>
-    Yes → [Verify Bank Slip] → [Update Payment Status → Paid]
-    COD → [Collect Payment on Delivery] → [Update Payment Status → Paid]
-```
-
-> **Note for PDF submission:** Please render these BPMN descriptions using draw.io or Camunda Modeler. The textual notation above maps directly to BPMN 2.0 elements (pools, lanes, gateways, tasks, events).
-
-### 9.2 BPMN — Customer Registration & Email Verification Process
-### 9.2 BPMN — Admin Creates a Staff Account Process (FR1.4)
-
-```
+```text
 Pool: Staff Account Creation Process
 Lanes: System Administrator | API Gateway (Auth Middleware) | System (Backend)
 
@@ -1873,9 +1819,9 @@ note: Staff member receives login credentials separately (out-of-band).
       On first login, mustChangePassword = true forces immediate password change (FR1.8).
 ```
 
-### 9.3 BPMN — Product Search & Filtering Process
+### 9.2 BPMN — Product Search & Filtering Process
 
-```
+```text
 Pool: Product Search & Discovery Process
 Lanes: Customer | System (Frontend) | System (Backend API)
 
@@ -1910,9 +1856,42 @@ Lanes: Customer | System (Frontend) | System (Backend API)
   On product detail request: → [Fetch Product + Reviews in Parallel] → [Return Combined Data] → (End)
 ```
 
+### 9.3 BPMN — Customer Order Placement Process
+
+```text
+Pool: Methsara Publications Webstore Order Process
+Lanes: Customer | System | Admin/Finance
+
+[Customer]
+  (Start Event) → [Browse & Add to Cart] → [Proceed to Checkout] → [Enter Delivery & Payment] →
+  <Coupon Applied? Gateway>
+    Yes → [Enter Coupon Code] → [Coupon Valid? Gateway]
+            Valid → [Discount Applied to Total]
+            Invalid → [Error Shown] → [Re-enter / Skip]
+    No → ↓
+  → [Review Order Summary] → [Confirm Order] → [Intermediate Event: Wait for Delivery]
+  → [Receive Delivery] → (End Event: Order Complete)
+
+[System]
+  → (Receive Order Request) → [Check Stock Availability] →
+  <Stock OK? Gateway>
+    No → [Send Stock Error to Customer]
+    Yes → [Create Order Record] → [Deduct Stock] → [Send Confirmation Email] → [Update Order Status]
+  → (Order Status Events: Pending → Processing → Shipped → Delivered)
+
+[Admin/Finance]
+  → [Review Order] → [Update Status to Processing] → [Arrange Dispatch] →
+  [Update Status to Shipped] → [Confirm Delivery]
+  <Bank Transfer? Gateway>
+    Yes → [Verify Bank Slip] → [Update Payment Status → Paid]
+    COD → [Collect Payment on Delivery] → [Update Payment Status → Paid]
+```
+
+> **Note for PDF submission:** Please render these BPMN descriptions using draw.io or Camunda Modeler. The textual notation above maps directly to BPMN 2.0 elements (pools, lanes, gateways, tasks, events).
+
 ### 9.4 BPMN — Purchase Order Process
 
-```
+```text
 Pool: Procurement Process
 Lanes: Supplier Manager | Supplier (External) | Inventory Manager | Finance Manager
 
@@ -1941,7 +1920,7 @@ Lanes: Supplier Manager | Supplier (External) | Inventory Manager | Finance Mana
 
 ### 9.5 BPMN — Stock Transfer Process
 
-```
+```text
 Pool: Inter-Branch Stock Transfer
 Lanes: Requesting Inventory Manager | System | Approving Inventory Manager
 
@@ -1974,7 +1953,7 @@ Lanes: Requesting Inventory Manager | System | Approving Inventory Manager
 
 ### 9.6 BPMN — Coupon Creation & Redemption Process
 
-```
+```text
 Pool: Coupon Lifecycle
 Lanes: Marketing Manager | Customer | System
 
@@ -2006,7 +1985,65 @@ Lanes: Marketing Manager | Customer | System
 
 ## 10. Decision Models
 
-### 10.1 Decision Table — Coupon Validation
+### 10.1 Decision Tables
+
+#### 10.1.1 Decision Table — Staff Role Assignment (Epic 1: User Management)
+
+| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
+|-----------|--------|--------|--------|--------|
+| Requester has `admin` role JWT? | Yes | Yes | Yes | No |
+| Target email already registered? | No | Yes | No | — |
+| All required form fields valid? | Yes | Yes | No | — |
+| **Action: Create Staff Account** | **✓** | ✗ | ✗ | ✗ |
+| **Action: Return "Email already exists" error** | | ✓ | | |
+| **Action: Return "Validation failed" error** | | | ✓ | |
+| **Action: Return "403 Forbidden" error** | | | | ✓ |
+
+#### 10.1.2 Decision Table — Product Visibility (Epic 2: Product Catalogue)
+
+| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
+|-----------|--------|--------|--------|--------|
+| Product is active (`isActive: true`)? | Yes | Yes | No | No |
+| Product is archived (`isArchived: true`)? | No | Yes | No | Yes |
+| **Action: Display to Customers (Storefront)**| **✓** | ✗ | ✗ | ✗ |
+| **Action: Hide from Customers** | | ✓ | ✓ | ✓ |
+| **Action: Display to Admin/Product Manager**| ✓ | ✓ | ✓ | ✓ |
+
+#### 10.1.3 Decision Table — Inventory Stock Deduction on Order (Epic 3: Order Management)
+
+| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
+|-----------|--------|--------|--------|--------|
+| Customer is logged in? | Yes | Yes | No (Guest) | No (Guest) |
+| All ordered items in stock at fulfillment branch? | Yes | No | Yes | No |
+| **Action: Create order & deduct stock** | **✓** | ✗ | **✓** | ✗ |
+| **Action: Return "Out of Stock" error** | | ✓ | | ✓ |
+| **Action: Save cart for registered user** | ✓ | | ✗ | |
+
+#### 10.1.4 Decision Table — Purchase Order Approval (Epic 4: Supplier Management)
+
+| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
+|-----------|--------|--------|--------|--------|
+| Target supplier is active in system? | Yes | Yes | Yes | No |
+| Requested products belong to supplier? | Yes | Yes | No | — |
+| Requester has `supplier_manager` role? | Yes | No | Yes | — |
+| **Action: Create PO & Send to Supplier**| **✓** | ✗ | ✗ | ✗ |
+| **Action: Return "Unauthorised" error**| | ✓ | | |
+| **Action: Return "Invalid product" error**| | | ✓ | |
+| **Action: Return "Supplier inactive" error**| | | | ✓ |
+
+#### 10.1.5 Decision Table — Stock Transfer Execution (Epic 5: Inventory Management)
+
+| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
+|-----------|--------|--------|--------|--------|
+| Requested transfer quantity > 0? | Yes | Yes | Yes | No |
+| Source branch has sufficient available stock?| Yes | Yes | No | — |
+| Approving Manager Action | Approve | Reject | — | — |
+| **Action: Execute atomic stock transfer** | **✓** | ✗ | ✗ | ✗ |
+| **Action: Update transfer status to Rejected**| | ✓ | | |
+| **Action: Return "Insufficient Stock" error**| | | ✓ | |
+| **Action: Return "Invalid quantity" error**| | | | ✓ |
+
+#### 10.1.6 Decision Table — Coupon Validation (Epic 6: Promotion Management)
 
 | Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 | Rule 5 | Rule 6 |
 |-----------|--------|--------|--------|--------|--------|--------|
@@ -2014,69 +2051,78 @@ Lanes: Marketing Manager | Customer | System
 | Coupon is active? | — | No | Yes | Yes | Yes | Yes |
 | Current date within validity period? | — | — | No | Yes | Yes | Yes |
 | Cart total meets minimum purchase? | — | — | — | No | Yes | Yes |
-| Usage limit not exceeded & user has not used it? | — | — | — | — | No | Yes |
+| Usage limits not exceeded? | — | — | — | — | No | Yes |
 | **Action: Apply Discount** | ✗ | ✗ | ✗ | ✗ | ✗ | **✓** |
 | **Action: Show "Invalid code" error** | ✓ | | | | | |
 | **Action: Show "Coupon inactive" error** | | ✓ | | | | |
 | **Action: Show "Coupon expired" error** | | | ✓ | | | |
-| **Action: Show "Minimum purchase not met" error** | | | | ✓ | | |
-| **Action: Show "Coupon not available" error** | | | | | ✓ | |
-
-**Assumptions:** A dash (—) means the condition is not evaluated. Each rule processes sequentially left to right.
+| **Action: Show "Min purchase not met" error** | | | | ✓ | | |
+| **Action: Show "Coupon unavailable" error** | | | | | ✓ | |
 
 ---
 
-### 10.2 Decision Table — Inventory Stock Deduction on Order
+### 10.2 Decision Trees
 
-| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
-|-----------|--------|--------|--------|--------|
-| Customer is logged in? | Yes | Yes | No (Guest) | No (Guest) |
-| All ordered items in stock at preferred location? | Yes | No | Yes | No |
-| **Action: Create order & deduct stock** | **✓** | ✗ | **✓** | ✗ |
-| **Action: Try alternate location stock** | | ✓ (retry) | | ✓ (retry) |
-| **Action: Return "Out of Stock" error if all locations fail** | | ✓ | | ✓ |
-| **Action: Save cart for registered user** | ✓ | | ✗ | |
-| **Action: Send confirmation email** | ✓ | | ✓ | |
+#### 10.2.1 Decision Tree — User Login Authentication (Epic 1)
 
-**Assumptions:** Guest orders cannot save carts. The system attempts fulfillment from the preferred location first before checking others.
-
----
-
-### 10.3 Decision Tree — Coupon Validation
-
+```text
+                     [User attempts login]
+                              │
+                    [Does email exist?]
+                     /               \
+                    NO               YES
+                    │                 │
+            ❌ "Invalid           [Is password correct?]
+            Credentials"           /                  \
+                                  NO                  YES
+                                  │                    │
+                          ❌ "Invalid             [Is account active?]
+                          Credentials"             /                \
+                                                  NO                YES
+                                                  │                  │
+                                          ❌ "Account          [Is mustChangePassword?]
+                                           Deactivated"          /                  \
+                                                               YES                  NO
+                                                                │                   │
+                                                        ⚠️ Prompt for        ✅ Issue JWT &
+                                                        Password Change      Login Success
 ```
-                     [Coupon Code Entered]
+
+#### 10.2.2 Decision Tree — Product Search Filter Application (Epic 2)
+
+```text
+                      [Product Filter Applied]
+                                 │
+                        [Grade filter given?]
+                        /                  \
+                       YES                  NO
+                        │                   │
+                [Filter by Grade]     [Skip Grade]
+                        │                   │
+                        └───┬───────────────┘
                             │
-                   [Does code exist?]
-                   /                \
-                 NO                 YES
-                 │                   │
-         ❌ "Invalid Code"   [Is coupon active?]
-                              /            \
-                            NO              YES
-                            │               │
-                   ❌ "Coupon          [Within validity dates?]
-                    Inactive"          /              \
-                                     NO               YES
-                                     │                 │
-                             ❌ "Coupon        [Min purchase met?]
-                              Expired"         /             \
-                                             NO               YES
-                                             │                 │
-                                    ❌ "Min          [Usage limit ok &
-                                    Purchase          not used before?]
-                                    Not Met"          /           \
-                                                    NO             YES
-                                                    │               │
-                                           ❌ "Not         ✅ APPLY
-                                           Available"      DISCOUNT
+                      [Subject filter given?]
+                        /                  \
+                       YES                  NO
+                        │                   │
+               [Filter by Subject]   [Skip Subject]
+                        │                   │
+                        └───┬───────────────┘
+                            │
+                      [Search keyword given?]
+                        /                  \
+                       YES                  NO
+                        │                   │
+                 [Apply full-text     [Return filtered
+                   search query]        results]
+                        │
+                  [Return search
+                     results]
 ```
 
----
+#### 10.2.3 Decision Tree — Order Status Transition (Epic 3)
 
-### 10.4 Decision Tree — Order Status Transition
-
-```
+```text
                      [Admin Action on Order]
                               │
                   [Current status = PENDING?]
@@ -2096,6 +2142,83 @@ Lanes: Marketing Manager | Customer | System
 PROCESS      ❌             Shipped)  triggered)  (status:
 (status:   "Verify                               Delivered)
 Processing)  Payment"
+```
+
+#### 10.2.4 Decision Tree — Purchase Order Lifecycle (Epic 4)
+
+```text
+                    [Purchase Order Created]
+                               │
+                       (Status: PENDING)
+                               │
+                      [Supplier Action]
+                       /             \
+                   APPROVE          REJECT
+                     │                 │
+              (Status: APPROVED)  (Status: CANCELLED)
+                     │
+             [Items Dispatched?]
+                     │
+               (Status: SHIPPED)
+                     │
+            [Inventory Manager receives]
+               /                 \
+        ALL ITEMS MATCH      DISCREPANCY
+             │                   │
+          CONFIRM             REPORT
+             │                   │
+    (Status: RECEIVED)    (Status: PARTIAL)
+```
+
+#### 10.2.5 Decision Tree — Low Stock Alert Triggering (Epic 5)
+
+```text
+                 [Inventory Level Updated]
+                             │
+                [Available Stock <= Threshold?]
+                      /                   \
+                    YES                    NO
+                     │                     │
+            [Is Alert Already             (Do
+                Active?]                Nothing)
+              /          \
+            YES           NO
+             │             │
+            (Do         ✅ Trigger
+          Nothing)      Low Stock
+                          Alert
+                             │
+                     [Send Notification
+                         to Manager]
+```
+
+#### 10.2.6 Decision Tree — Coupon Validation (Epic 6)
+
+```text
+                     [Coupon Code Entered]
+                            │
+                   [Does code exist?]
+                   /                \
+                 NO                 YES
+                 │                   │
+         ❌ "Invalid Code"   [Is coupon active?]
+                              /            \
+                            NO              YES
+                            │               │
+                   ❌ "Coupon          [Within validity dates?]
+                    Inactive"          /              \
+                                     NO               YES
+                                     │                 │
+                             ❌ "Coupon        [Min purchase met?]
+                              Expired"         /             \
+                                             NO               YES
+                                             │                 │
+                                    ❌ "Min          [Usage limits ok?]
+                                    Purchase          /           \
+                                    Not Met"        NO             YES
+                                                    │               │
+                                           ❌ "Not         ✅ APPLY
+                                           Available"      DISCOUNT
 ```
 
 ---
