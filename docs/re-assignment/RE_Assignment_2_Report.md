@@ -574,66 +574,42 @@ API --> [reviews] : Mongoose ODM
 
 ## 7. Behavioural Models
 
-### 7.1 UML Sequence Diagram — Use Case 1: Customer Registration & Login with Session Tracking
+### 7.1 UML Sequence Diagram — Use Case 1: Admin Creates a Staff Account (FR1.4)
 
 ```plantuml
 @startuml
 skinparam sequenceArrowThickness 1.5
-actor Customer
-participant "React Frontend" as FE
-participant "Express API\n/api/auth" as API
+actor "System Administrator" as Admin
+participant "React Frontend\n(Admin Panel)" as FE
+participant "Auth Middleware\n(JWT + RBAC)" as MW
+participant "Express API\n/api/auth/create-staff" as API
 participant "User Model\n(MongoDB)" as DB
-participant "Session Model\n(MongoDB)" as Session
 
-== Phase 1: Registration ==
-Customer -> FE: Navigate to Register page\nFill form (name, email, password, phone)
-FE -> FE: Client-side validation\n(required fields, email format, min length)
-FE -> API: POST /api/auth/register\n{name, email, password, phone}
+Admin -> FE: Navigate to Staff Management\nClick "Create New Staff"
+Admin -> FE: Fill staff form\n{name, email, phone, role, assignedLocation,\nnic, dateOfBirth, address}
+FE -> API: POST /api/auth/create-staff\n[Authorization: Bearer <admin_jwt>]
+API -> MW: Verify JWT token
+MW --> API: req.user = {id, role: "admin"} ✓
+API -> MW: Check role === "admin"
+MW --> API: Access granted ✓
+API -> API: Validate inputs\n(email format, phone 10 digits,\nNIC format, age ≥ 18)
 API -> DB: findOne({email}) — check uniqueness
 DB --> API: Email not found ✓
-API -> DB: bcrypt.hash(password, 10)
-API -> DB: User.create({..., isEmailVerified: true, isActive: true})
-DB --> API: User created {_id, name, email, role: "customer"}
-API -> API: generateToken(user._id) → JWT
-API --> FE: 201 Created {token, user: {id, name, email, role}}
-FE -> FE: Store JWT in localStorage\nUpdate Auth context
-FE --> Customer: ✅ Redirect to Storefront\n(logged in immediately)
+API -> DB: User.create({\n  name, email, phone, role,\n  userType: "staff",\n  assignedLocation,\n  mustChangePassword: true,\n  isEmailVerified: true,\n  isActive: true\n})
+DB --> API: Staff user created {_id, name, email, role, assignedLocation}
+API --> FE: 201 Created {\n  message: "Staff account created successfully",\n  user: {id, name, email, role, assignedLocation}\n}
+FE --> Admin: ✅ "Staff account created successfully"\nNew staff appears in Staff Management table
 
-== Phase 2: Subsequent Login ==
-Customer -> FE: Navigate to Login page\nEnter email & password
-FE -> API: POST /api/auth/login\n{email, password}
-API -> DB: findOne({email}).select("+password")
-DB --> API: User document
-API -> API: bcrypt.compare(password, user.password)
-note right of API: Password match ✓
-API -> DB: Check user.isActive
-DB --> API: isActive = true ✓
-API -> DB: Update: user.lastLogin = Date.now()
-API -> API: generateToken(user._id) → JWT
-API -> Session: Session.create({\n  user: user._id, token,\n  ipAddress, userAgent,\n  device: "Chrome on Windows"\n})
-Session --> API: Session saved
-API --> FE: 200 OK {token, user: {\n  id, name, email, role,\n  assignedLocation,\n  mustChangePassword: false\n}}
-FE -> FE: Store JWT, update Auth context
-FE --> Customer: ✅ Redirect to Dashboard\n(role-specific view)
-
-== Phase 3: Session Management ==
-Customer -> FE: Open Profile → Active Sessions
-FE -> API: GET /api/auth/sessions\n[Authorization: Bearer <token>]
-API -> Session: find({user: req.user.id}).sort({loginTime: -1})
-Session --> API: Sessions list [{device, ip, loginTime, status}]
-API --> FE: 200 OK {sessions[]}
-FE --> Customer: Display session list\n("Chrome on Windows", "Firefox on Android", ...)
-Customer -> FE: Click "Revoke" on suspicious session
-FE -> API: PUT /api/auth/sessions/:id/revoke
-API -> Session: session.status = "revoked"; save()
-Session --> API: Updated
-API --> FE: 200 OK {message: "Session revoked"}
-FE --> Customer: ✅ Session removed from list
+note over Admin, DB
+  Staff member receives credentials separately.
+  On first login, mustChangePassword = true
+  forces an immediate password change.
+end note
 
 @enduml
 ```
 
-**Commentary:** This diagram covers the complete implemented authentication lifecycle across three phases. Phase 1 shows immediate registration with account activation and JWT issuance (no email verification step, as `isEmailVerified` is set to `true` on creation). Phase 2 shows subsequent logins including the bcrypt comparison, `isActive` guard, and Session document creation with UA-Parser device detection. Phase 3 shows the session management feature (FR1.13) where users can view and remotely revoke active sessions.
+**Commentary:** This diagram illustrates FR1.4 — the admin's ability to create role-specific staff accounts. The flow demonstrates two key security layers: the JWT middleware validates the admin's token, and the RBAC check ensures only `admin`-role users can reach this endpoint. Server-side validation checks email format, phone (10 digits), NIC format, and age (≥ 18 years). The `mustChangePassword: true` flag ensures the staff member sets their own password on first login (FR1.8).
 
 ---
 
