@@ -110,130 +110,139 @@ Requirements were documented using:
 
 ### FR1: User & Admin Management
 
-| ID | Requirement | Priority | Stakeholder |
-|----|-------------|----------|-------------|
-| FR1.1 | The system shall allow customers to self-register with email verification | High | Students, Parents, Teachers |
-| FR1.2 | The system shall provide secure login with JWT session management | High | All Users |
-| FR1.3 | The system shall allow customers to manage their profiles (name, address, phone) | High | Students, Parents, Teachers |
-| FR1.4 | The system shall allow System Administrators to create staff accounts with assigned roles | High | System Administrator |
-| FR1.5 | The system shall allow System Administrators to assign staff to specific locations | High | System Administrator |
-| FR1.6 | The system shall enforce Role-Based Access Control (RBAC) | High | System Administrator |
-| FR1.7 | The system shall provide password reset functionality via email | Medium | All Users |
-| FR1.8 | The system shall force staff to change password on first login | Medium | Staff Members |
-| FR1.9 | The system shall allow System Administrators to view and search all customer accounts | Medium | System Administrator |
-| FR1.10 | The system shall allow System Administrators to deactivate accounts | Medium | System Administrator |
-| FR1.11 | The system shall maintain login history and security audit logs | Low | System Administrator |
-| FR1.12 | The system shall allow customers to manage multiple delivery addresses | Medium | Students, Parents, Teachers |
+| ID | Requirement | Priority | Stakeholder | Implementation Note |
+|----|-------------|----------|-------------|---------------------|
+| FR1.1 | The system shall allow customers to self-register with name, email, password, and phone. The account shall be immediately activated and a JWT issued for direct login. | High | Students, Parents, Teachers | **[UPDATED]** — Email verification removed; `isEmailVerified` defaults to `true`. Email verification is a Phase 2 feature. |
+| FR1.2 | The system shall provide secure login with JWT session management. Deactivated accounts shall be blocked from login. | High | All Users | Implemented ✓ |
+| FR1.3 | The system shall allow customers to manage their profiles (name, delivery addresses, phone). | High | Students, Parents, Teachers | Implemented ✓ |
+| FR1.4 | The system shall allow System Administrators to create staff accounts with assigned roles (admin, product_manager, finance_manager, supplier_manager, master_inventory_manager, location_inventory_manager, marketing_manager). | High | System Administrator | Implemented ✓ |
+| FR1.5 | The system shall allow System Administrators to assign staff members to specific branch locations. | High | System Administrator | Implemented ✓ |
+| FR1.6 | The system shall enforce Role-Based Access Control (RBAC) — all API endpoints protected by JWT middleware that validates role and permissions. | High | System Administrator | Implemented ✓ |
+| FR1.7 | The system shall provide a password reset mechanism: the user submits their email, a 6-digit SHA-256 hashed token with 1-hour expiry is generated, and the user submits the token with a new password to complete the reset. | Medium | All Users | **[UPDATED]** — Token returned in API response (not emailed). Email-based delivery is a Phase 2 feature. |
+| FR1.8 | The system shall force staff to change their password on first login. The `mustChangePassword` flag is set to `true` on account creation and cleared after the first password change. | Medium | Staff Members | Implemented ✓ |
+| FR1.9 | The system shall allow System Administrators to view, search, and filter all user accounts (customers and staff). | Medium | System Administrator | Implemented ✓ |
+| FR1.10 | The system shall allow System Administrators to deactivate user accounts. Administrators cannot deactivate their own account. | Medium | System Administrator | Implemented ✓ |
+| FR1.11 | The system shall maintain security audit logs: login history and session records (IP address, device, browser, login timestamp). | Low | System Administrator | Implemented ✓ — `Session` collection with UA-Parser device detection. |
+| FR1.12 | The system shall allow customers to manage multiple saved delivery addresses. | Medium | Students, Parents, Teachers | Implemented ✓ |
+| FR1.13 | The system shall allow authenticated users to view active sessions (device, browser, IP) and revoke individual sessions remotely. | Medium | All Users | **[NEW]** — Identified and implemented during development. |
+
+> **Assumption on Email Services:** Email-based verification and password reset token delivery via email are deferred to Phase 2 due to SMTP infrastructure constraints. All other security properties (bcrypt hashing, JWT, RBAC, session tracking) are fully implemented in Phase 1.
 
 ### FR2: Product Catalogue Management
 
-| ID | Requirement | Priority | Stakeholder |
-|----|-------------|----------|-------------|
-| FR2.1 | The system shall allow Product Managers to create and update products (name, description, price, SKU, images) | High | Product Manager |
-| FR2.2 | The system shall allow Product Managers to upload multiple images per product | High | Product Manager |
-| FR2.3 | The system shall allow Product Managers to manage categories (Grade, Subject, Exam type) | High | Product Manager |
-| FR2.4 | The system shall allow customers to search for products by name, author, or ISBN | High | Students, Parents, Teachers |
-| FR2.5 | The system shall allow customers to filter products by Grade, Subject, and Price range | High | Students, Parents, Teachers |
-| FR2.6 | The system shall display detailed product information including images, descriptions, and pricing | High | Students, Parents, Teachers |
-| FR2.7 | The system shall allow customers to sort products by price, popularity, and newest arrivals | Medium | Students, Parents, Teachers |
-| FR2.8 | The system shall allow customers to submit reviews and ratings (1–5 stars) | Medium | Students, Parents, Teachers |
-| FR2.9 | The system shall allow Product Managers to moderate and remove inappropriate reviews | Low | Product Manager |
-| FR2.10 | The system shall display related products based on category | Low | Students, Parents, Teachers |
+| ID | Requirement | Priority | Stakeholder | Implementation Note |
+|----|-------------|----------|-------------|---------------------|
+| FR2.1 | The system shall allow Product Managers to create and update products (title in English & Sinhala, author, ISBN, description, price, grade, subject, exam type, featured/flash-sale flags). | High | Product Manager | Implemented ✓ |
+| FR2.2 | The system shall allow Product Managers to upload a main product image and a back-cover image per product. | High | Product Manager | Implemented ✓ |
+| FR2.3 | The system shall allow Product Managers to categorise products by Grade (6–13, Other), Subject, and Exam Type (O/L, A/L, Scholarship, General). | High | Product Manager | Implemented ✓ |
+| FR2.4 | The system shall allow customers to search for products by title, author, or ISBN. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR2.5 | The system shall allow customers to filter products by Grade, Subject, Exam Type, and Price range. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR2.6 | The system shall display detailed product information including images, description, price, stock status, average rating, and total review count. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR2.7 | The system shall allow customers to sort products by price (asc/desc), popularity, and newest arrivals. | Medium | Students, Parents, Teachers | Implemented ✓ |
+| FR2.8 | The system shall allow customers to submit one review per product (1–5 stars, title, comment). Reviews are moderated before display. | Medium | Students, Parents, Teachers | Implemented ✓ |
+| FR2.9 | The system shall allow Product Managers to approve, reject, and remove product reviews. | Low | Product Manager | Implemented ✓ |
+| FR2.10 | The system shall display related products based on the same grade and subject category. | Low | Students, Parents, Teachers | Implemented ✓ |
 
 ### FR3: Order & Transaction Management
 
-| ID | Requirement | Priority | Stakeholder |
-|----|-------------|----------|-------------|
-| FR3.1 | The system shall allow customers to add items to a shopping cart | High | Students, Parents, Teachers |
-| FR3.2 | The system shall allow customers to view and update cart contents | High | Students, Parents, Teachers |
-| FR3.3 | The system shall support Cash on Delivery (COD) payment method | High | Students, Parents, Teachers |
-| FR3.4 | The system shall allow customers to upload bank transfer slips as payment proof | High | Students, Parents, Teachers |
-| FR3.5 | The system shall support guest checkout without account creation | Medium | Students, Parents, Teachers |
-| FR3.6 | The system shall allow customers to view their order history | Medium | Students, Parents, Teachers |
-| FR3.7 | The system shall allow customers to track order status (Pending → Processing → Shipped → Delivered) | High | Students, Parents, Teachers |
-| FR3.8 | The system shall allow administrators to update order status | High | System Administrator |
-| FR3.9 | The system shall provide a financial dashboard showing revenue and transaction data | Medium | Finance Manager |
-| FR3.10 | The system shall generate invoices for completed orders | Medium | Finance Manager |
-| FR3.11 | The system shall allow Finance Managers to process customer refunds | Low | Finance Manager |
-| FR3.12 | The system shall automatically apply valid coupon discounts at checkout | High | Students, Parents, Teachers |
+| ID | Requirement | Priority | Stakeholder | Implementation Note |
+|----|-------------|----------|-------------|---------------------|
+| FR3.1 | The system shall allow customers (registered or guest) to add products to a shopping cart. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR3.2 | The system shall allow customers to view, update quantities, and remove items from the cart. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR3.3 | The system shall support Cash on Delivery (COD) as a payment method. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR3.4 | The system shall allow customers to upload a bank transfer slip image as payment proof. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR3.5 | The system shall support guest checkout (guest name and email required; no account needed). | Medium | Students, Parents, Teachers | Implemented ✓ |
+| FR3.6 | The system shall allow registered customers to view their full order history with status and payment details. | Medium | Students, Parents, Teachers | Implemented ✓ |
+| FR3.7 | The system shall allow customers to track order status: Pending → Processing → Shipped → Delivered. | High | Students, Parents, Teachers | Implemented ✓ |
+| FR3.8 | The system shall allow administrators to update order status and payment status. | High | System Administrator | Implemented ✓ |
+| FR3.9 | The system shall provide a financial dashboard showing real-time revenue, transaction summaries, and sales analytics. | Medium | Finance Manager | Implemented ✓ |
+| FR3.10 | The system shall generate invoices for completed orders. | Medium | Finance Manager | Implemented ✓ |
+| FR3.11 | The system shall allow Finance Managers to process and record customer refunds. | Low | Finance Manager | Implemented ✓ |
+| FR3.12 | The system shall validate and apply coupon or gift voucher discounts at checkout before order confirmation. | High | Students, Parents, Teachers | Implemented ✓ |
 
 ### FR4: Supplier Management
 
-| ID | Requirement | Priority | Stakeholder |
-|----|-------------|----------|-------------|
-| FR4.1 | The system shall allow Supplier Managers to create and update supplier profiles | High | Supplier Manager |
-| FR4.2 | The system shall allow Supplier Managers to create Purchase Orders (POs) | High | Supplier Manager |
-| FR4.3 | The system shall allow Supplier Managers to track PO status (Draft → Sent → Confirmed → Received → Cancelled) | High | Supplier Manager |
-| FR4.4 | The system shall allow Supplier Managers to email POs to suppliers | Medium | Supplier Manager |
-| FR4.5 | The system shall allow Supplier Managers to link products to suppliers with pricing | Medium | Supplier Manager |
-| FR4.6 | The system shall allow Supplier Managers to verify deliveries against POs | High | Supplier Manager |
+| ID | Requirement | Priority | Stakeholder | Implementation Note |
+|----|-------------|----------|-------------|---------------------|
+| FR4.1 | The system shall allow Supplier Managers to create and update supplier profiles (name, contact person, email, phone, category, address, payment terms, credit limit, bank details). | High | Supplier Manager | Implemented ✓ |
+| FR4.2 | The system shall allow Supplier Managers to create Purchase Orders (POs) with product line items, quantities, unit prices, delivery date, and target branch location. | High | Supplier Manager | Implemented ✓ |
+| FR4.3 | The system shall allow Supplier Managers to track PO status: Draft → Sent → Confirmed → Received → Cancelled. | High | Supplier Manager | Implemented ✓ |
+| FR4.4 | The system shall allow Supplier Managers to mark POs as Sent. *(Automated email dispatch of PO documents to suppliers is a Phase 2 feature.)* | Medium | Supplier Manager | **[UPDATED]** — PO status updated to "Sent" on dispatch; automated email delivery deferred to Phase 2. |
+| FR4.5 | The system shall allow Supplier Managers to link products to specific suppliers with pricing information. | Medium | Supplier Manager | Implemented ✓ |
+| FR4.6 | The system shall allow Inventory Managers to confirm receipt of PO deliveries, supporting full and partial receipts and damage recording. | High | Supplier Manager, Inventory Manager | Implemented ✓ |
 
 ### FR5: Inventory Management
 
-| ID | Requirement | Priority | Stakeholder |
-|----|-------------|----------|-------------|
-| FR5.1 | The system shall allow Location-Specific Managers to view real-time stock levels for their location | High | Location Inventory Manager |
-| FR5.2 | The system shall allow Master Inventory Manager to view stock across ALL locations | High | Master Inventory Manager |
-| FR5.3 | The system shall allow Location Managers to manually adjust stock (damage, loss, found) | High | Location Inventory Manager |
-| FR5.4 | The system shall allow Location Managers to request stock transfers from other branches | Medium | Location Inventory Manager |
-| FR5.5 | The system shall allow Location Managers to approve incoming transfer requests | Medium | Location Inventory Manager |
-| FR5.6 | The system shall allow Location Managers to receive stock from Purchase Orders | High | Location Inventory Manager |
-| FR5.7 | The system shall automatically deduct stock when an order is placed | High | System |
-| FR5.8 | The system shall send low-stock alerts when stock falls below defined thresholds | Medium | Location Inventory Manager |
-| FR5.9 | The system shall allow Managers to generate stock movement reports | Low | Location Inventory Manager |
+| ID | Requirement | Priority | Stakeholder | Implementation Note |
+|----|-------------|----------|-------------|---------------------|
+| FR5.1 | The system shall allow Location-Specific Inventory Managers to view real-time stock levels (quantity, reserved, available) for their assigned location only. | High | Location Inventory Manager | Implemented ✓ |
+| FR5.2 | The system shall allow the Master Inventory Manager to view aggregated stock levels across ALL branch locations. | High | Master Inventory Manager | Implemented ✓ |
+| FR5.3 | The system shall allow Location Managers to manually adjust stock with a reason code (damage, loss, found stock, correction). All adjustments logged with timestamp and user. | High | Location Inventory Manager | Implemented ✓ |
+| FR5.4 | The system shall allow Location Managers to submit inter-branch stock transfer requests (product, quantity, source branch, reason). | Medium | Location Inventory Manager | Implemented ✓ |
+| FR5.5 | The system shall allow Location Managers to approve or reject incoming stock transfer requests. Approved transfers atomically update both branch inventories. | Medium | Location Inventory Manager | Implemented ✓ |
+| FR5.6 | The system shall allow Location Managers to confirm receipt of PO stock, updating inventory levels at the delivery branch. | High | Location Inventory Manager | Implemented ✓ |
+| FR5.7 | The system shall automatically and atomically deduct ordered quantities from the fulfilment location's inventory when an order is confirmed. | High | System | Implemented ✓ |
+| FR5.8 | The system shall flag products as low-stock when available quantity falls below the defined threshold (default: 10 units) and display alerts to managers. | Medium | Location Inventory Manager | Implemented ✓ |
+| FR5.9 | The system shall allow Inventory Managers to generate stock movement and adjustment history reports for their location. | Low | Location Inventory Manager | Implemented ✓ |
 
 ### FR6: Promotion & Loyalty Management
 
-| ID | Requirement | Priority | Stakeholder |
-|----|-------------|----------|-------------|
-| FR6.1 | The system shall allow Marketing Managers to create discount coupons with configurable rules | High | Marketing Manager |
-| FR6.2 | The system shall allow Marketing Managers to set coupon validity dates | Medium | Marketing Manager |
-| FR6.3 | The system shall allow Marketing Managers to track coupon usage and redemption rates | Medium | Marketing Manager |
-| FR6.4 | The system shall allow Marketing Managers to create and sell gift vouchers | Low | Marketing Manager |
-| FR6.5 | The system shall allow Marketing Managers to create seasonal campaigns | Low | Marketing Manager |
-| FR6.6 | The system shall validate coupons at checkout (date, minimum spend, usage limits) | High | System |
+| ID | Requirement | Priority | Stakeholder | Implementation Note |
+|----|-------------|----------|-------------|---------------------|
+| FR6.1 | The system shall allow Marketing Managers to create discount coupons with configurable rules: discount type (percentage/fixed), discount value, maximum cap, minimum purchase amount, grade and product restrictions. | High | Marketing Manager | Implemented ✓ |
+| FR6.2 | The system shall allow Marketing Managers to set coupon validity date ranges (validFrom, validUntil). | Medium | Marketing Manager | Implemented ✓ |
+| FR6.3 | The system shall allow Marketing Managers to track coupon usage analytics (total uses, per-user usage, usage history with order references). | Medium | Marketing Manager | Implemented ✓ |
+| FR6.4 | The system shall allow Marketing Managers to create and issue gift vouchers with a fixed monetary value, recipient details, and expiry date. Vouchers support partial redemption across multiple orders. | Low | Marketing Manager | Implemented ✓ |
+| FR6.5 | The system shall allow Marketing Managers to create seasonal promotional campaigns linked to products or categories. | Low | Marketing Manager | Implemented ✓ |
+| FR6.6 | The system shall validate coupons at checkout through five sequential checks: code existence, active status, validity dates, minimum purchase amount, and usage limits (total and per-user). | High | System | Implemented ✓ |
 
 ---
 
 ## 4. Refined Non-Functional Requirements (NFR)
 
-| ID | Category | Requirement | Priority | Measurement Criteria |
-|----|----------|-------------|----------|---------------------|
-| NFR1.1 | Performance | Search results returned within 500 ms | High | Response time < 500 ms for 95% of queries |
-| NFR1.2 | Performance | System supports ≥ 500 concurrent users | High | Load testing validates under concurrent load |
-| NFR1.3 | Performance | Checkout transactions complete within 3 seconds | High | Transaction time < 3 s |
-| NFR2.1 | Security | Passwords hashed using bcrypt | High | 100% of passwords stored as hashes |
-| NFR2.2 | Security | HTTPS enforced on all communications | High | All endpoints use SSL/TLS |
-| NFR2.3 | Security | Session timeout after 30 minutes inactivity | Medium | Sessions expire at 30 min idle |
-| NFR2.4 | Security | Account locked after 5 failed login attempts | Medium | Lockout triggers at 5 failures |
-| NFR2.5 | Security | Audit logs for all critical operations | High | 100% of critical ops logged |
-| NFR3.1 | Usability | Responsive design on desktop, tablet, mobile | High | UI adapts to 320 px–1920 px |
-| NFR3.2 | Usability | Interface available in English and Sinhala | Medium | Language toggle functional |
-| NFR3.3 | Usability | New user can complete a purchase in under 5 minutes | Medium | 80% success rate in user testing |
-| NFR4.1 | Reliability | 99.5% uptime during business hours (6 AM–10 PM) | High | Monthly uptime ≥ 99.5% |
-| NFR4.2 | Reliability | Automated daily backups | High | Backup logs show 100% success |
-| NFR4.3 | Reliability | Recovery from failure within 1 hour | Medium | MTTR < 1 hour |
-| NFR5.1 | Scalability | New branch locations added without code change | Medium | Configurable via admin panel |
-| NFR6.1 | Maintainability | Industry-standard coding conventions | High | Code review ≥ 90% compliance |
-| NFR6.2 | Maintainability | Comprehensive API documentation | High | All endpoints documented |
-| NFR7.1 | Compliance | Sri Lankan data protection regulations met | High | Legal review confirms compliance |
-| NFR7.2 | Compliance | Financial records retained for 7 years | High | Retention policy enforced |
+> NFRs are refined based on the implemented MERN stack and deployment environment. Status reflects Phase 1 completion.
+
+| ID | Category | Requirement | Priority | Measurement Criteria | Status |
+|----|----------|-------------|----------|---------------------|--------|
+| NFR1.1 | Performance | Product search results returned within 500 ms | High | Response time < 500 ms for 95% of search queries | Planned ✓ |
+| NFR1.2 | Performance | System supports ≥ 500 concurrent users | High | Load testing validates response time under 500 concurrent connections | Planned ✓ |
+| NFR1.3 | Performance | Checkout transactions complete within 3 seconds | High | End-to-end time < 3 s including stock deduction and confirmation | Implemented ✓ |
+| NFR1.4 | Performance | Product images load within 2 seconds | Medium | Images from `/uploads/` delivered < 2 s for 90% of requests | Implemented ✓ |
+| NFR2.1 | Security | All passwords hashed using bcrypt before storage | High | 100% of passwords stored as bcrypt hashes (rounds ≥ 10) | Implemented ✓ |
+| NFR2.2 | Security | HTTPS enforced on all API communications in production | High | All endpoints use SSL/TLS in production deployment | Planned ✓ |
+| NFR2.3 | Security | JWT tokens expire after defined period; sessions are trackable and revocable per device | High | JWT expiry configured; `Session` collection enables per-device revocation | Implemented ✓ |
+| NFR2.4 | Security | Deactivated accounts blocked from login regardless of password correctness | High | `isActive` check in `authController.js` performed after password validation | Implemented ✓ |
+| NFR2.5 | Security | All critical operations logged with user reference and timestamp | High | Audit trail in `Session`, `Inventory.adjustments`, PO `statusHistory` | Implemented ✓ |
+| NFR2.6 | Security | Uploaded bank slips stored server-side with access restricted to authorised staff | High | Files in `/uploads/`; RBAC middleware controls access | Implemented ✓ |
+| NFR3.1 | Usability | UI fully responsive on desktop, tablet, and mobile | High | React frontend adapts to screen widths 320 px–1920 px | Implemented ✓ |
+| NFR3.2 | Usability | All validation failures return clear, actionable error messages | High | All 4xx API responses include descriptive `message` field | Implemented ✓ |
+| NFR3.3 | Usability | New customers can complete first purchase within 5 minutes | Medium | 80% success rate in user testing without prior training | Planned ✓ |
+| NFR4.1 | Reliability | 99.5% uptime during business hours (6 AM–10 PM Sri Lanka time) | High | Monthly uptime ≥ 99.5% via cloud monitoring | Planned ✓ |
+| NFR4.2 | Reliability | Automated daily database backups | High | MongoDB Atlas automated backups show 100% success in logs | Planned ✓ |
+| NFR4.3 | Reliability | System recovers from failures within 1 hour | Medium | MTTR < 1 hour | Planned ✓ |
+| NFR5.1 | Scalability | New branch locations addable via admin panel without code changes | Medium | `Location` documents configurable at runtime through admin UI | Implemented ✓ |
+| NFR5.2 | Scalability | API layer supports horizontal scaling | Medium | Stateless JWT authentication enables load-balancer readiness | Designed ✓ |
+| NFR6.1 | Maintainability | Code follows industry conventions with inline documentation | High | All controllers include Epic/Feature comment headers; code review ≥ 90% | Implemented ✓ |
+| NFR6.2 | Maintainability | All API endpoints fully documented with request/response examples | High | Each Epic's `README.md` contains full endpoint reference table | Implemented ✓ |
+| NFR6.3 | Maintainability | Modular Epic-based architecture with clear component boundaries | High | 6 Epics with independent routes, controllers, and models | Implemented ✓ |
+| NFR7.1 | Compliance | System complies with Sri Lankan data protection regulations | High | Legal review confirms compliance; privacy policy documented | Planned ✓ |
+| NFR7.2 | Compliance | Financial records retained for audit purposes (minimum 7 years) | High | MongoDB data retention policy; no automated deletion | Planned ✓ |
 
 ---
 
 ## 5. Constraints
 
-| ID | Constraint | Type | Impact |
-|----|------------|------|--------|
-| C1 | Web-based only; compatible with Chrome, Firefox, Safari, Edge | Technical | Limits technology choices |
-| C2 | Must integrate with existing email infrastructure (SMTP) | Technical | Requires email server config |
-| C3 | Payment limited to COD and Bank Transfer (no credit card Phase 1) | Business | Affects customer convenience |
-| C4 | Deployable on cloud infrastructure (AWS/Azure/GCP) | Technical | Cloud-compatible architecture required |
-| C5 | Developed in 16-week timeframe (4 sprints × 4 weeks) | Business | Requires prioritisation and scope management |
-| C6 | Supports three initial locations: Main, Balangoda, Kottawa | Business | Defines initial data model |
-| C7 | Existing product categorisation (Grade/Subject/Exam) maintained | Business | Constrains catalogue structure |
-| C8 | Comply with Sri Lankan tax regulations for e-commerce | Regulatory | Requires tax calculation features |
-| C9 | Customer data privacy per local regulations | Regulatory | Data protection measures required |
+| ID | Constraint | Type | Rationale / Impact |
+|----|------------|------|---------------------|
+| C1 | Web-based only; compatible with Chrome, Firefox, Safari, Edge (latest 2 versions) | Technical | Ensures broad accessibility without native app development; limits to browser-compatible technologies |
+| C2 | Payment limited to COD and Bank Transfer in Phase 1 — no credit/debit card integration | Business | Reduces integration complexity; COD is prevalent in the Sri Lankan market |
+| C3 | Email delivery (SMTP) for verification emails and password reset tokens deferred to Phase 2 | Technical | Registration and password reset function without email; reset token returned in API response during development |
+| C4 | Deployable on cloud infrastructure (AWS, Azure, or GCP) | Technical | Enables scalability and high availability; requires cloud-compatible and containerised architecture |
+| C5 | Fully implemented within 16 weeks (4 sprints × 4 weeks each) | Business | Requires MoSCoW prioritisation; non-critical features deferred to Phase 2 |
+| C6 | Three initial branch locations: Main Branch, Balangoda Branch, Kottawa Branch | Business | Defines minimum `Location` and `Inventory` data model; additional branches must be runtime-configurable |
+| C7 | Product catalogue structure must maintain Grade / Subject / Exam Type categorisation | Business | Ensures continuity with existing physical catalogue and customer expectations |
+| C8 | Must comply with Sri Lankan e-commerce tax regulations | Regulatory | Requires tax calculation and reporting in financial dashboard and invoices |
+| C9 | Customer personal data must comply with Sri Lankan data privacy regulations | Regulatory | Constrains data storage, retention, and deletion policies; requires published privacy policy |
 
 ---
 
