@@ -22,6 +22,7 @@ exports.createSalesOrder = async (req, res) => {
       expectedDeliveryDate,
       deliveryAddress,
       notes,
+      receiptImage,
     } = req.body;
 
     // Verify customer exists and is of type 'Customer'
@@ -99,6 +100,7 @@ exports.createSalesOrder = async (req, res) => {
       expectedDeliveryDate,
       deliveryAddress,
       notes,
+      receiptImage: receiptImage || null,
       location: warehouseLocation || "Main Warehouse",
       createdBy: req.user._id,
       statusHistory: [

@@ -14,6 +14,9 @@ import {
   Save,
   AlertCircle,
   ShoppingBag,
+  ImageIcon,
+  Upload,
+  X,
 } from "lucide-react";
 import DashboardHeader from "../../../../components/dashboard/DashboardHeader";
 import StatusModal from "../../../../components/common/StatusModal";
@@ -41,6 +44,10 @@ const CreateSalesOrder = () => {
   });
 
   const [formErrors, setFormErrors] = useState({});
+  // Receipt image state
+  const [receiptFile, setReceiptFile] = useState(null);   // File object
+  const [receiptPreview, setReceiptPreview] = useState(null); // local object URL
+  const [receiptUploaded, setReceiptUploaded] = useState(null); // server URL after upload
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
     type: "success",
@@ -94,6 +101,26 @@ const CreateSalesOrder = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ─── Receipt image helpers ────────────────────────────────────────────────
+  const handleReceiptPick = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file.");
+      return;
+    }
+    setReceiptFile(file);
+    setReceiptPreview(URL.createObjectURL(file));
+    setReceiptUploaded(null); // reset any previously uploaded URL
+  };
+
+  const removeReceipt = () => {
+    if (receiptPreview) URL.revokeObjectURL(receiptPreview);
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    setReceiptUploaded(null);
   };
 
   // ─── Item helpers ─────────────────────────────────────────────────────────
@@ -199,6 +226,22 @@ const CreateSalesOrder = () => {
     setIsSubmitting(true);
 
     try {
+      // Upload receipt image first if one was selected
+      let receiptImageUrl = receiptUploaded || null;
+      if (receiptFile && !receiptUploaded) {
+        const token = localStorage.getItem("token");
+        const fd = new FormData();
+        fd.append("image", receiptFile);
+        const uploadRes = await axios.post("/api/upload", fd, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        receiptImageUrl = uploadRes.data.url || null;
+        setReceiptUploaded(receiptImageUrl);
+      }
+
       await supplierService.createSalesOrder({
         customer: formData.customer,
         items: formData.items,
@@ -206,6 +249,7 @@ const CreateSalesOrder = () => {
         expectedDeliveryDate: formData.expectedDeliveryDate || undefined,
         deliveryAddress: formData.deliveryAddress,
         notes: formData.notes,
+        receiptImage: receiptImageUrl,
       });
 
       setStatusModal({
@@ -556,7 +600,7 @@ const CreateSalesOrder = () => {
             </button>
           </div>
 
-          {/* ── Notes + Total ── */}
+          {/* ── Notes + Receipt Image + Total ── */}
           <div className="form-summary-card">
             <div className="form-summary-notes">
               <label className="stat-label">
@@ -578,6 +622,93 @@ const CreateSalesOrder = () => {
                 Rs. {calculateTotal().toLocaleString()}
               </span>
             </div>
+          </div>
+
+          {/* ── Receipt Image Upload ── */}
+          <div className="form-section" style={{ marginBottom: "1rem" }}>
+            <h3 style={{ marginBottom: "0.75rem", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <ImageIcon size={16} /> Receipt Image <span style={{ color: "var(--text-light)", fontWeight: 400, fontSize: "0.8rem" }}>(Optional)</span>
+            </h3>
+
+            {!receiptPreview ? (
+              /* Drop-zone / picker */
+              <label
+                htmlFor="receipt-upload"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  padding: "2rem",
+                  border: "2px dashed var(--border-color)",
+                  borderRadius: "var(--radius-md)",
+                  cursor: "pointer",
+                  color: "var(--text-light)",
+                  fontSize: "0.875rem",
+                  transition: "border-color 0.2s, background 0.2s",
+                  background: "var(--bg-color)",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--primary-color)"; e.currentTarget.style.background = "var(--primary-light, #f5f3ff)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-color)"; e.currentTarget.style.background = "var(--bg-color)"; }}
+              >
+                <Upload size={28} style={{ opacity: 0.5 }} />
+                <span>Click to attach a receipt or document image</span>
+                <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>PNG, JPG, WEBP — max 10 MB</span>
+                <input
+                  id="receipt-upload"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleReceiptPick}
+                />
+              </label>
+            ) : (
+              /* Preview card */
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "1rem",
+                  padding: "1rem",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--card-bg)",
+                }}
+              >
+                <img
+                  src={receiptPreview}
+                  alt="Receipt preview"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--border-color)",
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, fontWeight: 600, fontSize: "0.9rem", wordBreak: "break-all" }}>
+                    {receiptFile?.name}
+                  </p>
+                  <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                    {receiptFile ? (receiptFile.size / 1024).toFixed(1) + " KB" : ""}
+                  </p>
+                  <p style={{ margin: "0.5rem 0 0", fontSize: "0.78rem", color: "#16a34a", display: "flex", alignItems: "center", gap: "4px" }}>
+                    ✓ Ready to upload with order
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeReceipt}
+                  className="btn-icon"
+                  title="Remove image"
+                  style={{ padding: "4px" }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            )}
           </div>
 
           <div

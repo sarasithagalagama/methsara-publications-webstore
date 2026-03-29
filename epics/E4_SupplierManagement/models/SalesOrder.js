@@ -116,6 +116,11 @@ const salesOrderSchema = new mongoose.Schema(
     notes: {
       type: String,
     },
+    // Optional receipt / document image attached at order creation
+    receiptImage: {
+      type: String,
+      default: null,
+    },
     // Audit trail of status changes
     statusHistory: [
       {

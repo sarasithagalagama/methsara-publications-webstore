@@ -597,6 +597,39 @@ const SalesOrderList = () => {
               </div>
             )}
 
+            {/* Receipt Image */}
+            {selectedSO.receiptImage && (
+              <div style={{ marginTop: "1.25rem" }}>
+                <h4 style={{ marginBottom: "0.6rem", fontSize: "0.9rem", fontWeight: 600 }}>
+                  Receipt Image
+                </h4>
+                <a
+                  href={selectedSO.receiptImage}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Click to view full size"
+                  style={{ display: "inline-block" }}
+                >
+                  <img
+                    src={selectedSO.receiptImage}
+                    alt="Receipt"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "300px",
+                      objectFit: "contain",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--border-color)",
+                      cursor: "zoom-in",
+                      display: "block",
+                    }}
+                  />
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "4px", display: "block" }}>
+                    Click to open full size ↗
+                  </span>
+                </a>
+              </div>
+            )}
+
             <div
               style={{
                 display: "flex",

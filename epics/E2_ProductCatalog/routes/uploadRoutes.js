@@ -56,7 +56,7 @@ const upload = multer({
 router.post(
   "/",
   protect,
-  authorize("product_manager", "admin", "marketing_manager"),
+  authorize("product_manager", "admin", "marketing_manager", "supplier_manager"),
   (req, res) => {
     upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
